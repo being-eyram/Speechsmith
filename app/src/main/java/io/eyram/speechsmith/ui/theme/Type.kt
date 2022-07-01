@@ -1,6 +1,8 @@
 package io.eyram.speechsmith.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -17,14 +19,15 @@ val jostFontFamily = FontFamily(
 val abrilFatFaceFontFamily = FontFamily(
     Font(resId = R.font.abril_fatface, weight = FontWeight.Normal)
 )
+@OptIn(ExperimentalTextApi::class)
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    ),
+//    bodyLarge = TextStyle(
+//        fontFamily = FontFamily.Default,
+//        fontWeight = FontWeight.Normal,
+//        fontSize = 16.sp,
+//        lineHeight = 24.sp,
+//        letterSpacing = 0.5.sp
+//    ),
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -41,24 +44,32 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
-    bodySmall = TextStyle(
+    bodyLarge = TextStyle(
         fontFamily = jostFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.4.sp
+        fontSize = 16.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.15.sp
     ),
-    titleSmall = TextStyle(
+    titleMedium = TextStyle(
         fontFamily = jostFontFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 16.sp,
-        letterSpacing = 0.15.sp
+        fontSize = 20.sp,
+        letterSpacing = 0.4.sp,
+        lineHeight = 20.sp
     ),
     displaySmall = TextStyle(
         fontFamily = abrilFatFaceFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 36.sp,
         lineHeight = 44.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = jostFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 1.25.sp
     )
 
 )
