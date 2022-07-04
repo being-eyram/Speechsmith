@@ -48,7 +48,7 @@ val Typography = Typography(
         fontFamily = jostFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        lineHeight = 20.sp,
+        lineHeight = 24.sp,
         letterSpacing = 0.15.sp
     ),
     titleMedium = TextStyle(

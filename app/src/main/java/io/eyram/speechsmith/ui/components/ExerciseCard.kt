@@ -92,7 +92,7 @@ fun ExerciseCard(
     }
 }
 
-@Preview(device = Devices.PIXEL_2_XL)
+@Preview(widthDp = 360, heightDp = 640, showSystemUi = true, )
 @Composable
 fun ExerciseCardPreview() {
     SpeechsmithTheme {
@@ -101,12 +101,12 @@ fun ExerciseCardPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(){
+            Column(Modifier.fillMaxSize()){
                 map.forEach {
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ExerciseCard(
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp),
                         color = Color(0xFF263238),
                         onStartButtonClick = {},
                         exerciseType = it.key,
