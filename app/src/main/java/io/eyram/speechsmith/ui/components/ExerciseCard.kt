@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.eyram.speechsmith.R
@@ -102,7 +101,7 @@ fun ExerciseCardPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             Column(Modifier.fillMaxSize()){
-                map.forEach {
+                exerciseMap.forEach {
                     Spacer(modifier = Modifier.height(20.dp))
 
                     ExerciseCard(
@@ -121,7 +120,7 @@ fun ExerciseCardPreview() {
 }
 
 
-val map = mapOf(
+val exerciseMap = mapOf(
     "Naming Exercise" to R.drawable.ic_naming_illus,
     "Listening Exercise" to R.drawable.ic_listening_illus
 )

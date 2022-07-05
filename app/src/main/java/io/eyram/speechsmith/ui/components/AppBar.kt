@@ -24,7 +24,8 @@ fun SpeechsmithAppBar() {
     Box(
         modifier = Modifier
             .background(color = Color(0xFF1E1E1E))
-            .size(360.dp, 256.dp)
+            .fillMaxWidth()
+            .height(272.dp)
             .padding(start = 16.dp),
 
         ) {
@@ -71,7 +72,6 @@ fun SpeechsmithAppBar() {
                         .height(28.dp)
                         .weight(1f),
                     onClick = {},
-                    shape = RoundedCornerShape(50),
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.White,
@@ -91,7 +91,6 @@ fun SpeechsmithAppBar() {
                         .height(28.dp)
                         .weight(1f),
                     onClick = {},
-                    shape = RoundedCornerShape(50),
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.White,
