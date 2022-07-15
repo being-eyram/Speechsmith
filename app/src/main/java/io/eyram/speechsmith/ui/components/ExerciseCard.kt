@@ -85,6 +85,8 @@ fun ExerciseCard(
                         tint = Color.Black
                     )
                 }
+
+
             }
             Spacer(Modifier.width(12.dp))
             Image(
