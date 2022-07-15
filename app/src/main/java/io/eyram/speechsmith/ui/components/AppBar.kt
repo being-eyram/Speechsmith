@@ -50,7 +50,7 @@ fun SpeechsmithAppBar() {
             )
 
             Text(
-                modifier = Modifier.paddingFromBaseline(top = 24.dp, bottom = 24.dp),
+                modifier = Modifier.paddingFromBaseline(top = 24.dp, bottom = 40.dp),
                 text = """
                     Press start button to begin an exercise. 
                     Press page 2 to see other exercises. 

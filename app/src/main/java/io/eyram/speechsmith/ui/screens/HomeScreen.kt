@@ -6,6 +6,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.eyram.speechsmith.ui.components.ExerciseCard
@@ -40,7 +41,7 @@ fun HomeScreen() {
     }
 }
 
-@Preview
+@Preview(device = Devices.NEXUS_5)
 @Composable
 fun HomeScreenPreview() {
     SpeechsmithTheme {

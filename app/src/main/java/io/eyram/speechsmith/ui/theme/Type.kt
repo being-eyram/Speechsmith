@@ -7,6 +7,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 import io.eyram.speechsmith.R
 
@@ -19,6 +20,7 @@ val jostFontFamily = FontFamily(
 val abrilFatFaceFontFamily = FontFamily(
     Font(resId = R.font.abril_fatface, weight = FontWeight.Normal)
 )
+
 @OptIn(ExperimentalTextApi::class)
 val Typography = Typography(
 //    bodyLarge = TextStyle(
@@ -47,16 +49,21 @@ val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = jostFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
+        fontSize = 15.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.15.sp
+        letterSpacing = 0.15.sp,
+        platformStyle = PlatformTextStyle(includeFontPadding = false),
+        lineHeightStyle = LineHeightStyle(
+            alignment = LineHeightStyle.Alignment.Center,
+            trim = LineHeightStyle.Trim.Both
+        )
     ),
-    titleMedium = TextStyle(
+    titleLarge = TextStyle(
         fontFamily = jostFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 20.sp,
-        letterSpacing = 0.4.sp,
-        lineHeight = 20.sp
+        lineHeight = 20.sp,
+        letterSpacing = 0.15.sp
     ),
     displaySmall = TextStyle(
         fontFamily = abrilFatFaceFontFamily,

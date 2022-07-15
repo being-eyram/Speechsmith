@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -27,7 +28,7 @@ fun ExerciseCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .requiredHeight(152.dp),
+            .requiredHeight(160.dp),
         shape = RoundedCornerShape(6.dp),
         colors = CardDefaults.cardColors(containerColor = color),
     ) {
@@ -37,29 +38,32 @@ fun ExerciseCard(
         ) {
             Spacer(Modifier.width(12.dp))
             Column(
-                Modifier
+                modifier = Modifier
                     .fillMaxHeight()
-                    .weight(1f)
+                    .weight(1f),
             ) {
-                Text(
-                    modifier = Modifier.paddingFromBaseline(top = 28.dp, bottom = 4.dp),
-                    text = exerciseType,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                )
-                Text(
-                    modifier = Modifier.paddingFromBaseline(top = 16.dp, bottom = 20.dp),
-                    text = """
+                Box(modifier = modifier.wrapContentSize()) {
+                    Text(
+                        modifier = Modifier.paddingFromBaseline(top = 32.dp),
+                        text = exerciseType,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,
+                    )
+                    Text(
+                        modifier = Modifier.paddingFromBaseline(top = 56.dp, bottom = 16.dp),
+                        text = """
                     It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.The point
                 """.trimIndent(),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.87F),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White.copy(alpha = 0.87F),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
                 Button(
-                    modifier = Modifier.height(24.dp),
+                    modifier = Modifier
+                        .height(24.dp),
                     onClick = onStartButtonClick,
                     shape = RoundedCornerShape(50),
                     contentPadding = PaddingValues(horizontal = 16.dp),
@@ -84,6 +88,7 @@ fun ExerciseCard(
             }
             Spacer(Modifier.width(12.dp))
             Image(
+                modifier = modifier.align(Alignment.Bottom),
                 painter = painterResource(id = illustration),
                 contentDescription = null
             )
@@ -91,33 +96,23 @@ fun ExerciseCard(
     }
 }
 
-@Preview(widthDp = 360, heightDp = 640, showSystemUi = true, )
+@Preview
 @Composable
 fun ExerciseCardPreview() {
     SpeechsmithTheme {
         // A surface container using the 'background' color from the theme
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Column(Modifier.fillMaxSize()){
-                exerciseMap.forEach {
-                    Spacer(modifier = Modifier.height(20.dp))
 
-                    ExerciseCard(
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        color = Color(0xFF263238),
-                        onStartButtonClick = {},
-                        exerciseType = it.key,
-                        illustration = it.value
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-            }
+                ExerciseCard(
+                    color = Color(0xFF263238),
+                    onStartButtonClick = {},
+                    exerciseType = "Naming Exercise",
+                    illustration = R.drawable.ic_naming_illus
+                )
+
         }
     }
 
-}
+
 
 
 val exerciseMap = mapOf(
