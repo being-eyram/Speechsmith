@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.eyram.speechsmith.ui.components.ExerciseCard
+import io.eyram.speechsmith.ui.components.ExerciseCardContainer
 import io.eyram.speechsmith.ui.components.SpeechsmithAppBar
 import io.eyram.speechsmith.ui.components.exerciseMap
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
@@ -29,12 +29,13 @@ fun HomeScreen() {
             exerciseMap.forEach {
                 Spacer(modifier = Modifier.height(20.dp))
 
-                ExerciseCard(
+                ExerciseCardContainer(
                     modifier = Modifier.padding(horizontal = 12.dp),
                     color = Color(0xFF263238),
                     onStartButtonClick = {},
                     exerciseType = it.key,
-                    illustration = it.value
+                    illustration = it.value,
+                    showExerciseCard = false
                 )
             }
         }
