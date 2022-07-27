@@ -3,12 +3,14 @@ package io.eyram.speechsmith.ui.components
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -18,12 +20,113 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlin.math.roundToInt
+
+
+@Composable
+fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
+
+    val keyboardState = keyboardViewModel.keyboardState
+    val keyboardLabels = keyboardState.keyboardCharacters
+    val spellBoxStateList = keyboardViewModel.spellBoxStateList
+
+    //Return the Character typed from the keyboard or an empty string if nothing was
+    //entered
+    fun getTypedCharacter(index: Int): String {
+        return if (index <= keyboardState.typedCharacters.lastIndex)
+            keyboardState.typedCharacters[index]
+        else ""
+    }
+
+
+    Column {
+        Row(
+            modifier = Modifier
+                .padding(top = 20.dp, bottom = 20.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            spellBoxStateList.forEachIndexed { index, spellBoxState ->
+                SpellBox(
+                    text = getTypedCharacter(index),
+                    isNext = index == keyboardState.spellBoxIndicatorPosition,
+                    state = spellBoxState
+                )
+            }
+        }
+
+        KeyboardLayout(
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .height(168.dp)
+        ) {
+            repeat(15) { index ->
+                Button(
+                    border = BorderStroke(width = 1.dp, Color.Black),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Gray,
+                        contentColor = contentColorFor(Color.Gray)
+                    ),
+                    modifier = Modifier
+                        .layoutId("key$index")
+                        .fillMaxSize(),
+                    onClick = {
+                        keyboardViewModel.onKeyBoardKeyPress(keyboardLabels[index])
+                    }
+                )
+                {
+                    Text(
+                        text = keyboardLabels[index],
+                        fontSize = 20.sp
+                    )
+                }
+            }
+
+            Button(
+                border = BorderStroke(width = 1.dp, Color.Black),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray,
+                    contentColor = contentColorFor(Color.Gray)
+                ),
+                modifier = Modifier
+                    .layoutId(ENTER_KEY_ID)
+                    .fillMaxSize(),
+                onClick = { keyboardViewModel.onEnterPress() }
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "ENTER",
+                    fontSize = 15.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Button(
+                border = BorderStroke(width = 1.dp, Color.Black),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray,
+                    contentColor = contentColorFor(Color.Gray)
+                ),
+                modifier = Modifier
+                    .layoutId(BACKSPACE_KEY_ID)
+                    .fillMaxSize(),
+                onClick = { keyboardViewModel.onBackSpacePress() }
+            ) {
+                Text(
+                    text = "BACKSPACE",
+                    fontSize = 15.sp
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun KeyboardLayout(
