@@ -11,9 +11,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlin.math.roundToInt
 
@@ -265,3 +266,85 @@ fun SpellBox(
         )
     }
 }
+
+
+class KeyboardViewModel() : ViewModel() {
+
+    private val wordsToSpell = listOf(
+        "puppy", "raccoon", "dromedary", "oryx",
+        "fox", "dingo", "dung beetle", "jackal",
+        "anteater", "okapi", "lizard", "dormouse",
+        "walrus", "gorilla",
+    )
+    private val typedCharacters = mutableStateListOf<String>()
+    private val wordToSpell = wordsToSpell[1].map {
+        it.uppercaseChar()
+            .toString()
+    }
+
+    var keyboardState by mutableStateOf(
+        KeyboardState(
+            keyboardCharacters = generateKeyboardLabels(),
+            typedCharacters = typedCharacters,
+            spellBoxIndicatorPosition = 0
+        )
+    )
+
+    val spellBoxStateList = SnapshotStateList<SpellCheckState>().apply {
+        addAll(MutableList(size = wordToSpell.size, init = { Initial }))
+    }
+
+    private fun generateKeyboardLabels(): List<String> {
+        val keyboardLabelsFromWord = mutableListOf<String>().apply {
+            addAll(wordToSpell.distinct())
+        }
+        while (keyboardLabelsFromWord.size < 15) {
+            val random = ('A'..'Z').random().toString()
+            if (random !in keyboardLabelsFromWord) keyboardLabelsFromWord.add(random)
+        }
+
+        return keyboardLabelsFromWord.shuffled()
+    }
+
+    fun onKeyBoardKeyPress(key: String) {
+        if (typedCharacters.size < wordToSpell.size) {
+            typedCharacters.add(key)
+            keyboardState = keyboardState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
+        }
+    }
+
+    fun onBackSpacePress() {
+        if (typedCharacters.isNotEmpty()) {
+            typedCharacters.removeLast()
+            keyboardState = keyboardState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
+            // Reset background colors when backspace is pressed after enter press
+            spellBoxStateList[typedCharacters.lastIndex + 1] = Initial
+        }
+    }
+
+    fun onEnterPress() {
+        val wordToSpellCharacterList = wordToSpell
+
+        if (typedCharacters.size == wordToSpellCharacterList.size) {
+            wordToSpellCharacterList
+                .zip(typedCharacters)
+                .mapIndexed { index, (correctLetter, typedLetter) ->
+                    when (correctLetter) {
+                        typedLetter -> spellBoxStateList[index] = Matched
+                        else -> spellBoxStateList[index] = Unmatched
+                    }
+                }
+        }
+    }
+}
+
+sealed interface SpellCheckState
+object Initial : SpellCheckState
+object Matched : SpellCheckState
+object Unmatched : SpellCheckState
+
+data class KeyboardState(
+    val typedCharacters: SnapshotStateList<String>,
+    val keyboardCharacters: List<String>,
+    val spellBoxIndicatorPosition : Int = 0
+)
