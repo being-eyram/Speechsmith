@@ -3,14 +3,13 @@ package io.eyram.speechsmith.ui.components
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -70,17 +69,17 @@ fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
         ) {
             repeat(15) { index ->
                 Button(
-                    border = BorderStroke(width = 1.dp, Color.Black),
+                    border = BorderStroke(width = 1.dp, MaterialTheme.colorScheme.background),
+                    shape = RoundedCornerShape(4.dp),
+                    contentPadding = PaddingValues(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Gray,
-                        contentColor = contentColorFor(Color.Gray)
+                        containerColor = Color.Black,
+                        contentColor = contentColorFor(Color.Black)
                     ),
                     modifier = Modifier
                         .layoutId("key$index")
                         .fillMaxSize(),
-                    onClick = {
-                        keyboardViewModel.onKeyBoardKeyPress(keyboardLabels[index])
-                    }
+                    onClick = { keyboardViewModel.onKeyBoardKeyPress(keyboardLabels[index]) }
                 )
                 {
                     Text(
@@ -91,11 +90,13 @@ fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
             }
 
             Button(
-                border = BorderStroke(width = 1.dp, Color.Black),
+                border = BorderStroke(width = 1.dp, MaterialTheme.colorScheme.background),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Gray,
-                    contentColor = contentColorFor(Color.Gray)
+                    containerColor = Color.Black,
+                    contentColor = contentColorFor(Color.Black)
                 ),
+                contentPadding = PaddingValues(horizontal = 12.dp),
+                shape = RoundedCornerShape(4.dp),
                 modifier = Modifier
                     .layoutId(ENTER_KEY_ID)
                     .fillMaxSize(),
@@ -110,11 +111,12 @@ fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
             }
 
             Button(
-                border = BorderStroke(width = 1.dp, Color.Black),
+                border = BorderStroke(width = 1.dp, MaterialTheme.colorScheme.background),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Gray,
-                    contentColor = contentColorFor(Color.Gray)
+                    containerColor = Color.Black,
+                    contentColor = contentColorFor(Color.Black)
                 ),
+                shape = RoundedCornerShape(4.dp),
                 modifier = Modifier
                     .layoutId(BACKSPACE_KEY_ID)
                     .fillMaxSize(),
@@ -206,9 +208,9 @@ const val ENTER_KEY_ID = "Enter_Key"
 const val BACKSPACE_KEY_ID = "Backspace_Key"
 
 
-@Preview(device = Devices.NEXUS_5X)
-@Preview(device = Devices.NEXUS_5)
-@Preview(device = Devices.PIXEL_2_XL)
+@Preview(device = Devices.NEXUS_5X, showBackground = true)
+@Preview(device = Devices.NEXUS_5, showBackground = true)
+@Preview(device = Devices.PIXEL_2_XL, showBackground = true)
 
 @Composable
 fun DefaultPreview() {
@@ -309,14 +311,16 @@ class KeyboardViewModel() : ViewModel() {
     fun onKeyBoardKeyPress(key: String) {
         if (typedCharacters.size < wordToSpell.size) {
             typedCharacters.add(key)
-            keyboardState = keyboardState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
+            keyboardState =
+                keyboardState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
         }
     }
 
     fun onBackSpacePress() {
         if (typedCharacters.isNotEmpty()) {
             typedCharacters.removeLast()
-            keyboardState = keyboardState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
+            keyboardState =
+                keyboardState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
             // Reset background colors when backspace is pressed after enter press
             spellBoxStateList[typedCharacters.lastIndex + 1] = Initial
         }
@@ -346,5 +350,5 @@ object Unmatched : SpellCheckState
 data class KeyboardState(
     val typedCharacters: SnapshotStateList<String>,
     val keyboardCharacters: List<String>,
-    val spellBoxIndicatorPosition : Int = 0
+    val spellBoxIndicatorPosition: Int = 0
 )
