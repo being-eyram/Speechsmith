@@ -4,6 +4,7 @@ package io.eyram.speechsmith.ui.screens
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,21 +17,25 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import java.util.*
 
 @Composable
-fun SpellingExerciseAppBar() {
+fun SpellingExerciseAppBar(currentExerciseNumber: String) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp)
+            .height(72.dp),
+        color = Color.Black,
+        contentColor = contentColorFor(backgroundColor = Color.Black)
     ) {
         Box(
             modifier = Modifier
-                .padding(top = 4.dp, start = 12.dp, end = 12.dp)
+                .padding(top = 8.dp, start = 12.dp, end = 12.dp)
                 .fillMaxSize(),
         ) {
             AppBarButton(
@@ -40,6 +45,24 @@ fun SpellingExerciseAppBar() {
                 onClick = {},
                 label = "home".uppercase(Locale.ROOT)
             )
+
+            Box(
+                Modifier
+                    .size(120.dp, 40.dp)
+                    .align(Alignment.TopCenter)
+                    .border(
+                        width = Dp.Hairline,
+                        color = Color(0xFF82DD8B),
+                        shape = RoundedCornerShape(50)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = currentExerciseNumber,
+                    style = MaterialTheme.typography.labelMedium.copy(fontSize = 16.sp)
+                )
+            }
+
             AppBarButton(
                 modifier = Modifier.align(Alignment.TopEnd),
                 icon = R.drawable.ic_settings,
@@ -56,9 +79,7 @@ fun SpellingExerciseAppBar() {
 @Composable
 fun SpellingExerciseAppBarPreview() {
     SpeechsmithTheme() {
-        Surface(color = Color.Black){
-            SpellingExerciseAppBar()
-        }
+            SpellingExerciseAppBar("9/10")
     }
 }
 
@@ -73,7 +94,7 @@ fun AppBarButton(
     Column(
         modifier = modifier.clickable(
             onClick = { onClick() },
-            ),
+        ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(

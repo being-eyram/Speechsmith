@@ -1,5 +1,6 @@
 package io.eyram.speechsmith.ui.components
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
@@ -19,6 +20,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.UiMode
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
@@ -126,20 +128,6 @@ fun Keyboard() {
     }
 }
 
-const val ENTER_KEY_ID = "Enter_Key"
-const val BACKSPACE_KEY_ID = "Backspace_Key"
-
-
-@Preview(device = Devices.NEXUS_5X, showBackground = true)
-@Preview(device = Devices.NEXUS_5, showBackground = true)
-@Preview(device = Devices.PIXEL_2_XL, showBackground = true)
-@Composable
-fun DefaultPreview() {
-    SpeechsmithTheme {
-        Keyboard()
-    }
-}
-
 @Composable
 fun SpellBox(
     modifier: Modifier = Modifier,
@@ -188,6 +176,20 @@ fun SpellBox(
         )
     }
 }
+
+const val ENTER_KEY_ID = "Enter_Key"
+const val BACKSPACE_KEY_ID = "Backspace_Key"
+
+@Preview(device = Devices.NEXUS_5X, showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@Preview(device = Devices.NEXUS_5, showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@Preview(device = Devices.PIXEL_2_XL, showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun DefaultPreview() {
+    SpeechsmithTheme {
+        Keyboard()
+    }
+}
+
 
 sealed interface SpellCheckState
 object Initial : SpellCheckState
