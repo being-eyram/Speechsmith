@@ -3,7 +3,6 @@ package io.eyram.speechsmith.ui.components
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,32 +17,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlin.math.roundToInt
 
 
 @Composable
-fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
+fun Keyboard() {
+    val keyboardState = remember { KeyboardState() }
 
-    val keyboardState = keyboardViewModel.keyboardState
-    val keyboardLabels = keyboardState.keyboardCharacters
-    val spellBoxStateList = keyboardViewModel.spellBoxStateList
+    val keyboardUiState = keyboardState.keyboardUiState
+    val keyboardLabels = keyboardUiState.keyboardCharacters
+    val spellBoxStateList = keyboardUiState.spellCheckState
 
     //Return the Character typed from the keyboard or an empty string if nothing was
     //entered
     fun getTypedCharacter(index: Int): String {
-        return if (index <= keyboardState.typedCharacters.lastIndex)
-            keyboardState.typedCharacters[index]
+        return if (index <= keyboardUiState.typedCharacters.lastIndex)
+            keyboardUiState.typedCharacters[index]
         else ""
     }
-
 
     Column {
         Row(
@@ -56,7 +52,7 @@ fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
             spellBoxStateList.forEachIndexed { index, spellBoxState ->
                 SpellBox(
                     text = getTypedCharacter(index),
-                    isNext = index == keyboardState.spellBoxIndicatorPosition,
+                    isNext = index == keyboardUiState.spellBoxIndicatorPosition,
                     state = spellBoxState
                 )
             }
@@ -79,12 +75,12 @@ fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
                     modifier = Modifier
                         .layoutId("key$index")
                         .fillMaxSize(),
-                    onClick = { keyboardViewModel.onKeyBoardKeyPress(keyboardLabels[index]) }
+                    onClick = { keyboardState.onKeyBoardKeyPress(keyboardLabels[index]) }
                 )
                 {
                     Text(
                         text = keyboardLabels[index],
-                        fontSize = 20.sp
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                     )
                 }
             }
@@ -100,13 +96,12 @@ fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
                 modifier = Modifier
                     .layoutId(ENTER_KEY_ID)
                     .fillMaxSize(),
-                onClick = { keyboardViewModel.onEnterPress() }
+                onClick = { keyboardState.onEnterPress() }
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = "ENTER",
-                    fontSize = 15.sp,
-                    textAlign = TextAlign.Center
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
 
@@ -120,11 +115,11 @@ fun Keyboard(keyboardViewModel: KeyboardViewModel = viewModel()) {
                 modifier = Modifier
                     .layoutId(BACKSPACE_KEY_ID)
                     .fillMaxSize(),
-                onClick = { keyboardViewModel.onBackSpacePress() }
+                onClick = { keyboardState.onBackSpacePress() }
             ) {
                 Text(
                     text = "BACKSPACE",
-                    fontSize = 15.sp
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
         }
@@ -270,7 +265,7 @@ fun SpellBox(
 }
 
 
-class KeyboardViewModel() : ViewModel() {
+class KeyboardState() {
 
     private val wordsToSpell = listOf(
         "puppy", "raccoon", "dromedary", "oryx",
@@ -280,21 +275,22 @@ class KeyboardViewModel() : ViewModel() {
     )
     private val typedCharacters = mutableStateListOf<String>()
     private val wordToSpell = wordsToSpell[1].map {
-        it.uppercaseChar()
-            .toString()
+        it.uppercaseChar().toString()
     }
-
-    var keyboardState by mutableStateOf(
-        KeyboardState(
-            keyboardCharacters = generateKeyboardLabels(),
-            typedCharacters = typedCharacters,
-            spellBoxIndicatorPosition = 0
-        )
-    )
-
-    val spellBoxStateList = SnapshotStateList<SpellCheckState>().apply {
+    private val spellCheckState = SnapshotStateList<SpellCheckState>().apply {
         addAll(MutableList(size = wordToSpell.size, init = { Initial }))
     }
+
+    var keyboardUiState by mutableStateOf(
+        KeyboardUiState(
+            keyboardCharacters = generateKeyboardLabels(),
+            typedCharacters = typedCharacters,
+            spellBoxIndicatorPosition = 0,
+            spellCheckState = spellCheckState
+        )
+    )
+    private set
+
 
     private fun generateKeyboardLabels(): List<String> {
         val keyboardLabelsFromWord = mutableListOf<String>().apply {
@@ -311,18 +307,19 @@ class KeyboardViewModel() : ViewModel() {
     fun onKeyBoardKeyPress(key: String) {
         if (typedCharacters.size < wordToSpell.size) {
             typedCharacters.add(key)
-            keyboardState =
-                keyboardState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
+            keyboardUiState = keyboardUiState.copy(
+                spellBoxIndicatorPosition = typedCharacters.lastIndex + 1
+            )
         }
     }
 
     fun onBackSpacePress() {
         if (typedCharacters.isNotEmpty()) {
             typedCharacters.removeLast()
-            keyboardState =
-                keyboardState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
+            keyboardUiState =
+                keyboardUiState.copy(spellBoxIndicatorPosition = typedCharacters.lastIndex + 1)
             // Reset background colors when backspace is pressed after enter press
-            spellBoxStateList[typedCharacters.lastIndex + 1] = Initial
+            spellCheckState[typedCharacters.lastIndex + 1] = Initial
         }
     }
 
@@ -331,11 +328,10 @@ class KeyboardViewModel() : ViewModel() {
 
         if (typedCharacters.size == wordToSpellCharacterList.size) {
             wordToSpellCharacterList
-                .zip(typedCharacters)
-                .mapIndexed { index, (correctLetter, typedLetter) ->
+                .mapIndexed { index , correctLetter->
                     when (correctLetter) {
-                        typedLetter -> spellBoxStateList[index] = Matched
-                        else -> spellBoxStateList[index] = Unmatched
+                        typedCharacters[index] -> spellCheckState[index] = Matched
+                        else -> spellCheckState[index] = Unmatched
                     }
                 }
         }
@@ -347,8 +343,9 @@ object Initial : SpellCheckState
 object Matched : SpellCheckState
 object Unmatched : SpellCheckState
 
-data class KeyboardState(
+data class KeyboardUiState(
     val typedCharacters: SnapshotStateList<String>,
     val keyboardCharacters: List<String>,
-    val spellBoxIndicatorPosition: Int = 0
+    val spellBoxIndicatorPosition: Int = 0,
+    val spellCheckState: SnapshotStateList<SpellCheckState>
 )

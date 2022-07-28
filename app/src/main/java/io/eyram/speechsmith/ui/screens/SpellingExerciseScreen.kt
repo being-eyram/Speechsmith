@@ -4,6 +4,7 @@ package io.eyram.speechsmith.ui.screens
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -54,7 +55,11 @@ fun SpellingExerciseAppBar() {
 @Preview
 @Composable
 fun SpellingExerciseAppBarPreview() {
-    SpellingExerciseAppBar()
+    SpeechsmithTheme() {
+        Surface(color = Color.Black){
+            SpellingExerciseAppBar()
+        }
+    }
 }
 
 @Composable
@@ -66,7 +71,9 @@ fun AppBarButton(
     label: String,
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.clickable(
+            onClick = { onClick() },
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Button(
@@ -77,7 +84,7 @@ fun AppBarButton(
                 containerColor = backgroundColor,
                 contentColor = contentColorFor(backgroundColor = backgroundColor)
             ),
-            onClick = { onClick() }
+            onClick = { }
         ) {
             Icon(
                 painter = painterResource(id = icon),
