@@ -28,7 +28,7 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun Keyboard() {
+fun Keyboard(modifier : Modifier = Modifier ) {
     val keyboardState = remember { KeyboardState() }
 
     val keyboardUiState = keyboardState.keyboardUiState
@@ -43,7 +43,7 @@ fun Keyboard() {
         else ""
     }
 
-    Column {
+    Column(modifier = modifier) {
         Row(
             modifier = Modifier
                 .padding(top = 20.dp, bottom = 20.dp)
@@ -63,7 +63,7 @@ fun Keyboard() {
         KeyboardLayout(
             modifier = Modifier
                 .padding(horizontal = 12.dp)
-                .height(168.dp)
+                .requiredHeightIn(min = 168.dp, max = 224.dp)
         ) {
             repeat(15) { index ->
                 Button(
@@ -72,7 +72,7 @@ fun Keyboard() {
                     contentPadding = PaddingValues(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Black,
-                        contentColor = contentColorFor(Color.Black)
+                        contentColor = Color.White
                     ),
                     modifier = Modifier
                         .layoutId("key$index")
@@ -91,7 +91,7 @@ fun Keyboard() {
                 border = BorderStroke(width = 1.dp, MaterialTheme.colorScheme.background),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Black,
-                    contentColor = contentColorFor(Color.Black)
+                    contentColor = Color.White
                 ),
                 contentPadding = PaddingValues(horizontal = 12.dp),
                 shape = RoundedCornerShape(4.dp),
@@ -111,7 +111,7 @@ fun Keyboard() {
                 border = BorderStroke(width = 1.dp, MaterialTheme.colorScheme.background),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Black,
-                    contentColor = contentColorFor(Color.Black)
+                    contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(4.dp),
                 modifier = Modifier

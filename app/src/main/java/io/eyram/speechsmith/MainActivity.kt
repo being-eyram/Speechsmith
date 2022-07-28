@@ -1,5 +1,6 @@
 package io.eyram.speechsmith
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,9 +10,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
 import io.eyram.speechsmith.ui.components.Keyboard
+import io.eyram.speechsmith.ui.screens.SpellingExerciseScreen
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 @AndroidEntryPoint
@@ -25,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Keyboard()
+                    SpellingExerciseScreen()
                 }
             }
         }
@@ -37,10 +40,13 @@ fun Greeting(name: String) {
     Text(text = "Hello $name!")
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, device = Devices.NEXUS_5)
 @Composable
 fun DefaultPreview() {
-    SpeechsmithTheme {
-        Greeting("Android")
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        SpellingExerciseScreen()
     }
 }
