@@ -1,11 +1,7 @@
 package io.eyram.speechsmith.ui.screens
 
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.widget.ImageView
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,15 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.eyram.speechsmith.R
-import io.eyram.speechsmith.ui.components.Keyboard
+import io.eyram.speechsmith.ui.components.KeyboardUi
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import java.util.*
 
@@ -38,7 +32,7 @@ fun SpellingExerciseScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ImageView(modifier = Modifier.padding(top = 12.dp))
-            Keyboard(modifier = Modifier.padding(top = 16.dp, bottom = 12.dp))
+            KeyboardUi(modifier = Modifier.padding(top = 16.dp, bottom = 12.dp))
         }
     }
 }
