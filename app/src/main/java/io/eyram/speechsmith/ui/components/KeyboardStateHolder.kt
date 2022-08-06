@@ -16,24 +16,7 @@ interface KeyboardEventListener {
 
 }
 
-class Keyboard(private val keyboardEventListener: KeyboardEventListener) {
-
-    companion object {
-
-        fun generateKeyboardLabels(wordToSpell: String): List<String> {
-            val charsToSpell = wordToSpell.map { it.uppercaseChar().toString() }
-            val keyboardLabelsFromWord = mutableListOf<String>().apply {
-                addAll(charsToSpell.distinct())
-            }
-            while (keyboardLabelsFromWord.size < 15) {
-                val random = ('A'..'Z').random().toString()
-                if (random !in keyboardLabelsFromWord) keyboardLabelsFromWord.add(random)
-            }
-
-            return keyboardLabelsFromWord.shuffled()
-        }
-
-    }
+class KeyboardEvents(private val keyboardEventListener: KeyboardEventListener) {
 
     fun onKeyPress(key: String) = keyboardEventListener.onKeyPress(key)
 
@@ -41,6 +24,3 @@ class Keyboard(private val keyboardEventListener: KeyboardEventListener) {
 
     fun onEnterPress() = keyboardEventListener.onEnterPress()
 }
-
-
-data class KeyboardUiState(val keyboardCharacters: List<String>)

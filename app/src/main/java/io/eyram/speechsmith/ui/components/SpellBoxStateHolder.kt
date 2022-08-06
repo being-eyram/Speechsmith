@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
 
-class SpellBoxState(wordToSpell: String) : KeyboardEventListener {
+class SpellFieldState(wordToSpell: String) : KeyboardEventListener {
 
     private val charsToSpell = wordToSpell.map { it.uppercaseChar().toString() }
     private val typedCharacters = mutableStateListOf<String>()
@@ -19,8 +19,8 @@ class SpellBoxState(wordToSpell: String) : KeyboardEventListener {
             )
         )
     }
-    var spellBoxUiState by mutableStateOf(
-        SpellBoxUiState(
+    var spellFieldUiState by mutableStateOf(
+        SpellFieldUiState(
             typedCharacters = typedCharacters,
             spellCheckState = spellCheckState
         )
@@ -30,7 +30,7 @@ class SpellBoxState(wordToSpell: String) : KeyboardEventListener {
     override fun onKeyPress(key: String) {
         if (typedCharacters.size < charsToSpell.size) {
             typedCharacters.add(key)
-            spellBoxUiState = spellBoxUiState.copy(
+            spellFieldUiState = spellFieldUiState.copy(
                 spellBoxIndicatorPosition = typedCharacters.lastIndex + 1
             )
         }
@@ -50,7 +50,7 @@ class SpellBoxState(wordToSpell: String) : KeyboardEventListener {
     override fun onBackSpacePress() {
         if (typedCharacters.isNotEmpty()) {
             typedCharacters.removeLast()
-            spellBoxUiState = spellBoxUiState.copy(
+            spellFieldUiState = spellFieldUiState.copy(
                 spellBoxIndicatorPosition = typedCharacters.lastIndex + 1
             )
             // Reset background colors when backspace is pressed after enter press
@@ -59,7 +59,7 @@ class SpellBoxState(wordToSpell: String) : KeyboardEventListener {
     }
 }
 
-data class SpellBoxUiState(
+data class SpellFieldUiState(
     val typedCharacters: SnapshotStateList<String>,
     val spellBoxIndicatorPosition: Int = 0,
     val spellCheckState: SnapshotStateList<SpellCheckState>

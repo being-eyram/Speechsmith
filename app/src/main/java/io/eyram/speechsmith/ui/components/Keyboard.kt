@@ -25,51 +25,20 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.eyram.speechsmith.ui.screens.spellingexercise.KeyboardUiState
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
-
+//KeyboardUiState(KeyboardEvents.generateKeyboardLabels(wordToSpell))
 @Composable
-fun KeyboardUi(modifier: Modifier = Modifier) {
-    val wordToSpell = "racoon"
-    val spellBoxState = remember { SpellBoxState(wordToSpell) }
-    val keyboard = Keyboard(spellBoxState)
+fun Keyboard(
+    modifier: Modifier = Modifier,
+    keyboardEvents: KeyboardEvents,
+    keyboardUiState: KeyboardUiState,
+) {
 
-    var keyboardUiState = remember {
-        KeyboardUiState( Keyboard.generateKeyboardLabels(wordToSpell))
-    }
-
-    val keyboardLabels = keyboardUiState.keyboardCharacters
-    val spellBoxUiState = spellBoxState.spellBoxUiState
-    val spellBoxStateList = spellBoxUiState.spellCheckState
-
-    //Return the Character typed from the keyboard or an empty string if nothing was
-    //entered
-    fun getTypedCharacter(index: Int): String {
-        return if (index <= spellBoxUiState.typedCharacters.lastIndex)
-            spellBoxUiState.typedCharacters[index]
-        else ""
-    }
-
-//    LaunchedEffect(wordToSpell){
-//        keyboardUiState = KeyboardUiState(Keyboard.generateKeyboardLabels(wordToSpell))
-//    }
+    val state = remember { keyboardUiState }
 
     Column(modifier = modifier) {
-        Row(
-            modifier = Modifier
-                .padding(top = 20.dp, bottom = 20.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            spellBoxStateList.forEachIndexed { index, spellBoxState ->
-                SpellBox(
-                    text = getTypedCharacter(index),
-                    isNext = index == spellBoxUiState.spellBoxIndicatorPosition,
-                    state = spellBoxState
-                )
-            }
-        }
 
         KeyboardLayout(
             modifier = Modifier
@@ -88,11 +57,13 @@ fun KeyboardUi(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .layoutId("key$index")
                         .fillMaxSize(),
-                    onClick = { keyboard.onKeyPress(keyboardLabels[index]) }
+                    onClick = {
+                        keyboardEvents.onKeyPress(state.keyboardLabels[index])
+                    }
                 )
                 {
                     Text(
-                        text = keyboardLabels[index],
+                        text = state.keyboardLabels[index],
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                     )
                 }
@@ -109,7 +80,7 @@ fun KeyboardUi(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .layoutId(ENTER_KEY_ID)
                     .fillMaxSize(),
-                onClick = { keyboard.onEnterPress() }
+                onClick = { keyboardEvents.onEnterPress() }
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -128,7 +99,7 @@ fun KeyboardUi(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .layoutId(BACKSPACE_KEY_ID)
                     .fillMaxSize(),
-                onClick = { keyboard.onBackSpacePress() }
+                onClick = { keyboardEvents.onBackSpacePress() }
             ) {
                 Text(
                     text = "BACKSPACE",
@@ -136,57 +107,6 @@ fun KeyboardUi(modifier: Modifier = Modifier) {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun SpellBox(
-    modifier: Modifier = Modifier,
-    text: String,
-    isNext: Boolean = false,
-    state: SpellCheckState
-) {
-    val borderColor = remember { Animatable(Color(0xFFA4A4A4)) }
-    val backgroundColor = remember { Animatable(Color.Transparent) }
-
-    Box(
-        modifier = modifier
-            .padding(horizontal = 1.dp)
-            .background(color = backgroundColor.value)
-            .size(width = 32.dp, height = 40.dp)
-            .border(
-                width = 1.dp,
-                color = borderColor.value
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            fontSize = 20.sp,
-            lineHeight = 24.sp,
-            fontWeight = FontWeight.Medium
-        )
-    }
-
-    LaunchedEffect(isNext, state) {
-        borderColor.animateTo(
-            targetValue = if (isNext) Color(0xFFE0991A) else Color(0xFFA4A4A4),
-            animationSpec = tween(
-                durationMillis = 350,
-                easing = CubicBezierEasing(0.61F, 1F, 0.88F, 1F)
-            )
-        )
-        backgroundColor.animateTo(
-            targetValue = when (state) {
-                SpellCheckState.Matched -> Color(0xFF538D4E)
-                SpellCheckState.Unmatched -> Color(0xFF3A3A3C)
-                else -> Color.Unspecified
-            },
-            animationSpec = tween(
-                durationMillis = 195,
-                easing = CubicBezierEasing(0.61F, 1F, 0.88F, 1F)
-            )
-        )
     }
 }
 
@@ -199,7 +119,7 @@ const val BACKSPACE_KEY_ID = "Backspace_Key"
 @Composable
 fun DefaultPreview() {
     SpeechsmithTheme {
-        KeyboardUi()
+//        Keyboard()
     }
 }
 

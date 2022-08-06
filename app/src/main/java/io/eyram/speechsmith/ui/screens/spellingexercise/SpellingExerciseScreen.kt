@@ -1,6 +1,7 @@
-package io.eyram.speechsmith.ui.screens
+package io.eyram.speechsmith.ui.screens.spellingexercise
 
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,23 +17,41 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.R
-import io.eyram.speechsmith.ui.components.KeyboardUi
+import io.eyram.speechsmith.ui.components.Keyboard
+import io.eyram.speechsmith.ui.components.SpellField
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SpellingExerciseScreen() {
+fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
+
+    val uiState = viewModel.uiState
+    val spellFieldUiState = uiState.spellFieldState.spellFieldUiState
+
     Scaffold(
         topBar = { SpellingExerciseAppBar(currentExerciseNumber = "9/10") }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             ImageView(modifier = Modifier.padding(top = 12.dp))
-            KeyboardUi(modifier = Modifier.padding(top = 16.dp, bottom = 12.dp))
+
+            Column {
+                SpellField(spellFieldUiState = spellFieldUiState)
+                Keyboard(
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .weight(1F),
+                    uiState.keyboardEvents,
+                    keyboardUiState = uiState.keyboardUiState
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 }
@@ -51,16 +70,14 @@ fun SpellingExerciseAppBar(currentExerciseNumber: String) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp)
-        ,
+            .height(72.dp),
         color = Color.Black,
         contentColor = Color.White
     ) {
         Box(
             modifier = Modifier
                 .padding(top = 4.dp, start = 12.dp, end = 12.dp)
-                .fillMaxSize()
-               ,
+                .fillMaxSize(),
         ) {
             AppBarButton(
                 modifier = Modifier.align(Alignment.TopStart),
@@ -99,7 +116,7 @@ fun SpellingExerciseAppBar(currentExerciseNumber: String) {
 }
 
 
-@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun SpellingExerciseScreenPreview() {
     SpeechsmithTheme {
