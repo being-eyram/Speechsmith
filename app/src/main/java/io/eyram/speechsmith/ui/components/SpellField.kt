@@ -18,14 +18,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun SpellField(modifier: Modifier = Modifier, spellFieldUiState: SpellFieldUiState) {
+fun SpellField(modifier: Modifier = Modifier, spellFieldState: SpellFieldState) {
 
-    val state = remember { spellFieldUiState }
-    val spellFieldCheckStateList = state.spellCheckState
+    val spellCheckState = spellFieldState.spellCheckState
 
-    fun getTypedCharacter(index: Int) = when (index) {
-        state.typedCharacters.lastIndex -> state.typedCharacters[index]
-        else -> ""
+    fun getTypedCharacterOrEmpty(index: Int): String {
+        val lastIndex = spellFieldState.typedCharacters.lastIndex
+        return if (index <= lastIndex) spellFieldState.typedCharacters[index]
+        else ""
     }
 
     Row(
@@ -35,10 +35,10 @@ fun SpellField(modifier: Modifier = Modifier, spellFieldUiState: SpellFieldUiSta
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        spellFieldCheckStateList.forEachIndexed { index, spellBoxState ->
+        spellCheckState.forEachIndexed { index, spellBoxState ->
             SpellBox(
-                text = getTypedCharacter(index),
-                isNext = index == state.spellBoxIndicatorPosition,
+                text = getTypedCharacterOrEmpty(index),
+                isNext = index == spellFieldState.indicatorPosition,
                 state = spellBoxState
             )
         }

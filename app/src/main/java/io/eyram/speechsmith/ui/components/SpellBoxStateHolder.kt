@@ -9,39 +9,34 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 
 class SpellFieldState(wordToSpell: String) : KeyboardEventListener {
 
-    private val charsToSpell = wordToSpell.map { it.uppercaseChar().toString() }
-    private val typedCharacters = mutableStateListOf<String>()
-    private val spellCheckState = SnapshotStateList<SpellCheckState>().apply {
-        addAll(
-            MutableList(
-                size = charsToSpell.size,
-                init = { SpellCheckState.Initial }
-            )
-        )
+    private val charsToSpell = wordToSpell.map {
+        it.uppercaseChar().toString()
     }
-    var spellFieldUiState by mutableStateOf(
-        SpellFieldUiState(
-            typedCharacters = typedCharacters,
-            spellCheckState = spellCheckState
-        )
-    )
+    var indicatorPosition by mutableStateOf(0)
+        private set
+
+    var typedCharacters = mutableStateListOf<String>() //might move this to keyboard
+        private set
+
+    private val initSpellCheckState = MutableList(charsToSpell.size) { SpellCheckState.Initial }
+    var spellCheckState = SnapshotStateList<SpellCheckState>().apply {
+        addAll(initSpellCheckState)
+    }
         private set
 
     override fun onKeyPress(key: String) {
         if (typedCharacters.size < charsToSpell.size) {
             typedCharacters.add(key)
-            spellFieldUiState = spellFieldUiState.copy(
-                spellBoxIndicatorPosition = typedCharacters.lastIndex + 1
-            )
+            indicatorPosition = typedCharacters.lastIndex + 1
         }
     }
 
     override fun onEnterPress() {
         if (typedCharacters.size == charsToSpell.size) {
-            charsToSpell.mapIndexed { index, correctLetter ->
+            charsToSpell.mapIndexed { idx, correctLetter ->
                 when (correctLetter) {
-                    typedCharacters[index] -> spellCheckState[index] = SpellCheckState.Matched
-                    else -> spellCheckState[index] = SpellCheckState.Unmatched
+                    typedCharacters[idx] -> spellCheckState[idx] = SpellCheckState.Matched
+                    else -> spellCheckState[idx] = SpellCheckState.Unmatched
                 }
             }
         }
@@ -50,20 +45,11 @@ class SpellFieldState(wordToSpell: String) : KeyboardEventListener {
     override fun onBackSpacePress() {
         if (typedCharacters.isNotEmpty()) {
             typedCharacters.removeLast()
-            spellFieldUiState = spellFieldUiState.copy(
-                spellBoxIndicatorPosition = typedCharacters.lastIndex + 1
-            )
-            // Reset background colors when backspace is pressed after enter press
+            indicatorPosition = typedCharacters.lastIndex + 1
             spellCheckState[typedCharacters.lastIndex + 1] = SpellCheckState.Initial
         }
     }
 }
-
-data class SpellFieldUiState(
-    val typedCharacters: SnapshotStateList<String>,
-    val spellBoxIndicatorPosition: Int = 0,
-    val spellCheckState: SnapshotStateList<SpellCheckState>
-)
 
 enum class SpellCheckState {
     Initial,
