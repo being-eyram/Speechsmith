@@ -34,10 +34,8 @@ fun KeyboardUi(modifier: Modifier = Modifier) {
     val spellBoxState = remember { SpellBoxState(wordToSpell) }
     val keyboard = Keyboard(spellBoxState)
 
-    val keyboardUiState = remember(wordToSpell) {
-        KeyboardUiState(
-            keyboardCharacters = Keyboard.generateKeyboardLabels(wordToSpell)
-        )
+    var keyboardUiState = remember {
+        KeyboardUiState( Keyboard.generateKeyboardLabels(wordToSpell))
     }
 
     val keyboardLabels = keyboardUiState.keyboardCharacters
@@ -51,6 +49,10 @@ fun KeyboardUi(modifier: Modifier = Modifier) {
             spellBoxUiState.typedCharacters[index]
         else ""
     }
+
+//    LaunchedEffect(wordToSpell){
+//        keyboardUiState = KeyboardUiState(Keyboard.generateKeyboardLabels(wordToSpell))
+//    }
 
     Column(modifier = modifier) {
         Row(
@@ -202,8 +204,4 @@ fun DefaultPreview() {
 }
 
 
-enum class SpellCheckState {
-    Initial,
-    Matched,
-    Unmatched,
-}
+
