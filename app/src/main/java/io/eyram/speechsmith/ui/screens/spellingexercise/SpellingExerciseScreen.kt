@@ -1,7 +1,7 @@
 package io.eyram.speechsmith.ui.screens.spellingexercise
 
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.components.Keyboard
+import io.eyram.speechsmith.ui.components.SpellCheckState
 import io.eyram.speechsmith.ui.components.SpellField
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import java.util.*
@@ -29,20 +31,18 @@ import java.util.*
 fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 
     val uiState = viewModel.uiState
-    val spellFieldUiState = uiState.spellFieldState.spellFieldUiState
 
     Scaffold(
         topBar = { SpellingExerciseAppBar(currentExerciseNumber = "9/10") }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues).fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ImageView(modifier = Modifier.padding(top = 12.dp))
 
             Column {
-                SpellField(spellFieldUiState = spellFieldUiState)
+                SpellField(spellFieldState = uiState.spellFieldState)
                 Keyboard(
                     modifier = Modifier
                         .padding(top = 16.dp)
@@ -52,6 +52,16 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
+        }
+    }
+
+    LaunchedEffect(uiState.spellFieldState.spellFieldUiState.typedCharacters) {
+        val isWordSpeltCorrectly = uiState.spellFieldState.spellFieldUiState.spellCheckState.all {
+            it == SpellCheckState.Matched
+        }
+        if (isWordSpeltCorrectly) {
+            Log.i("Keyboard", "True , True , True ")
+            viewModel.showNextWord()
         }
     }
 }
@@ -116,7 +126,7 @@ fun SpellingExerciseAppBar(currentExerciseNumber: String) {
 }
 
 
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Preview
 @Composable
 fun SpellingExerciseScreenPreview() {
     SpeechsmithTheme {

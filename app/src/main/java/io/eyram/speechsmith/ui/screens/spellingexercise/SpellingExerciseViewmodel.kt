@@ -6,10 +6,19 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import io.eyram.speechsmith.ui.components.KeyboardEvents
 import io.eyram.speechsmith.ui.components.SpellFieldState
+import kotlin.random.Random
 
 class SpellingExerciseScreenVM() : ViewModel() {
+    private val guessList = listOf(
+        "chimpanzee",
+        "mongoose",
+        "salamander",
+        "koala"
+    )
 
-    private var wordToSpell by mutableStateOf("Racooon")
+    private val wts = guessList.random(Random(System.currentTimeMillis()))
+
+    private var wordToSpell by mutableStateOf(wts)
     private val spellFieldState = SpellFieldState(wordToSpell)
     private val keyboardEvents = KeyboardEvents(spellFieldState)
     private val keyboardUiState = KeyboardUiState(generateKeyboardLabels(wordToSpell))
@@ -31,6 +40,10 @@ class SpellingExerciseScreenVM() : ViewModel() {
         }
 
         return keyboardLabelsFromWord.shuffled()
+    }
+
+    fun showNextWord() {
+        wordToSpell = wts
     }
 }
 
