@@ -1,7 +1,6 @@
 package io.eyram.speechsmith.ui.screens.spellingexercise
 
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,8 +28,9 @@ import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 @Composable
 fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 
-    val uiState = viewModel.uiState
-    val spellCheckState = uiState.spellFieldState.spellCheckState
+    val uiState = viewModel.uiState.value
+    val spellFieldState = uiState.spellFieldState
+    val spellCheckState = spellFieldState.spellCheckState
     val isWordSpeltCorrectly = spellCheckState.all { it == SpellCheckState.Matched }
 
     LaunchedEffect(isWordSpeltCorrectly) {
@@ -50,13 +50,15 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
             ImageView(modifier = Modifier.padding(top = 12.dp))
 
             Column {
-                SpellField(spellFieldState = uiState.spellFieldState)
+                SpellField(spellFieldState = spellFieldState)
                 Keyboard(
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .weight(1F),
-                    keyboardEvents = uiState.keyboardEvents,
-                    keyboardLavels = uiState.keyboardLabels
+                    keyboardLabels = uiState.keyboardLabels,
+                    onKeyPress = spellFieldState::onKeyPress,
+                    onEnterPress = spellFieldState::onEnterPress,
+                    onBackSpacePress = spellFieldState::onBackSpacePress
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }

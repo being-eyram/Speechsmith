@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
 
-class SpellFieldState(wordToSpell: String) : KeyboardEventListener {
+class SpellFieldState(wordToSpell: String) {
 
     private val charsToSpell = wordToSpell.map {
         it.uppercaseChar().toString()
@@ -25,15 +25,15 @@ class SpellFieldState(wordToSpell: String) : KeyboardEventListener {
     }
         private set
 
-    override fun onKeyPress(key: String) {
+    fun onKeyPress(key: String) {
         if (typedCharacters.size < charsToSpell.size) {
             typedCharacters.add(key)
             indicatorPosition = typedCharacters.lastIndex + 1
         }
     }
 
-    override fun onEnterPress() {
-        if (typedCharacters.size ==  charsToSpell.size) {
+    fun onEnterPress() {
+        if (typedCharacters.size == charsToSpell.size) {
             charsToSpell.mapIndexed { idx, correctLetter ->
                 when (correctLetter) {
                     typedCharacters[idx] -> spellCheckState[idx] = SpellCheckState.Matched
@@ -43,7 +43,7 @@ class SpellFieldState(wordToSpell: String) : KeyboardEventListener {
         }
     }
 
-    override fun onBackSpacePress() {
+    fun onBackSpacePress() {
         if (typedCharacters.isNotEmpty()) {
             typedCharacters.removeLast()
             indicatorPosition = typedCharacters.lastIndex + 1

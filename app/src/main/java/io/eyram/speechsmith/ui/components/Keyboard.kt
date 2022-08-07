@@ -9,7 +9,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
@@ -17,18 +16,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.eyram.speechsmith.ui.screens.spellingexercise.KeyboardUiState
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 //KeyboardUiState(KeyboardEvents.generateKeyboardLabels(wordToSpell))
 @Composable
 fun Keyboard(
     modifier: Modifier = Modifier,
-    keyboardEvents: KeyboardEvents,
-    keyboardLavels: KeyboardUiState,
+    keyboardLabels: List<String>,
+    onKeyPress: (String) -> Unit,
+    onEnterPress: () -> Unit,
+    onBackSpacePress: () -> Unit
 ) {
-
-    val state = remember { keyboardLavels }
 
     Column(modifier = modifier) {
 
@@ -50,13 +48,15 @@ fun Keyboard(
                         .layoutId("key$index")
                         .fillMaxSize(),
                     onClick = {
-                        keyboardEvents.onKeyPress(state.keyboardLabels[index])
+                        onKeyPress.invoke(keyboardLabels[index])
                     }
                 )
                 {
                     Text(
-                        text = state.keyboardLabels[index],
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
+                        text = keyboardLabels[index],
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Medium
+                        )
                     )
                 }
             }
@@ -72,7 +72,7 @@ fun Keyboard(
                 modifier = Modifier
                     .layoutId(ENTER_KEY_ID)
                     .fillMaxSize(),
-                onClick = { keyboardEvents.onEnterPress() }
+                onClick = { onEnterPress.invoke() }
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -91,7 +91,7 @@ fun Keyboard(
                 modifier = Modifier
                     .layoutId(BACKSPACE_KEY_ID)
                     .fillMaxSize(),
-                onClick = { keyboardEvents.onBackSpacePress() }
+                onClick = { onBackSpacePress.invoke() }
             ) {
                 Text(
                     text = "BACKSPACE",
