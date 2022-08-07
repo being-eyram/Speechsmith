@@ -12,6 +12,7 @@ class SpellFieldState(wordToSpell: String) : KeyboardEventListener {
     private val charsToSpell = wordToSpell.map {
         it.uppercaseChar().toString()
     }
+
     var indicatorPosition by mutableStateOf(0)
         private set
 
@@ -32,7 +33,7 @@ class SpellFieldState(wordToSpell: String) : KeyboardEventListener {
     }
 
     override fun onEnterPress() {
-        if (typedCharacters.size == charsToSpell.size) {
+        if (typedCharacters.size ==  charsToSpell.size) {
             charsToSpell.mapIndexed { idx, correctLetter ->
                 when (correctLetter) {
                     typedCharacters[idx] -> spellCheckState[idx] = SpellCheckState.Matched
@@ -55,4 +56,10 @@ enum class SpellCheckState {
     Initial,
     Matched,
     Unmatched,
+}
+
+//TODO : Use in conjuction with a stateflow to update screenstate
+enum class SpellFieldInputState {
+    Complete,
+    Uncomplete
 }

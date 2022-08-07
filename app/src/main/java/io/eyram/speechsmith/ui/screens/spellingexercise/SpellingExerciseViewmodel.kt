@@ -9,19 +9,24 @@ import io.eyram.speechsmith.ui.components.SpellFieldState
 import kotlin.random.Random
 
 class SpellingExerciseScreenVM() : ViewModel() {
+
+    private var wordToSpell by mutableStateOf("")
     private val guessList = listOf(
-        "chimpanzee",
-        "mongoose",
-        "salamander",
-        "koala"
+        "ant", "cat", "hen",
+        "dog", "horse", "mouse",
+        "goat", "sheep", "koala"
     )
 
-    private val wts = guessList.random(Random(System.currentTimeMillis()))
+    private fun getWord() = guessList.random(Random(System.currentTimeMillis()))
 
-    private var wordToSpell by mutableStateOf(wts)
+    init {
+        wordToSpell = getWord()
+    }
+
+
     private val spellFieldState = SpellFieldState(wordToSpell)
     private val keyboardEvents = KeyboardEvents(spellFieldState)
-    private val keyboardUiState = KeyboardUiState(generateKeyboardLabels(wordToSpell))
+    private val keyboardUiState = generateKeyboardLabels(wordToSpell)
 
     val uiState = SpellingExerciseScreenState(
         spellFieldState,
@@ -43,14 +48,14 @@ class SpellingExerciseScreenVM() : ViewModel() {
     }
 
     fun showNextWord() {
-        wordToSpell = wts
+        wordToSpell = getWord()
     }
 }
 
 data class SpellingExerciseScreenState(
     val spellFieldState: SpellFieldState,
     val keyboardEvents: KeyboardEvents,
-    val keyboardUiState: KeyboardUiState
+    val keyboardLabels: List<String>
 )
 
-data class KeyboardUiState(val keyboardLabels: List<String>)
+//data class KeyboardUiState(val keyboardLabels: List<String>)

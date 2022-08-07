@@ -1,7 +1,7 @@
 package io.eyram.speechsmith.ui.screens.spellingexercise
 
 
-import android.util.Log
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,20 +24,28 @@ import io.eyram.speechsmith.ui.components.Keyboard
 import io.eyram.speechsmith.ui.components.SpellCheckState
 import io.eyram.speechsmith.ui.components.SpellField
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 
     val uiState = viewModel.uiState
+    val spellCheckState = uiState.spellFieldState.spellCheckState
+    val isWordSpeltCorrectly = spellCheckState.all { it == SpellCheckState.Matched }
+
+    LaunchedEffect(isWordSpeltCorrectly) {
+        if (isWordSpeltCorrectly) viewModel.showNextWord()
+    }
 
     Scaffold(
-        topBar = { SpellingExerciseAppBar(currentExerciseNumber = "9/10") }
+        topBar = {
+            SpellingExerciseAppBar(currentExerciseNumber = "9/10")
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier.padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             ImageView(modifier = Modifier.padding(top = 12.dp))
 
@@ -47,21 +55,11 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .weight(1F),
-                    uiState.keyboardEvents,
-                    keyboardUiState = uiState.keyboardUiState
+                    keyboardEvents = uiState.keyboardEvents,
+                    keyboardLavels = uiState.keyboardLabels
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
-        }
-    }
-
-    LaunchedEffect(uiState.spellFieldState.typedCharacters) {
-        val isWordSpeltCorrectly = uiState.spellFieldState.spellCheckState.all {
-            it == SpellCheckState.Matched
-        }
-        if (isWordSpeltCorrectly) {
-            Log.i("Keyboard", "True , True , True ")
-            viewModel.showNextWord()
         }
     }
 }
@@ -77,6 +75,7 @@ fun ImageView(modifier: Modifier = Modifier) {
 
 @Composable
 fun SpellingExerciseAppBar(currentExerciseNumber: String) {
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -94,7 +93,7 @@ fun SpellingExerciseAppBar(currentExerciseNumber: String) {
                 icon = R.drawable.ic_home,
                 backgroundColor = Color.White.copy(alpha = 0.1F),
                 onClick = {},
-                label = "home".uppercase(Locale.ROOT)
+                label = LABEL_HOME
             )
 
             Box(
@@ -119,14 +118,14 @@ fun SpellingExerciseAppBar(currentExerciseNumber: String) {
                 icon = R.drawable.ic_settings,
                 backgroundColor = Color(0xFFFF8717),
                 onClick = {},
-                label = "settings".uppercase(Locale.ROOT)
+                label = LABEL_SETTINGS
             )
         }
     }
 }
 
 
-@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun SpellingExerciseScreenPreview() {
     SpeechsmithTheme {
@@ -171,5 +170,7 @@ fun AppBarButton(
             style = MaterialTheme.typography.labelMedium
         )
     }
-
 }
+
+const val LABEL_HOME = "HOME"
+const val LABEL_SETTINGS = "SETTINGS"
