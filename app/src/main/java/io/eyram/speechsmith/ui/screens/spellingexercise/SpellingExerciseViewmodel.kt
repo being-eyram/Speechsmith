@@ -1,6 +1,5 @@
 package io.eyram.speechsmith.ui.screens.spellingexercise
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,12 +9,13 @@ import kotlin.random.Random
 
 class SpellingExerciseScreenVM() : ViewModel() {
 
-    var uiState: MutableState<SpellingExerciseScreenState>
-        private set
-
-    private var wordToSpell by mutableStateOf("")
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
-    private var keyboardLabels: List<String>
+    private var keyboardLabels by mutableStateOf(listOf(""))
+
+    var uiState by mutableStateOf(
+        SpellingExerciseScreenState(spellFieldState, keyboardLabels)
+    )
+        private set
 
     private val guessList = listOf(
         "ant", "cat", "hen",
@@ -26,16 +26,14 @@ class SpellingExerciseScreenVM() : ViewModel() {
     private fun getWord() = guessList.random(Random(System.currentTimeMillis()))
 
     init {
-        wordToSpell = getWord()
+        val wordToSpell = getWord()
 
         spellFieldState = SpellFieldState(wordToSpell)
         keyboardLabels = generateKeyboardLabels(wordToSpell)
 
-        uiState = mutableStateOf(
-            SpellingExerciseScreenState(
-                spellFieldState,
-                keyboardLabels
-            )
+        uiState = uiState.copy(
+            spellFieldState = spellFieldState,
+            keyboardLabels = keyboardLabels
         )
     }
 
@@ -54,8 +52,15 @@ class SpellingExerciseScreenVM() : ViewModel() {
     }
 
     fun showNextWord() {
-        wordToSpell = getWord()
-        println(wordToSpell)
+        val nxtWordToSpell = getWord()
+        spellFieldState = SpellFieldState(nxtWordToSpell)
+        keyboardLabels = generateKeyboardLabels(nxtWordToSpell)
+
+        uiState = uiState.copy(
+            spellFieldState = spellFieldState,
+            keyboardLabels = keyboardLabels
+        )
+        println(nxtWordToSpell)
     }
 }
 

@@ -28,7 +28,7 @@ import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 @Composable
 fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 
-    val uiState = viewModel.uiState.value
+    val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
     val spellCheckState = spellFieldState.spellCheckState
     val isWordSpeltCorrectly = spellCheckState.all { it == SpellCheckState.Matched }
@@ -52,9 +52,7 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
             Column {
                 SpellField(spellFieldState = spellFieldState)
                 Keyboard(
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .weight(1F),
+                    modifier = Modifier.padding(top = 16.dp),
                     keyboardLabels = uiState.keyboardLabels,
                     onKeyPress = spellFieldState::onKeyPress,
                     onEnterPress = spellFieldState::onEnterPress,
