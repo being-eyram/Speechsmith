@@ -30,18 +30,13 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
-    val spellCheckState = spellFieldState.spellCheckState
-    val isWordSpeltCorrectly = spellCheckState.all { it == SpellCheckState.Matched }
-
-    LaunchedEffect(isWordSpeltCorrectly) {
-        if (isWordSpeltCorrectly) viewModel.showNextWord()
-    }
 
     Scaffold(
         topBar = {
             SpellingExerciseAppBar(currentExerciseNumber = "9/10")
         },
     ) { paddingValues ->
+
         Column(
             modifier = Modifier.padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -61,6 +56,13 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
+    }
+
+    val spellCheckState = spellFieldState.spellCheckState
+    val isWordSpeltCorrectly = spellCheckState.all { it == SpellCheckState.Matched }
+
+    LaunchedEffect(isWordSpeltCorrectly) {
+        if (isWordSpeltCorrectly) viewModel.showNextWord()
     }
 }
 

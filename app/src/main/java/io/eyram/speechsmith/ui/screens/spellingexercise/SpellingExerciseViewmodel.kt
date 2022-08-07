@@ -55,7 +55,6 @@ class SpellingExerciseScreenVM() : ViewModel() {
         val nxtWordToSpell = getWord()
         spellFieldState = SpellFieldState(nxtWordToSpell)
         keyboardLabels = generateKeyboardLabels(nxtWordToSpell)
-
         uiState = uiState.copy(
             spellFieldState = spellFieldState,
             keyboardLabels = keyboardLabels

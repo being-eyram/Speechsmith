@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
-//KeyboardUiState(KeyboardEvents.generateKeyboardLabels(wordToSpell))
 @Composable
 fun Keyboard(
     modifier: Modifier = Modifier,
@@ -114,6 +113,3 @@ fun DefaultPreview() {
 //        Keyboard()
     }
 }
-
-
-
