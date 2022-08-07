@@ -23,7 +23,6 @@ class SpellingExerciseScreenVM() : ViewModel() {
         wordToSpell = getWord()
     }
 
-
     private val spellFieldState = SpellFieldState(wordToSpell)
     private val keyboardEvents = KeyboardEvents(spellFieldState)
     private val keyboardUiState = generateKeyboardLabels(wordToSpell)

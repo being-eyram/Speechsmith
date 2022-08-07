@@ -1,7 +1,7 @@
 package io.eyram.speechsmith.ui.screens.spellingexercise
 
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,7 +45,7 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
         Column(
             modifier = Modifier.padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             ImageView(modifier = Modifier.padding(top = 12.dp))
 
@@ -125,7 +125,7 @@ fun SpellingExerciseAppBar(currentExerciseNumber: String) {
 }
 
 
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Preview
 @Composable
 fun SpellingExerciseScreenPreview() {
     SpeechsmithTheme {
