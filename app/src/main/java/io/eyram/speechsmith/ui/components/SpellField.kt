@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,10 +48,11 @@ fun SpellField(
                 text = getTypedCharacterOrEmpty(index),
                 isNext = index == spellFieldState.indicatorPosition,
                 state = spellBoxState,
+                animationDelayMillis = index * 20,
                 onFinishAnimation = {
-                    if (spellCheckState.last() != SpellCheckState.Initial) {
-                        onSpellCheckFinish.invoke()
-                    }
+                        if (spellCheckState.last() != SpellCheckState.Initial) {
+                            onSpellCheckFinish.invoke()
+                        }
                 }
             )
         }
@@ -63,6 +65,7 @@ fun SpellBox(
     text: String,
     isNext: Boolean = false,
     state: SpellCheckState,
+    animationDelayMillis: Int,
     onFinishAnimation: () -> Unit
 ) {
 
@@ -74,6 +77,7 @@ fun SpellBox(
         },
         animationSpec = tween(
             durationMillis = 195,
+            delayMillis = animationDelayMillis,
             easing = CubicBezierEasing(0.61F, 1F, 0.88F, 1F)
         ),
         finishedListener = { onFinishAnimation.invoke() }

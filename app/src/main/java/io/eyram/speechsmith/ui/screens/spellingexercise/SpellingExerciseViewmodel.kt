@@ -19,8 +19,9 @@ class SpellingExerciseScreenVM() : ViewModel() {
 
     private val guessList = listOf(
         "ant", "cat", "hen",
-        "dog", "horse", "mouse",
-        "goat", "sheep", "koala"
+        "dog",
+//        "horse", "mouse",
+//        "goat", "sheep", "koala"
     )
 
     private fun getWord() = guessList.random(Random(System.currentTimeMillis()))
