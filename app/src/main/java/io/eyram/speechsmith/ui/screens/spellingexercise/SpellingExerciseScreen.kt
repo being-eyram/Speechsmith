@@ -30,6 +30,8 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
+    val spellCheckState = spellFieldState.spellCheckState
+    val isWordSpeltCorrectly = spellCheckState.all { it == SpellCheckState.Matched }
 
     Scaffold(
         topBar = {
@@ -45,7 +47,12 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
             ImageView(modifier = Modifier.padding(top = 12.dp))
 
             Column {
-                SpellField(spellFieldState = spellFieldState)
+                SpellField(
+                    spellFieldState = spellFieldState,
+                    onSpellCheckFinish = {
+                        if (isWordSpeltCorrectly) viewModel.showNextWord()
+                    }
+                )
                 Keyboard(
                     modifier = Modifier.padding(top = 16.dp),
                     keyboardLabels = uiState.keyboardLabels,
@@ -58,12 +65,11 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
         }
     }
 
-    val spellCheckState = spellFieldState.spellCheckState
-    val isWordSpeltCorrectly = spellCheckState.all { it == SpellCheckState.Matched }
 
-    LaunchedEffect(isWordSpeltCorrectly) {
-        if (isWordSpeltCorrectly) viewModel.showNextWord()
-    }
+
+//    LaunchedEffect(isWordSpeltCorrectly) {
+//
+//    }
 }
 
 @Composable
