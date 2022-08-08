@@ -16,50 +16,77 @@ class SpellFieldState(wordToSpell: String) {
     var indicatorPosition by mutableStateOf(0)
         private set
 
-    var typedCharacters = mutableStateListOf<String>() //might move this to keyboard
+    var charsToDisplay = mutableStateListOf<String>() //might move this to keyboard
         private set
 
-    private val initSpellCheckState = MutableList(charsToSpell.size) { SpellCheckState.Initial }
-    var spellCheckState = SnapshotStateList<SpellCheckState>().apply {
-        addAll(initSpellCheckState)
+    var inputFieldState by mutableStateOf<SpellFieldInputState>(InputStateInComplete)
+        private set
+
+    private val initCharMatchList = MutableList(charsToSpell.size) { CharMatchState.Initial }
+    var charMatchList = SnapshotStateList<CharMatchState>().apply {
+        addAll(initCharMatchList)
     }
         private set
 
+
     fun onKeyPress(key: String) {
-        if (typedCharacters.size < charsToSpell.size) {
-            typedCharacters.add(key)
-            indicatorPosition = typedCharacters.lastIndex + 1
+        if (charsToDisplay.size < charsToSpell.size) {
+            charsToDisplay.add(key)
+            indicatorPosition = charsToDisplay.lastIndex + 1
         }
     }
 
     fun onEnterPress() {
-        if (typedCharacters.size == charsToSpell.size) {
-            charsToSpell.mapIndexed { idx, correctLetter ->
-                when (correctLetter) {
-                    typedCharacters[idx] -> spellCheckState[idx] = SpellCheckState.Matched
-                    else -> spellCheckState[idx] = SpellCheckState.Unmatched
-                }
+
+        inputFieldState = when {
+            isSpellInputFilled() -> {
+                matchMaker()
+                if (isAllMatchedUp())
+                    InputStateComplete.Correct
+                else
+                    InputStateComplete.InCorrect
+            }
+            else -> InputStateInComplete
+        }
+        println(inputFieldState)
+    }
+
+
+    fun onBackSpacePress() {
+        if (charsToDisplay.isNotEmpty()) {
+            charsToDisplay.removeLast()
+            indicatorPosition = charsToDisplay.lastIndex + 1
+            charMatchList[charsToDisplay.lastIndex + 1] = CharMatchState.Initial
+        }
+    }
+
+    private fun matchMaker() {
+        charsToDisplay.mapIndexed { idx, inputChar ->
+            val isMatched = inputChar == charsToSpell[idx]
+            if (isMatched) {
+                charMatchList[idx] = CharMatchState.Matched
+            } else {
+                charMatchList[idx] = CharMatchState.Unmatched
             }
         }
     }
 
-    fun onBackSpacePress() {
-        if (typedCharacters.isNotEmpty()) {
-            typedCharacters.removeLast()
-            indicatorPosition = typedCharacters.lastIndex + 1
-            spellCheckState[typedCharacters.lastIndex + 1] = SpellCheckState.Initial
-        }
-    }
+    private fun isAllMatchedUp() = charMatchList.all { it == CharMatchState.Matched }
+    private fun isSpellInputFilled() = charsToDisplay.size == charsToSpell.size
 }
 
-enum class SpellCheckState {
+enum class CharMatchState {
     Initial,
     Matched,
     Unmatched,
 }
 
 //TODO : Use in conjuction with a stateflow to update screenstate
-enum class SpellFieldInputState {
-    Complete,
-    Uncomplete
+sealed class SpellFieldInputState
+
+sealed class InputStateComplete() : SpellFieldInputState() {
+    object Correct : InputStateComplete()
+    object InCorrect : InputStateComplete()
 }
+
+object InputStateInComplete : SpellFieldInputState()

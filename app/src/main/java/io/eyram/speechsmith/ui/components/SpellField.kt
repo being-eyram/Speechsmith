@@ -8,17 +8,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun SpellField(
@@ -27,11 +22,11 @@ fun SpellField(
     onSpellCheckFinish: () -> Unit
 ) {
 
-    val spellCheckState = spellFieldState.spellCheckState
+    val charMatchList = spellFieldState.charMatchList
 
     fun getTypedCharacterOrEmpty(index: Int): String {
-        val lastIndex = spellFieldState.typedCharacters.lastIndex
-        return if (index <= lastIndex) spellFieldState.typedCharacters[index]
+        val lastIndex = spellFieldState.charsToDisplay.lastIndex
+        return if (index <= lastIndex) spellFieldState.charsToDisplay[index]
         else ""
     }
 
@@ -43,16 +38,16 @@ fun SpellField(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        spellCheckState.forEachIndexed { index, spellBoxState ->
+        charMatchList.forEachIndexed { index, spellBoxState ->
             SpellBox(
                 text = getTypedCharacterOrEmpty(index),
                 isNext = index == spellFieldState.indicatorPosition,
                 state = spellBoxState,
                 animationDelayMillis = index * 20,
                 onFinishAnimation = {
-                        if (spellCheckState.last() != SpellCheckState.Initial) {
-                            onSpellCheckFinish.invoke()
-                        }
+                    if (charMatchList.last() != CharMatchState.Initial) {
+                        onSpellCheckFinish.invoke()
+                    }
                 }
             )
         }
@@ -64,15 +59,14 @@ fun SpellBox(
     modifier: Modifier = Modifier,
     text: String,
     isNext: Boolean = false,
-    state: SpellCheckState,
+    state: CharMatchState,
     animationDelayMillis: Int,
     onFinishAnimation: () -> Unit
 ) {
-
     val backgroundColor = animateColorAsState(
         targetValue = when (state) {
-            SpellCheckState.Matched -> Color(0xFF538D4E)
-            SpellCheckState.Unmatched -> Color(0xFF3A3A3C)
+            CharMatchState.Matched -> Color(0xFF538D4E)
+            CharMatchState.Unmatched -> Color(0xFF3A3A3C)
             else -> Color.Unspecified
         },
         animationSpec = tween(
