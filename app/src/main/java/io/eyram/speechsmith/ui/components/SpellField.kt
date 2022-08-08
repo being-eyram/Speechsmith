@@ -68,7 +68,7 @@ fun SpellBox(
     animationDelayMillis: Int,
     onFinishAnimation: () -> Unit
 ) {
-
+// idea : hoist the background color to make it easy to animate.
     val backgroundColor = animateColorAsState(
         targetValue = when (state) {
             SpellCheckState.Matched -> Color(0xFF538D4E)

@@ -2,6 +2,10 @@ package io.eyram.speechsmith.ui.screens.spellingexercise
 
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +28,8 @@ import io.eyram.speechsmith.ui.components.Keyboard
 import io.eyram.speechsmith.ui.components.SpellCheckState
 import io.eyram.speechsmith.ui.components.SpellField
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +39,8 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
     val spellFieldState = uiState.spellFieldState
     val spellCheckState = spellFieldState.spellCheckState
     val isWordSpeltCorrectly = spellCheckState.all { it == SpellCheckState.Matched }
+    val transitionState = MutableTransitionState(isWordSpeltCorrectly)
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -39,37 +48,52 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
         },
     ) { paddingValues ->
 
-        Column(
-            modifier = Modifier.padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
         ) {
-            ImageView(modifier = Modifier.padding(top = 12.dp))
 
-            Column {
-                SpellField(
-                    spellFieldState = spellFieldState,
-                    onSpellCheckFinish = {
-                        if (isWordSpeltCorrectly) viewModel.showNextWord()
-                    }
-                )
-                Keyboard(
-                    modifier = Modifier.padding(top = 16.dp),
-                    keyboardLabels = uiState.keyboardLabels,
-                    onKeyPress = spellFieldState::onKeyPress,
-                    onEnterPress = spellFieldState::onEnterPress,
-                    onBackSpacePress = spellFieldState::onBackSpacePress
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                ImageView(modifier = Modifier.padding(top = 12.dp))
+
+                Column {
+                    SpellField(
+                        spellFieldState = spellFieldState,
+                        onSpellCheckFinish = {
+                            coroutineScope.launch {
+                                if (transitionState.targetState && transitionState.isIdle) {
+                                    delay(200)
+                                    viewModel.showNextWord()
+                                }
+                            }
+                        }
+                    )
+                    Keyboard(
+                        modifier = Modifier.padding(top = 16.dp),
+                        keyboardLabels = uiState.keyboardLabels,
+                        onKeyPress = spellFieldState::onKeyPress,
+                        onEnterPress = spellFieldState::onEnterPress,
+                        onBackSpacePress = spellFieldState::onBackSpacePress
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.TopCenter),
+                visibleState = transitionState,
+                exit = fadeOut(tween(1050))
+            ) {
+                Card(
+                    Modifier.size(240.dp, 40.dp)
+                ) {}
             }
         }
     }
-
-
-
-//    LaunchedEffect(isWordSpeltCorrectly) {
-//
-//    }
 }
 
 @Composable
