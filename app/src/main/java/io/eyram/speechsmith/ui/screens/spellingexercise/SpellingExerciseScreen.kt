@@ -67,7 +67,6 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                                     viewModel.showNextWord()
                                 }
                             }
-
                         }
                     )
                     Keyboard(
