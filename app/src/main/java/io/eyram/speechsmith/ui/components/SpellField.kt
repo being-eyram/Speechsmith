@@ -8,6 +8,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,7 +21,7 @@ import androidx.compose.ui.unit.sp
 fun SpellField(
     modifier: Modifier = Modifier,
     spellFieldState: SpellFieldState,
-    onSpellCheckFinish: () -> Unit
+    onSpellCheckFinish: (SpellFieldInputState) -> Unit
 ) {
 
     val charMatchList = spellFieldState.charMatchList
@@ -29,7 +31,6 @@ fun SpellField(
         return if (index <= lastIndex) spellFieldState.charsToDisplay[index]
         else ""
     }
-
 
     Row(
         modifier = modifier
@@ -44,12 +45,22 @@ fun SpellField(
                 isNext = index == spellFieldState.indicatorPosition,
                 state = spellBoxState,
                 animationDelayMillis = index * 20,
-                onFinishAnimation = {
-                    if (charMatchList.last() != CharMatchState.Initial) {
-                        onSpellCheckFinish.invoke()
-                    }
-                }
             )
+        }
+
+        val hasInputChanged = derivedStateOf { spellFieldState.charsToDisplay }
+        LaunchedEffect(hasInputChanged) {
+            println("Called")
+            val inputFieldState = when {
+                spellFieldState.isSpellInputFilled() -> {
+                    if (spellFieldState.isSpellingCorrect())
+                        SpellFieldInputState.Correct
+                    else
+                        SpellFieldInputState.Incorrect
+                }
+                else -> SpellFieldInputState.InComplete
+            }
+            onSpellCheckFinish.invoke(inputFieldState)
         }
     }
 }
@@ -61,7 +72,6 @@ fun SpellBox(
     isNext: Boolean = false,
     state: CharMatchState,
     animationDelayMillis: Int,
-    onFinishAnimation: () -> Unit
 ) {
     val backgroundColor = animateColorAsState(
         targetValue = when (state) {
@@ -74,7 +84,6 @@ fun SpellBox(
             delayMillis = animationDelayMillis,
             easing = CubicBezierEasing(0.61F, 1F, 0.88F, 1F)
         ),
-        finishedListener = { onFinishAnimation.invoke() }
     )
     val borderColor = animateColorAsState(
         targetValue = if (isNext) Color(0xFFE0991A) else Color(0xFFA4A4A4),

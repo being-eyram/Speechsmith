@@ -1,30 +1,22 @@
 package io.eyram.speechsmith.ui.components
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
 
 class SpellFieldState(wordToSpell: String) {
 
-    private val charsToSpell = wordToSpell.map {
-        it.uppercaseChar().toString()
-    }
+    private val charsToSpell = wordToSpell.map { it.uppercaseChar().toString() }
 
-    var indicatorPosition by mutableStateOf(0)
+
+    var charsToDisplay = mutableStateListOf<String>()
         private set
 
-    var charsToDisplay = mutableStateListOf<String>() //might move this to keyboard
-        private set
+    val indicatorPosition by derivedStateOf{charsToDisplay.lastIndex + 1}
 
-    var inputFieldState by mutableStateOf<SpellFieldInputState>(InputStateInComplete)
-        private set
-
-    private val initCharMatchList = MutableList(charsToSpell.size) { CharMatchState.Initial }
     var charMatchList = SnapshotStateList<CharMatchState>().apply {
-        addAll(initCharMatchList)
+        val init = List(charsToSpell.size) { CharMatchState.Initial }
+        addAll(init)
     }
         private set
 
@@ -32,38 +24,12 @@ class SpellFieldState(wordToSpell: String) {
     fun onKeyPress(key: String) {
         if (charsToDisplay.size < charsToSpell.size) {
             charsToDisplay.add(key)
-            indicatorPosition = charsToDisplay.lastIndex + 1
         }
     }
 
     fun onEnterPress() {
-
-        inputFieldState = when {
-            isSpellInputFilled() -> {
-                matchMaker()
-                if (isAllMatchedUp())
-                    InputStateComplete.Correct
-                else
-                    InputStateComplete.InCorrect
-            }
-            else -> InputStateInComplete
-        }
-        println(inputFieldState)
-    }
-
-
-    fun onBackSpacePress() {
-        if (charsToDisplay.isNotEmpty()) {
-            charsToDisplay.removeLast()
-            indicatorPosition = charsToDisplay.lastIndex + 1
-            charMatchList[charsToDisplay.lastIndex + 1] = CharMatchState.Initial
-        }
-    }
-
-    private fun matchMaker() {
         charsToDisplay.mapIndexed { idx, inputChar ->
-            val isMatched = inputChar == charsToSpell[idx]
-            if (isMatched) {
+            if ( inputChar == charsToSpell[idx]) {
                 charMatchList[idx] = CharMatchState.Matched
             } else {
                 charMatchList[idx] = CharMatchState.Unmatched
@@ -71,8 +37,15 @@ class SpellFieldState(wordToSpell: String) {
         }
     }
 
-    private fun isAllMatchedUp() = charMatchList.all { it == CharMatchState.Matched }
-    private fun isSpellInputFilled() = charsToDisplay.size == charsToSpell.size
+    fun onBackSpacePress() {
+        if (charsToDisplay.isNotEmpty()) {
+            charsToDisplay.removeLast()
+            charMatchList[charsToDisplay.lastIndex + 1] = CharMatchState.Initial
+        }
+    }
+
+    fun isSpellingCorrect() = charMatchList.all { it == CharMatchState.Matched }
+    fun isSpellInputFilled() = charsToDisplay.size == charsToSpell.size
 }
 
 enum class CharMatchState {
@@ -82,11 +55,8 @@ enum class CharMatchState {
 }
 
 //TODO : Use in conjuction with a stateflow to update screenstate
-sealed class SpellFieldInputState
-
-sealed class InputStateComplete() : SpellFieldInputState() {
-    object Correct : InputStateComplete()
-    object InCorrect : InputStateComplete()
+enum class SpellFieldInputState{
+    Correct,
+    Incorrect,
+    InComplete
 }
-
-object InputStateInComplete : SpellFieldInputState()

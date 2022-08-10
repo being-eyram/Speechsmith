@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.R
-import io.eyram.speechsmith.ui.components.InputStateComplete
 import io.eyram.speechsmith.ui.components.Keyboard
 import io.eyram.speechsmith.ui.components.SpellField
+import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -58,11 +58,11 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                 Column {
                     SpellField(
                         spellFieldState = spellFieldState,
-                        onSpellCheckFinish = {
+                        onSpellCheckFinish = { inputState ->
                             coroutineScope.launch {
                                 delay(400)
                                 showDialog = false
-                                if (spellFieldState.inputFieldState == InputStateComplete.Correct) {
+                                if (inputState == SpellFieldInputState.Correct) {
                                     delay(300)
                                     viewModel.showNextWord()
                                 }
@@ -86,7 +86,7 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                 modifier = Modifier.align(Alignment.TopCenter),
                 visible = showDialog,
                 enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut(tween())
+                exit = scaleOut() + fadeOut()
             ) {
                 Card(
                     Modifier
