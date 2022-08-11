@@ -3,12 +3,20 @@ package io.eyram.speechsmith.ui.screens.spellingexercise
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.R
+import io.eyram.speechsmith.ui.components.BottomSheetContent
 import io.eyram.speechsmith.ui.components.Keyboard
 import io.eyram.speechsmith.ui.components.SpellField
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
@@ -27,7 +36,10 @@ import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 
@@ -35,63 +47,93 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
     val spellFieldState = uiState.spellFieldState
     var showDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden
+    )
 
-    Scaffold(
-        topBar = {
-            SpellingExerciseAppBar(currentExerciseNumber = "9/10")
-        },
-    ) { paddingValues ->
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            BottomSheetContent(
+                text = "Total Questions",
+                onSubButtonClick = {},
+                onAddButtonClick = {}
+            )
 
-        Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
+            BottomSheetContent(
+                text = "Total Questions",
+                onSubButtonClick = {},
+                onAddButtonClick = {}
+            )
 
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
+            Button(
+                modifier = Modifier
+                    .padding(top = 24.dp)
+                    .size(160.dp, 32.dp)
+                    .align(Alignment.CenterHorizontally),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                onClick = { /*TODO*/ }) {
+                Text("SAVE CHANGES")
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                SpellingExerciseAppBar(currentExerciseNumber = "9/10")
+            },
+        ) { paddingValues ->
+
+            Box(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
             ) {
-                ImageView(modifier = Modifier.padding(top = 12.dp))
 
-                Column {
-                    SpellField(
-                        spellFieldState = spellFieldState,
-                        onSpellCheckFinish = { inputState ->
-                            coroutineScope.launch {
-                                delay(400)
-                                showDialog = false
-                                if (inputState == SpellFieldInputState.Correct) {
-                                    delay(300)
-                                    viewModel.showNextWord()
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    ImageView(modifier = Modifier.padding(top = 12.dp))
+
+                    Column {
+                        SpellField(
+                            spellFieldState = spellFieldState,
+                            onSpellCheckFinish = { inputState ->
+                                coroutineScope.launch {
+                                    delay(400)
+                                    showDialog = false
+                                    if (inputState == SpellFieldInputState.Correct) {
+                                        delay(300)
+                                        viewModel.showNextWord()
+                                    }
                                 }
                             }
-                        }
-                    )
-                    Keyboard(
-                        modifier = Modifier.padding(top = 16.dp),
-                        keyboardLabels = uiState.keyboardLabels,
-                        onKeyPress = spellFieldState::onKeyPress,
-                        onEnterPress = {
-                            spellFieldState.onEnterPress()
-                            showDialog = true
-                        },
-                        onBackSpacePress = spellFieldState::onBackSpacePress
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                        )
+                        Keyboard(
+                            modifier = Modifier.padding(top = 16.dp),
+                            keyboardLabels = uiState.keyboardLabels,
+                            onKeyPress = spellFieldState::onKeyPress,
+                            onEnterPress = {
+                                spellFieldState.onEnterPress()
+                                showDialog = true
+                            },
+                            onBackSpacePress = spellFieldState::onBackSpacePress
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
-            }
-            AnimatedVisibility(
-                modifier = Modifier.align(Alignment.TopCenter),
-                visible = showDialog,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
-                Card(
-                    Modifier
-                        .size(240.dp, 40.dp)
-                ) {}
+                AnimatedVisibility(
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    visible = showDialog,
+                    enter = scaleIn() + fadeIn(),
+                    exit = scaleOut() + fadeOut()
+                ) {
+                    Card(
+                        Modifier
+                            .size(240.dp, 40.dp)
+                    ) {}
+                }
             }
         }
     }
