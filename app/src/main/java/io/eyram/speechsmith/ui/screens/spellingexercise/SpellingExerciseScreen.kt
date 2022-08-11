@@ -28,10 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.R
-import io.eyram.speechsmith.ui.components.BottomSheetContent
-import io.eyram.speechsmith.ui.components.Keyboard
-import io.eyram.speechsmith.ui.components.SpellField
-import io.eyram.speechsmith.ui.components.SpellFieldInputState
+import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,26 +49,42 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
     )
 
     ModalBottomSheetLayout(
+        sheetBackgroundColor = Color.Black,
+        sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetState = sheetState,
         sheetContent = {
-            BottomSheetContent(
-                text = "Total Questions",
-                onSubButtonClick = {},
-                onAddButtonClick = {}
-            )
+            DragIndicator(Modifier.align(Alignment.CenterHorizontally))
 
-            BottomSheetContent(
-                text = "Total Questions",
-                onSubButtonClick = {},
-                onAddButtonClick = {}
-            )
+            BottomSheetItem(
+                modifier = Modifier.padding(top = 32.dp),
+                content = {
+                    OptionsWithSelection(text = "Word Group") {
+
+                    }
+                })
+
+            BottomSheetItem(content = {
+                OptionsWithOps(text = "Total Questions",
+                    onAddButtonClick = {},
+                    onSubButtonClick = {}
+                )
+            })
+
+            BottomSheetItem(content = {
+                OptionsWithOps(text = "Max Letters In Word",
+                    onAddButtonClick = {},
+                    onSubButtonClick = {}
+                )
+            })
 
             Button(
                 modifier = Modifier
-                    .padding(top = 24.dp)
+                    .padding(top = 24.dp, bottom = 24.dp)
                     .size(160.dp, 32.dp)
                     .align(Alignment.CenterHorizontally),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                shape = RoundedCornerShape(4.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+                contentPadding = PaddingValues(0.dp),
                 onClick = { /*TODO*/ }) {
                 Text("SAVE CHANGES")
             }
@@ -101,6 +114,7 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                             spellFieldState = spellFieldState,
                             onSpellCheckFinish = { inputState ->
                                 coroutineScope.launch {
+                                    sheetState.show()
                                     delay(400)
                                     showDialog = false
                                     if (inputState == SpellFieldInputState.Correct) {
