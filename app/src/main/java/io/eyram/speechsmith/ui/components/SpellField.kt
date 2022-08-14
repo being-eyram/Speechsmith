@@ -50,7 +50,6 @@ fun SpellField(
 
         val hasInputChanged = derivedStateOf { spellFieldState.charsToDisplay }
         LaunchedEffect(hasInputChanged) {
-            println("Called")
             val inputFieldState = when {
                 spellFieldState.isSpellInputFilled() -> {
                     if (spellFieldState.isSpellingCorrect())

@@ -71,7 +71,7 @@ fun Keyboard(
                 modifier = Modifier
                     .layoutId(ENTER_KEY_ID)
                     .fillMaxSize(),
-                onClick = { onEnterPress.invoke() }
+                onClick =  onEnterPress::invoke
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -90,7 +90,7 @@ fun Keyboard(
                 modifier = Modifier
                     .layoutId(BACKSPACE_KEY_ID)
                     .fillMaxSize(),
-                onClick = { onBackSpacePress.invoke() }
+                onClick = onBackSpacePress::invoke
             ) {
                 Text(
                     text = "BACKSPACE",

@@ -3,29 +3,26 @@ package io.eyram.speechsmith.ui.screens.spellingexercise
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.components.*
@@ -83,16 +80,29 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                     .size(160.dp, 32.dp)
                     .align(Alignment.CenterHorizontally),
                 shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                ),
                 contentPadding = PaddingValues(0.dp),
                 onClick = { /*TODO*/ }) {
-                Text("SAVE CHANGES")
+                Text(
+                    "SAVE CHANGES",
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
         }
     ) {
         Scaffold(
             topBar = {
-                SpellingExerciseAppBar(currentExerciseNumber = "9/10")
+                SpellingExerciseAppBar(
+                    onHomeClick = {},
+                    onSettingsClick = {
+                        coroutineScope.launch {
+                            sheetState.show()
+                        }
+                    }
+                )
             },
         ) { paddingValues ->
 
@@ -114,7 +124,6 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                             spellFieldState = spellFieldState,
                             onSpellCheckFinish = { inputState ->
                                 coroutineScope.launch {
-                                    sheetState.show()
                                     delay(400)
                                     showDialog = false
                                     if (inputState == SpellFieldInputState.Correct) {
@@ -163,53 +172,39 @@ fun ImageView(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SpellingExerciseAppBar(currentExerciseNumber: String) {
+fun SpellingExerciseAppBar(onHomeClick: () -> Unit, onSettingsClick: () -> Unit) {
 
-    Surface(
+    ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp),
-        color = Color.Black,
-        contentColor = Color.White
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(top = 4.dp, start = 12.dp, end = 12.dp)
-                .fillMaxSize(),
+            .height(72.dp)
+            .background(Color.Black),
+
         ) {
-            AppBarButton(
-                modifier = Modifier.align(Alignment.TopStart),
-                icon = R.drawable.ic_home,
-                backgroundColor = Color.White.copy(alpha = 0.1F),
-                onClick = {},
-                label = LABEL_HOME
-            )
+        val (homeRef, settingsRef) = createRefs()
+        AppBarButton(
+            modifier = Modifier.constrainAs(homeRef) {
+                start.linkTo(parent.start)
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                end.linkTo(settingsRef.start)
+            },
+            icon = R.drawable.ic_home,
+            onClick = onHomeClick::invoke,
+            label = LABEL_HOME
+        )
 
-            Box(
-                Modifier
-                    .size(120.dp, 40.dp)
-                    .align(Alignment.TopCenter)
-                    .border(
-                        width = Dp.Hairline,
-                        color = Color(0xFF82DD8B),
-                        shape = RoundedCornerShape(50)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = currentExerciseNumber,
-                    style = MaterialTheme.typography.labelMedium.copy(fontSize = 16.sp)
-                )
-            }
-
-            AppBarButton(
-                modifier = Modifier.align(Alignment.TopEnd),
-                icon = R.drawable.ic_settings,
-                backgroundColor = Color(0xFFFF8717),
-                onClick = {},
-                label = LABEL_SETTINGS
-            )
-        }
+        AppBarButton(
+            modifier = Modifier.constrainAs(settingsRef) {
+                start.linkTo(homeRef.end)
+                top.linkTo(homeRef.top)
+                bottom.linkTo(homeRef.bottom)
+                end.linkTo(parent.end)
+            },
+            icon = R.drawable.ic_settings,
+            onClick = onSettingsClick::invoke,
+            label = LABEL_SETTINGS
+        )
     }
 }
 
@@ -226,38 +221,39 @@ fun SpellingExerciseScreenPreview() {
 fun AppBarButton(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
-    backgroundColor: Color,
     onClick: () -> Unit,
     label: String,
 ) {
-    Column(
-        modifier = modifier.clickable(
-            onClick = { onClick() },
-        ),
-        horizontalAlignment = Alignment.CenterHorizontally
+    ConstraintLayout(
+        modifier = modifier
+            .height(36.dp)
+            .wrapContentWidth()
+            .clip(RoundedCornerShape(50))
+            .clickable(onClick = onClick::invoke)
+            .border(Dp.Hairline, Color.DarkGray, RoundedCornerShape(50)),
     ) {
-        Button(
-            modifier = Modifier.size(40.dp),
-            shape = RoundedCornerShape(50),
-            contentPadding = PaddingValues(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = backgroundColor,
-                contentColor = contentColorFor(backgroundColor = backgroundColor)
-            ),
-            onClick = { }
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = null,
-                tint = Color.Unspecified
-            )
-        }
-
+        val (iconRef, textRef) = createRefs()
+        Icon(
+            modifier = Modifier.constrainAs(iconRef) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start, 20.dp)
+            },
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            tint = Color.Unspecified
+        )
         Text(
-            modifier = Modifier.paddingFromBaseline(top = 16.dp),
+            modifier = Modifier.constrainAs(textRef) {
+                top.linkTo(iconRef.top)
+                bottom.linkTo(iconRef.bottom)
+                start.linkTo(iconRef.end, 8.dp)
+                end.linkTo(parent.end, 20.dp)
+            },
             text = label,
             style = MaterialTheme.typography.labelMedium
         )
+        Spacer(Modifier.width(20.dp))
     }
 }
 

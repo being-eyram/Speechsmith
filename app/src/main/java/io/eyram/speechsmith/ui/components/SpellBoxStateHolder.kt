@@ -8,7 +8,6 @@ class SpellFieldState(wordToSpell: String) {
 
     private val charsToSpell = wordToSpell.map { it.uppercaseChar().toString() }
 
-
     var charsToDisplay = mutableStateListOf<String>()
         private set
 
