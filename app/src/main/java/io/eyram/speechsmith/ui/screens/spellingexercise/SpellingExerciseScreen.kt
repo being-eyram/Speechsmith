@@ -6,19 +6,24 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -117,7 +122,11 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    ImageView(modifier = Modifier.padding(top = 12.dp))
+                    ImageView(
+                        modifier = Modifier.padding(top = 12.dp),
+                        onPrevClick = {},
+                        onNextClick = {}
+                    )
 
                     Column {
                         SpellField(
@@ -163,12 +172,37 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 }
 
 @Composable
-fun ImageView(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.size(256.dp, 280.dp),
-        shape = RoundedCornerShape(12.dp),
-        color = Color.Gray
-    ) {}
+fun ImageView(
+    modifier: Modifier = Modifier,
+    onPrevClick: () -> Unit,
+    onNextClick: () -> Unit,
+    enablePrevButton: Boolean = false,
+    enableNextButton: Boolean = true,
+) {
+    Row(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        PrevNextButton(
+            label = LABEL_PREV,
+            onClick = onPrevClick::invoke,
+            enabled = enablePrevButton
+        )
+        Surface(
+            modifier = modifier.size(220.dp, 260.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = Color.Gray
+        ) {}
+        PrevNextButton(
+            label = LABEL_NEXT,
+            onClick = onNextClick::invoke,
+            enabled = enableNextButton
+        )
+    }
 }
 
 @Composable
@@ -257,5 +291,49 @@ fun AppBarButton(
     }
 }
 
+@Composable
+fun PrevNextButton(
+    modifier: Modifier = Modifier,
+    label: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(color = Color.White.copy(alpha = 0.10F), shape = CircleShape)
+                .clickable(
+                    onClick = onClick,
+                    enabled = enabled,
+                    role = Role.Button,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(
+                        bounded = false,
+                        radius = 20.dp
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier.rotate(if (label == LABEL_NEXT) 0F else 180F),
+                painter = painterResource(id = R.drawable.ic_arrow_forward),
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
+        Text(
+            modifier = Modifier.paddingFromBaseline(18.dp),
+            text = label,
+            style = MaterialTheme.typography.labelMedium
+        )
+    }
+}
+
 const val LABEL_HOME = "HOME"
 const val LABEL_SETTINGS = "SETTINGS"
+const val LABEL_PREV = "PREV"
+const val LABEL_NEXT = "NEXT"
