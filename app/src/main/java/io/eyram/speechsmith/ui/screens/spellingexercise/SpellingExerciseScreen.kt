@@ -305,7 +305,7 @@ fun PrevNextButton(
         Box(
             modifier = Modifier
                 .size(40.dp)
-                .background(color = Color.White.copy(alpha = 0.10F), shape = CircleShape)
+                .background(color = Color.White.copy(alpha = 0.05F), shape = CircleShape)
                 .clickable(
                     onClick = onClick,
                     enabled = enabled,
