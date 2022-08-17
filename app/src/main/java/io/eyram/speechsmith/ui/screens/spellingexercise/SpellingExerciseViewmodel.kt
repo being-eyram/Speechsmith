@@ -4,13 +4,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import io.eyram.speechsmith.network.DictionaryService
 import io.eyram.speechsmith.ui.components.SpellFieldState
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.random.Random
 
-class SpellingExerciseScreenVM() : ViewModel() {
+@HiltViewModel
+class SpellingExerciseScreenVM @Inject constructor(private val dictionaryService: DictionaryService) : ViewModel() {
 
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
     private var keyboardLabels by mutableStateOf(listOf(""))
+
+    init {
+        viewModelScope.launch {
+            val response = dictionaryService.getJoke()
+            if (response.isSuccessful) {
+                println(response.body().toString())
+            } else {
+                println(response.code())
+            }
+        }
+
+    }
 
     var uiState by mutableStateOf(
         SpellingExerciseScreenState(spellFieldState, keyboardLabels)
