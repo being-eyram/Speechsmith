@@ -27,11 +27,13 @@ class SpellFieldState(wordToSpell: String) {
     }
 
     fun onEnterPress() {
-        charsToDisplay.mapIndexed { idx, inputChar ->
-            if ( inputChar == charsToSpell[idx]) {
-                charMatchList[idx] = CharMatchState.Matched
-            } else {
-                charMatchList[idx] = CharMatchState.Unmatched
+        if(charsToDisplay.size == charsToSpell.size){
+            charsToDisplay.mapIndexed { idx, inputChar ->
+                if ( inputChar == charsToSpell[idx]) {
+                    charMatchList[idx] = CharMatchState.Matched
+                } else {
+                    charMatchList[idx] = CharMatchState.Unmatched
+                }
             }
         }
     }

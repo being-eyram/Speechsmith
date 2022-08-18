@@ -102,11 +102,7 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
             topBar = {
                 SpellingExerciseAppBar(
                     onHomeClick = {},
-                    onSettingsClick = {
-                        coroutineScope.launch {
-                            sheetState.show()
-                        }
-                    }
+                    onSettingsClick = { coroutineScope.launch { sheetState.show() } }
                 )
             },
         ) { paddingValues ->
@@ -129,26 +125,31 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                     )
 
                     Column {
-                        SpellField(
-                            spellFieldState = spellFieldState,
-                            onSpellCheckFinish = { inputState ->
-                                coroutineScope.launch {
-                                    delay(400)
-                                    showDialog = false
-                                    if (inputState == SpellFieldInputState.Correct) {
-                                        delay(300)
-                                        viewModel.showNextWord()
-                                    }
-                                }
-                            }
-                        )
+                        SpellField(spellFieldState = spellFieldState)
                         Keyboard(
                             modifier = Modifier.padding(top = 16.dp),
                             keyboardLabels = uiState.keyboardLabels,
                             onKeyPress = spellFieldState::onKeyPress,
                             onEnterPress = {
-                                spellFieldState.onEnterPress()
-                                showDialog = true
+                                coroutineScope.launch {
+                                    spellFieldState.onEnterPress()
+                                    val inputFieldState = when {
+                                        spellFieldState.isSpellInputFilled() -> {
+                                            if (spellFieldState.isSpellingCorrect())
+                                                SpellFieldInputState.Correct
+                                            else
+                                                SpellFieldInputState.Incorrect
+                                        }
+                                        else -> SpellFieldInputState.InComplete
+                                    }
+                                    showDialog = true
+                                    delay(800)
+                                    showDialog = false
+                                    if (inputFieldState == SpellFieldInputState.Correct) {
+                                        delay(300)
+                                        viewModel.showNextWord()
+                                    }
+                                }
                             },
                             onBackSpacePress = spellFieldState::onBackSpacePress
                         )

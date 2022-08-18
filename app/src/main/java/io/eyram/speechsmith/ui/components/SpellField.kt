@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 fun SpellField(
     modifier: Modifier = Modifier,
     spellFieldState: SpellFieldState,
-    onSpellCheckFinish: (SpellFieldInputState) -> Unit
+   // onSpellCheckFinish: (SpellFieldInputState) -> Unit
 ) {
 
     val charMatchList = spellFieldState.charMatchList
@@ -48,19 +48,19 @@ fun SpellField(
             )
         }
 
-        val hasInputChanged = derivedStateOf { spellFieldState.charsToDisplay }
-        LaunchedEffect(hasInputChanged) {
-            val inputFieldState = when {
-                spellFieldState.isSpellInputFilled() -> {
-                    if (spellFieldState.isSpellingCorrect())
-                        SpellFieldInputState.Correct
-                    else
-                        SpellFieldInputState.Incorrect
-                }
-                else -> SpellFieldInputState.InComplete
-            }
-            onSpellCheckFinish.invoke(inputFieldState)
-        }
+//        val hasInputChanged = derivedStateOf { spellFieldState.charsToDisplay }
+//        LaunchedEffect(hasInputChanged) {
+//            val inputFieldState = when {
+//                spellFieldState.isSpellInputFilled() -> {
+//                    if (spellFieldState.isSpellingCorrect())
+//                        SpellFieldInputState.Correct
+//                    else
+//                        SpellFieldInputState.Incorrect
+//                }
+//                else -> SpellFieldInputState.InComplete
+//            }
+//            onSpellCheckFinish.invoke(inputFieldState)
+//        }
     }
 }
 

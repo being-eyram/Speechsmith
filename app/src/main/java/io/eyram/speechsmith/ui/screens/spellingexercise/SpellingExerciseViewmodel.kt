@@ -19,14 +19,14 @@ class SpellingExerciseScreenVM @Inject constructor(private val dictionaryService
     private var keyboardLabels by mutableStateOf(listOf(""))
 
     init {
-        viewModelScope.launch {
-            val response = dictionaryService.getJoke()
-            if (response.isSuccessful) {
-                println(response.body().toString())
-            } else {
-                println(response.code())
-            }
-        }
+//        viewModelScope.launch {
+//            val response = dictionaryService.getJoke()
+//            if (response.isSuccessful) {
+//                println(response.body().toString())
+//            } else {
+//                println(response.code())
+//            }
+//        }
 
     }
 
