@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.sp
 fun SpellField(
     modifier: Modifier = Modifier,
     spellFieldState: SpellFieldState,
-   // onSpellCheckFinish: (SpellFieldInputState) -> Unit
 ) {
 
     val charMatchList = spellFieldState.charMatchList
@@ -44,23 +43,9 @@ fun SpellField(
                 text = getTypedCharacterOrEmpty(index),
                 isNext = index == spellFieldState.indicatorPosition,
                 state = spellBoxState,
-                animationDelayMillis = index * 20,
+                animationDelayMillis = index * 50,
             )
         }
-
-//        val hasInputChanged = derivedStateOf { spellFieldState.charsToDisplay }
-//        LaunchedEffect(hasInputChanged) {
-//            val inputFieldState = when {
-//                spellFieldState.isSpellInputFilled() -> {
-//                    if (spellFieldState.isSpellingCorrect())
-//                        SpellFieldInputState.Correct
-//                    else
-//                        SpellFieldInputState.Incorrect
-//                }
-//                else -> SpellFieldInputState.InComplete
-//            }
-//            onSpellCheckFinish.invoke(inputFieldState)
-//        }
     }
 }
 
