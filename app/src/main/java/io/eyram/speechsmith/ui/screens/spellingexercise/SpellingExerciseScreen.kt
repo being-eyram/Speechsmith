@@ -295,39 +295,7 @@ fun AppBarButton(
     }
 }
 
-@Composable
-fun PrevNextButton(
-    modifier: Modifier = Modifier,
-    label: String,
-    onClick: () -> Unit,
-    enabled: Boolean,
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        IconButton(
-            modifier = Modifier.background(
-                color = Color.White.copy(alpha = 0.05F),
-                shape = CircleShape
-            ),
-            onClick = onClick::invoke,
-            enabled = enabled
-        ) {
-            Icon(
-                modifier = Modifier.rotate(if (label == LABEL_NEXT) 0F else 180F),
-                painter = painterResource(id = R.drawable.ic_arrow_forward),
-                contentDescription = null,
-                tint = Color.White
-            )
-        }
-        Text(
-            modifier = Modifier.paddingFromBaseline(22.dp),
-            text = label,
-            style = MaterialTheme.typography.labelMedium
-        )
-    }
-}
+
 
 const val LABEL_HOME = "HOME"
 const val LABEL_SETTINGS = "SETTINGS"
