@@ -1,11 +1,13 @@
 package io.eyram.speechsmith.ui.screens.listenandchoose
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -96,25 +98,58 @@ fun PlaySoundButton(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OptionCard(
     modifier: Modifier = Modifier,
     optionBody: String,
+    state: OptionButtonState,
     onClick: () -> Unit,
 
     ) {
+
+    val labelColor by animateColorAsState(
+        targetValue = when (state) {
+            OptionButtonState.Correct -> Color(0xFF538D4E)
+            OptionButtonState.Incorrect -> Color(0xFFBF4040)
+            else -> Color(0xFF3A3A3C)
+        }
+    )
+
+    val labelStrokeColor by animateColorAsState(
+        targetValue = when (state) {
+            OptionButtonState.Initial -> Color.Unspecified
+            else -> Color.White
+        }
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = when (state) {
+            OptionButtonState.Correct -> Color(0xFF538D4E)
+            OptionButtonState.Incorrect -> Color(0xFFBF4040)
+            else -> Color.White.copy(alpha = 0.05F)
+        }
+    )
+
     Button(
         modifier = modifier
             .padding(horizontal = 20.dp)
             .height(56.dp)
             .fillMaxWidth(),
-        border = BorderStroke(Dp.Hairline, color = Color.DarkGray),
+        border = BorderStroke(
+            Dp.Hairline,
+            color = if (state == OptionButtonState.Initial) Color.DarkGray else Color.Unspecified
+        ),
         contentPadding = PaddingValues(horizontal = 16.dp),
         shape = RoundedCornerShape(6.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.05f)),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = backgroundColor,
+            contentColor = Color.White
+        ),
         onClick = onClick::invoke
 
     ) {
+
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
@@ -124,18 +159,40 @@ fun OptionCard(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OptionLabel(label = "1")
+
+                OptionLabel(
+                    label = "1",
+                    backgroundColor = labelColor,
+                    strokeColor = labelStrokeColor
+                )
+
                 Text(
                     text = optionBody,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 )
             }
-            Icon(
-                painter = painterResource(id = R.drawable.ic_correct),
-                contentDescription = null
-            )
+
+            fun showIcon() =
+                (state == OptionButtonState.Correct) || (state == OptionButtonState.Incorrect)
+
+            val icon = when (state) {
+                OptionButtonState.Correct -> R.drawable.ic_correct
+                else -> R.drawable.ic_incorrect
+            }
+
+            AnimatedVisibility(
+                visible = showIcon(),
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut()
+            ) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = null
+                )
+            }
         }
     }
 }
@@ -143,15 +200,15 @@ fun OptionCard(
 @Composable
 fun OptionLabel(
     modifier: Modifier = Modifier,
+    backgroundColor: Color,
+    strokeColor: Color,
     label: String = ""
 ) {
     Box(
         modifier = modifier
             .size(24.dp, 32.dp)
-            .background(
-                color = Color.DarkGray,
-                shape = RoundedCornerShape(50)
-            ),
+            .background(color = backgroundColor, shape = RoundedCornerShape(50))
+            .border(1.dp, strokeColor, shape = RoundedCornerShape(50)),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -168,7 +225,23 @@ fun OptionLabel(
 @Composable
 fun OptionCardPreview() {
     SpeechsmithTheme {
-        OptionCard(optionBody = "Apples") { }
+        var index by remember { mutableStateOf(0) }
+        Column(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .padding(top = 32.dp)
+        ) {
+            Spacer(Modifier.width(16.dp))
+            OptionCard(
+                optionBody = "Apples",
+                state = OptionButtonState.values()[index]
+            ) {
+                index = (index + 1) % 3
+            }
+            Spacer(Modifier.width(16.dp))
+        }
+
     }
 }
 
@@ -183,3 +256,9 @@ fun PlayButtonPrev() {
 }
 
 const val PLAY_SOUND = "PLAY SOUND"
+
+enum class OptionButtonState {
+    Initial,
+    Correct,
+    Incorrect
+}
