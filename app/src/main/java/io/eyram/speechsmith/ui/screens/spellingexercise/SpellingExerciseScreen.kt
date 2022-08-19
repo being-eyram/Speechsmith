@@ -158,9 +158,11 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                     }
                 }
                 AnimatedVisibility(
-                    modifier = Modifier.align(Alignment.TopCenter),
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 20.dp),
                     visible = showDialog,
-                    enter = scaleIn() + fadeIn(),
+                    enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
                     exit = scaleOut() + fadeOut()
                 ) {
                     Card(
@@ -183,7 +185,7 @@ fun ImageView(
 ) {
     Row(
         modifier = modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 12.dp)
             .fillMaxWidth()
             .wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically,
@@ -304,21 +306,13 @@ fun PrevNextButton(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(color = Color.White.copy(alpha = 0.05F), shape = CircleShape)
-                .clickable(
-                    onClick = onClick,
-                    enabled = enabled,
-                    role = Role.Button,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(
-                        bounded = false,
-                        radius = 20.dp
-                    )
-                ),
-            contentAlignment = Alignment.Center
+        IconButton(
+            modifier = Modifier.background(
+                color = Color.White.copy(alpha = 0.05F),
+                shape = CircleShape
+            ),
+            onClick = onClick::invoke,
+            enabled = enabled
         ) {
             Icon(
                 modifier = Modifier.rotate(if (label == LABEL_NEXT) 0F else 180F),
@@ -328,7 +322,7 @@ fun PrevNextButton(
             )
         }
         Text(
-            modifier = Modifier.paddingFromBaseline(18.dp),
+            modifier = Modifier.paddingFromBaseline(22.dp),
             text = label,
             style = MaterialTheme.typography.labelMedium
         )
