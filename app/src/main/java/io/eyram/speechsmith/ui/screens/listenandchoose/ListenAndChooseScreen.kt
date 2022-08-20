@@ -1,5 +1,6 @@
 package io.eyram.speechsmith.ui.screens.listenandchoose
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,50 +18,81 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.components.PrevNextButton
 import io.eyram.speechsmith.ui.screens.spellingexercise.LABEL_NEXT
 import io.eyram.speechsmith.ui.screens.spellingexercise.LABEL_PREV
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
+
+val items = listOf("Apples", "Pear", "Avocadoes", "Bananas")
+
 @Composable
 fun ListenAndChooseTextScreen() {
 
+    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+        val (soundCtrlRef, optCardRef, instRef) = createRefs()
+
+        Column(
+            modifier = Modifier.constrainAs(optCardRef) {
+                bottom.linkTo(soundCtrlRef.top, margin = 40.dp)
+                start.linkTo(soundCtrlRef.start)
+                end.linkTo(soundCtrlRef.end)
+            }
+        ) {
+            val optionsList = testQuestion.optionsAsList()
+
+            optionsList.forEachIndexed { index, body ->
+                var state by remember { mutableStateOf(OptionButtonState.Initial) }
+                OptionCard(
+                    optionNumber = index.toString(),
+                    optionBody = body,
+                    state = state
+                ) {
+                    state =
+                        if (body == testQuestion.ans) OptionButtonState.Correct else OptionButtonState.Incorrect
+                }
+            }
+        }
+
+        SoundControls(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .constrainAs(soundCtrlRef) {
+                    bottom.linkTo(parent.bottom, margin = 24.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+            onPrevClick = { /*TODO*/ },
+            onPlaySoundClick = { /*TODO*/ }) {
+        }
+    }
 }
 
-@Preview
+
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun ListenNChoosePreview() {
     SpeechsmithTheme {
-
+        ListenAndChooseTextScreen()
     }
 }
 
 @Composable
-fun BottomControls(
+fun SoundControls(
     modifier: Modifier = Modifier,
     onPrevClick: () -> Unit,
     onPlaySoundClick: () -> Unit,
     onNextClick: () -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .height(132.dp)
-            .fillMaxWidth()
-            .background(
-                color = Color.Black,
-                shape = RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp)
-            ),
-        contentAlignment = Alignment.Center
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            PrevNextButton(label = LABEL_PREV, onClick = { /*TODO*/ }, enabled = true)
-            PlaySoundButton {}
-            PrevNextButton(label = LABEL_NEXT, onClick = { /*TODO*/ }, enabled = true)
-        }
+        PrevNextButton(label = LABEL_PREV, onClick = { /*TODO*/ }, enabled = true)
+        PlaySoundButton {}
+        PrevNextButton(label = LABEL_NEXT, onClick = { /*TODO*/ }, enabled = true)
     }
 }
 
@@ -68,7 +100,7 @@ fun BottomControls(
 @Composable
 fun BottomControlsPreview() {
     SpeechsmithTheme {
-        BottomControls(onPrevClick = { /*TODO*/ }, onPlaySoundClick = { /*TODO*/ }) {
+        SoundControls(onPrevClick = { /*TODO*/ }, onPlaySoundClick = { /*TODO*/ }) {
 
         }
     }
@@ -98,10 +130,12 @@ fun PlaySoundButton(
     }
 }
 
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OptionCard(
     modifier: Modifier = Modifier,
+    optionNumber: String,
     optionBody: String,
     state: OptionButtonState,
     onClick: () -> Unit,
@@ -134,7 +168,7 @@ fun OptionCard(
     Button(
         modifier = modifier
             .padding(horizontal = 20.dp)
-            .height(56.dp)
+            .height(64.dp)
             .fillMaxWidth(),
         border = BorderStroke(
             Dp.Hairline,
@@ -161,7 +195,7 @@ fun OptionCard(
             ) {
 
                 OptionLabel(
-                    label = "1",
+                    label = optionNumber,
                     backgroundColor = labelColor,
                     strokeColor = labelStrokeColor
                 )
@@ -169,7 +203,7 @@ fun OptionCard(
                 Text(
                     text = optionBody,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 16.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Medium
                     )
                 )
@@ -223,30 +257,6 @@ fun OptionLabel(
 
 @Preview
 @Composable
-fun OptionCardPreview() {
-    SpeechsmithTheme {
-        var index by remember { mutableStateOf(0) }
-        Column(
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-                .padding(top = 32.dp)
-        ) {
-            Spacer(Modifier.width(16.dp))
-            OptionCard(
-                optionBody = "Apples",
-                state = OptionButtonState.values()[index]
-            ) {
-                index = (index + 1) % 3
-            }
-            Spacer(Modifier.width(16.dp))
-        }
-
-    }
-}
-
-@Preview
-@Composable
 fun PlayButtonPrev() {
     SpeechsmithTheme {
         PlaySoundButton {
@@ -262,3 +272,18 @@ enum class OptionButtonState {
     Correct,
     Incorrect
 }
+
+data class Question(
+    val optA: String,
+    val optB: String,
+    val optC: String,
+    val optD: String,
+    val ans: String
+) {
+    fun optionsAsList() = listOf(optA, optB, optC, optD)
+}
+
+val testQuestion = Question(
+    "Apples", "Pears", "Mangoes",
+    "Pineapples", "Apples"
+)
