@@ -1,6 +1,5 @@
 package io.eyram.speechsmith.ui.screens.listenandchoose
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -23,59 +22,119 @@ import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.components.PrevNextButton
 import io.eyram.speechsmith.ui.screens.spellingexercise.LABEL_NEXT
 import io.eyram.speechsmith.ui.screens.spellingexercise.LABEL_PREV
+import io.eyram.speechsmith.ui.screens.spellingexercise.SpellingExerciseAppBar
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
-val items = listOf("Apples", "Pear", "Avocadoes", "Bananas")
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListenAndChooseTextScreen() {
-
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (soundCtrlRef, optCardRef, instRef) = createRefs()
-
-        Column(
-            modifier = Modifier.constrainAs(optCardRef) {
-                bottom.linkTo(soundCtrlRef.top, margin = 40.dp)
-                start.linkTo(soundCtrlRef.start)
-                end.linkTo(soundCtrlRef.end)
-            }
+    Scaffold(
+        topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
+    ) { padding ->
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentAlignment = Alignment.Center
         ) {
-            val optionsList = testQuestion.optionsAsList()
+            ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
+                val (soundCtrlRef, optCardRef, instRef, hintRef) = createRefs()
 
-            optionsList.forEachIndexed { index, body ->
-                var state by remember { mutableStateOf(OptionButtonState.Initial) }
-                OptionCard(
-                    optionNumber = index.toString(),
-                    optionBody = body,
-                    state = state
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth()
+                        .constrainAs(hintRef) {
+                            bottom.linkTo(instRef.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    state =
-                        if (body == testQuestion.ans) OptionButtonState.Correct else OptionButtonState.Incorrect
+                    Button(
+                        modifier = Modifier.size(84.dp, 40.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        onClick = {}
+                    ) {
+                        Text(text = "4 of 10")
+                    }
+                    Button(
+                        modifier = Modifier.size(84.dp, 40.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        onClick = {}
+                    ) {
+                        Text(text = "Hint")
+                    }
+                }
+
+                Text(
+                    modifier = Modifier
+                        .paddingFromBaseline(top = 44.dp, bottom = 32.dp)
+                        .constrainAs(instRef) {
+                            bottom.linkTo(optCardRef.top)
+                            start.linkTo(optCardRef.start)
+                            end.linkTo(optCardRef.end)
+                        },
+                    text = LABEL_QUESTION,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 22.sp,
+                        color = Color.White
+                    )
+                )
+
+                Column(
+                    modifier = Modifier.constrainAs(optCardRef) {
+                        bottom.linkTo(soundCtrlRef.top, margin = 40.dp)
+                        start.linkTo(soundCtrlRef.start)
+                        end.linkTo(soundCtrlRef.end)
+                    }
+                ) {
+                    val optionsList = testQuestion.optionsAsList()
+                    var revealAnswer by remember { mutableStateOf(false) }
+                    val coroutineScope = rememberCoroutineScope()
+                    optionsList.forEachIndexed { index, body ->
+                        OptionCard(index + 1, body, testQuestion.ans, revealAnswer) {
+                            coroutineScope.launch {
+                                delay(650)
+                                revealAnswer = !revealAnswer
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+                SoundControls(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .constrainAs(soundCtrlRef) {
+                            bottom.linkTo(parent.bottom, margin = 24.dp)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        },
+                    onPrevClick = { /*TODO*/ },
+                    onPlaySoundClick = { /*TODO*/ }) {
                 }
             }
-        }
-
-        SoundControls(
-            modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .constrainAs(soundCtrlRef) {
-                    bottom.linkTo(parent.bottom, margin = 24.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
-            onPrevClick = { /*TODO*/ },
-            onPlaySoundClick = { /*TODO*/ }) {
         }
     }
 }
 
 
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Preview()
 @Composable
 fun ListenNChoosePreview() {
-    SpeechsmithTheme {
-        ListenAndChooseTextScreen()
+    SpeechsmithTheme() {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            ListenAndChooseTextScreen()
+        }
     }
 }
 
@@ -126,10 +185,39 @@ fun PlaySoundButton(
             text = PLAY_SOUND,
             style = MaterialTheme.typography.bodyLarge
         )
-
     }
 }
 
+@Composable
+private fun OptionCard(
+    index: Int,
+    body: String,
+    answer: String,
+    revealAnswer: Boolean,
+    onRevealAnswer: () -> Unit
+) {
+
+    var state by remember { mutableStateOf(OptionButtonState.Initial) }
+
+    OptionCard(
+        optionNumber = index.toString(),
+        optionBody = body,
+        state = state
+    ) {
+        state = when (body) {
+            answer -> OptionButtonState.Correct
+            else -> OptionButtonState.Incorrect
+        }
+        if (state == OptionButtonState.Incorrect) {
+            onRevealAnswer.invoke()
+        }
+    }
+
+    //this line should show the right card incase a wrong one was pressed.
+    if (revealAnswer && (body == answer)) {
+        state = OptionButtonState.Correct
+    }
+}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -171,17 +259,16 @@ fun OptionCard(
             .height(64.dp)
             .fillMaxWidth(),
         border = BorderStroke(
-            Dp.Hairline,
-            color = if (state == OptionButtonState.Initial) Color.DarkGray else Color.Unspecified
+            width = Dp.Hairline,
+            color = when (state) {
+                OptionButtonState.Initial -> Color.DarkGray
+                else -> Color.Unspecified
+            }
         ),
         contentPadding = PaddingValues(horizontal = 16.dp),
         shape = RoundedCornerShape(6.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = backgroundColor,
-            contentColor = Color.White
-        ),
+        colors = ButtonDefaults.buttonColors(backgroundColor, Color.White),
         onClick = onClick::invoke
-
     ) {
 
         Row(
@@ -204,7 +291,6 @@ fun OptionCard(
                     text = optionBody,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium
                     )
                 )
             }
@@ -260,12 +346,12 @@ fun OptionLabel(
 fun PlayButtonPrev() {
     SpeechsmithTheme {
         PlaySoundButton {
-
         }
     }
 }
 
 const val PLAY_SOUND = "PLAY SOUND"
+const val LABEL_QUESTION = "What did you hear?"
 
 enum class OptionButtonState {
     Initial,
