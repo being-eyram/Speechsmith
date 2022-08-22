@@ -83,13 +83,13 @@ fun ListenAndChooseTextScreen() {
             ) {
 
                 SoundControls(
-                    modifier = Modifier.padding(horizontal = 12.dp),
+                    modifier = Modifier.padding(horizontal = 24.dp),
                     onPrevClick = { /*TODO*/ },
                     onPlaySoundClick = { /*TODO*/ }
                 ) {}
 
                 Text(
-                    modifier = Modifier.paddingFromBaseline(top = 48.dp, bottom = 16.dp),
+                    modifier = Modifier.paddingFromBaseline(top = 40.dp),
                     text = LABEL_QUESTION,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontSize = 22.sp,
@@ -100,7 +100,7 @@ fun ListenAndChooseTextScreen() {
 
             Column(
                 modifier = Modifier.constrainAs(optCardRef) {
-                    bottom.linkTo(parent.bottom, margin = 8.dp)
+                    bottom.linkTo(parent.bottom, margin = 16.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
