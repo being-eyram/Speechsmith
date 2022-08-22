@@ -32,7 +32,7 @@ fun Keyboard(
         KeyboardLayout(
             modifier = Modifier
                 .padding(horizontal = 12.dp)
-                .requiredHeightIn(min = 168.dp, max = 224.dp)
+                .requiredHeightIn(min = 216.dp, max = 224.dp)
         ) {
             repeat(15) { index ->
                 Button(

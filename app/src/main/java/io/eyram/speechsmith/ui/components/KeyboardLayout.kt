@@ -18,7 +18,7 @@ fun KeyboardLayout(
         content = content
     ) { measurables, constraints ->
 
-        val keyMinHeight = 56.dp.roundToPx()
+        val keyMinHeight = 72.dp.roundToPx()
         val keyMinWidth = 48.dp.roundToPx()
         val enterKeyMinWidth = 80.dp.roundToPx()
         val backspaceKeyMinWidth = 160.dp.roundToPx()

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
+import io.eyram.speechsmith.ui.screens.listenandspell.ListenAndSpellScreen
 import io.eyram.speechsmith.ui.screens.spellingexercise.SpellingExerciseScreen
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
@@ -27,7 +28,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SpellingExerciseScreen()
+                    //SpellingExerciseScreen()
+                    ListenAndSpellScreen()
                 }
             }
         }
