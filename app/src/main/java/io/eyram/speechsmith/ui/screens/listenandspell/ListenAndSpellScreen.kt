@@ -38,7 +38,7 @@ fun ListenAndSpellScreen(viewModel: ListenAndSpellScreenVM = viewModel()) {
 
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 12.dp)
                     .fillMaxWidth()
                     .constrainAs(hintRef) {
                         top.linkTo(parent.top, 12.dp)
@@ -76,7 +76,7 @@ fun ListenAndSpellScreen(viewModel: ListenAndSpellScreenVM = viewModel()) {
             ) {
 
                 SoundControls(
-                    modifier = Modifier.padding(end = 24.dp, start = 24.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp),
                     onPrevClick = { /*TODO*/ },
                     onPlaySoundClick = { /*TODO*/ }
                 ) {}

@@ -34,91 +34,91 @@ fun ListenAndChooseTextScreen() {
     Scaffold(
         topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
     ) { padding ->
-        Box(
-            Modifier
+
+
+        ConstraintLayout(
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.Center
         ) {
-            ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
-                val (soundCtrlRef, optCardRef, instRef, hintRef) = createRefs()
+            val (soundCtrlRef, optCardRef, hintRef) = createRefs()
 
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth()
-                        .constrainAs(hintRef) {
-                            bottom.linkTo(instRef.top)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                    horizontalArrangement = Arrangement.SpaceBetween
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .fillMaxWidth()
+                    .constrainAs(hintRef) {
+                        top.linkTo(parent.top, 12.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    modifier = Modifier.size(84.dp, 40.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    onClick = {}
                 ) {
-                    Button(
-                        modifier = Modifier.size(84.dp, 40.dp),
-                        shape = RoundedCornerShape(6.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        onClick = {}
-                    ) {
-                        Text(text = "4 of 10")
-                    }
-                    Button(
-                        modifier = Modifier.size(84.dp, 40.dp),
-                        shape = RoundedCornerShape(6.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        onClick = {}
-                    ) {
-                        Text(text = "Hint")
-                    }
+                    Text(text = "4 of 10")
                 }
+                Button(
+                    modifier = Modifier.size(84.dp, 40.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    onClick = {}
+                ) {
+                    Text(text = "Hint")
+                }
+            }
+
+            Column(
+                modifier = Modifier.constrainAs(soundCtrlRef) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(hintRef.bottom)
+                    bottom.linkTo(optCardRef.top)
+                },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                SoundControls(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    onPrevClick = { /*TODO*/ },
+                    onPlaySoundClick = { /*TODO*/ }
+                ) {}
 
                 Text(
-                    modifier = Modifier
-                        .paddingFromBaseline(top = 44.dp, bottom = 32.dp)
-                        .constrainAs(instRef) {
-                            bottom.linkTo(optCardRef.top)
-                            start.linkTo(optCardRef.start)
-                            end.linkTo(optCardRef.end)
-                        },
+                    modifier = Modifier.paddingFromBaseline(top = 48.dp, bottom = 16.dp),
                     text = LABEL_QUESTION,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontSize = 22.sp,
                         color = Color.White
                     )
                 )
+            }
 
-                Column(
-                    modifier = Modifier.constrainAs(optCardRef) {
-                        bottom.linkTo(soundCtrlRef.top, margin = 40.dp)
-                        start.linkTo(soundCtrlRef.start)
-                        end.linkTo(soundCtrlRef.end)
-                    }
-                ) {
-                    val optionsList = testQuestion.optionsAsList()
-                    var revealAnswer by remember { mutableStateOf(false) }
-                    val coroutineScope = rememberCoroutineScope()
-                    optionsList.forEachIndexed { index, body ->
-                        OptionCard(index + 1, body, testQuestion.ans, revealAnswer) {
-                            coroutineScope.launch {
-                                delay(650)
-                                revealAnswer = !revealAnswer
-                            }
-                        }
-                        Spacer(Modifier.height(8.dp))
-                    }
+            Column(
+                modifier = Modifier.constrainAs(optCardRef) {
+                    bottom.linkTo(parent.bottom, margin = 8.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                 }
-                SoundControls(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .constrainAs(soundCtrlRef) {
-                            bottom.linkTo(parent.bottom, margin = 24.dp)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                    onPrevClick = { /*TODO*/ },
-                    onPlaySoundClick = { /*TODO*/ }) {
+            ) {
+                val optionsList = testQuestion.optionsAsList()
+                var revealAnswer by remember { mutableStateOf(false) }
+                val coroutineScope = rememberCoroutineScope()
+                optionsList.forEachIndexed { index, body ->
+                    OptionCard(index + 1, body, testQuestion.ans, revealAnswer) {
+                        coroutineScope.launch {
+                            delay(650)
+                            revealAnswer = !revealAnswer
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
                 }
             }
+
         }
     }
 }
@@ -127,7 +127,7 @@ fun ListenAndChooseTextScreen() {
 @Preview()
 @Composable
 fun ListenNChoosePreview() {
-    SpeechsmithTheme() {
+    SpeechsmithTheme(darkTheme = true) {
         Box(
             Modifier
                 .fillMaxSize()
