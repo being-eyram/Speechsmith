@@ -6,24 +6,19 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -108,14 +103,62 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
             },
         ) { paddingValues ->
 
-            Box(
+            ConstraintLayout(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
             ) {
+                val (hintRef, keyboardRef, imageColumnRef, indicationRef) = createRefs()
+
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .fillMaxWidth()
+                        .constrainAs(hintRef) {
+                            top.linkTo(parent.top, 12.dp)
+                            start.linkTo(imageColumnRef.start)
+                            end.linkTo(imageColumnRef.end)
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        modifier = Modifier.size(84.dp, 40.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        onClick = {}
+                    ) {
+                        Text(text = "4 of 10")
+                    }
+                    Button(
+                        modifier = Modifier.size(84.dp, 40.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        onClick = {}
+                    ) {
+                        Text(text = "Hint")
+                    }
+                }
+
+                AnimatedVisibility(
+                    modifier = Modifier.constrainAs(indicationRef) {
+                        top.linkTo(parent.top, 20.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                    visible = showDialog,
+                    enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
+                    exit = scaleOut() + fadeOut()
+                ) {
+                    Card(Modifier.size(240.dp, 40.dp)) {}
+                }
 
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.constrainAs(imageColumnRef) {
+                        top.linkTo(hintRef.bottom)
+                        bottom.linkTo(keyboardRef.top)
+                        start.linkTo(keyboardRef.start)
+                        end.linkTo(keyboardRef.end)
+                    },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
@@ -124,56 +167,45 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                         onPrevClick = {},
                         onNextClick = {}
                     )
+                    SpellField(spellFieldState = spellFieldState)
+                }
 
-                    Column {
-                        SpellField(spellFieldState = spellFieldState)
-                        Keyboard(
-                            modifier = Modifier.padding(top = 16.dp),
-                            keyboardLabels = uiState.keyboardLabels,
-                            onKeyPress = spellFieldState::onKeyPress,
-                            onEnterPress = {
-                                coroutineScope.launch {
-                                    spellFieldState.onEnterPress()
-                                    val inputFieldState = when {
-                                        spellFieldState.isSpellInputFilled() -> {
-                                            if (spellFieldState.isSpellingCorrect())
-                                                SpellFieldInputState.Correct
-                                            else
-                                                SpellFieldInputState.Incorrect
-                                        }
-                                        else -> SpellFieldInputState.InComplete
-                                    }
-                                    showDialog = true
-                                    delay(800)
-                                    showDialog = false
-                                    if (inputFieldState == SpellFieldInputState.Correct) {
-                                        delay(300)
-                                        viewModel.showNextWord()
-                                    }
+                Keyboard(
+                    modifier = Modifier.constrainAs(keyboardRef) {
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                    keyboardLabels = uiState.keyboardLabels,
+                    onKeyPress = spellFieldState::onKeyPress,
+                    onEnterPress = {
+                        coroutineScope.launch {
+                            spellFieldState.onEnterPress()
+                            val inputFieldState = when {
+                                spellFieldState.isSpellInputFilled() -> {
+                                    if (spellFieldState.isSpellingCorrect())
+                                        SpellFieldInputState.Correct
+                                    else
+                                        SpellFieldInputState.Incorrect
                                 }
-                            },
-                            onBackSpacePress = spellFieldState::onBackSpacePress
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
-                AnimatedVisibility(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 20.dp),
-                    visible = showDialog,
-                    enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
-                    exit = scaleOut() + fadeOut()
-                ) {
-                    Card(
-                        Modifier
-                            .size(240.dp, 40.dp)
-                    ) {}
-                }
+                                else -> SpellFieldInputState.InComplete
+                            }
+                            showDialog = true
+                            delay(800)
+                            showDialog = false
+                            if (inputFieldState == SpellFieldInputState.Correct) {
+                                delay(300)
+                                viewModel.showNextWord()
+                            }
+                        }
+                    },
+                    onBackSpacePress = spellFieldState::onBackSpacePress
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun ImageView(
@@ -197,7 +229,7 @@ fun ImageView(
             enabled = enablePrevButton
         )
         Surface(
-            modifier = modifier.size(220.dp, 260.dp),
+            modifier = modifier.size(220.dp, 165.dp),
             shape = RoundedCornerShape(12.dp),
             color = Color.Gray
         ) {}
@@ -294,7 +326,6 @@ fun AppBarButton(
         Spacer(Modifier.width(20.dp))
     }
 }
-
 
 
 const val LABEL_HOME = "HOME"
