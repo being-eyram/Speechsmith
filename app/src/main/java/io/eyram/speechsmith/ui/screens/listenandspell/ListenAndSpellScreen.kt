@@ -27,55 +27,62 @@ fun ListenAndSpellScreen(viewModel: ListenAndSpellScreenVM = viewModel()) {
         topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
     ) { padding ->
 
-        ConstraintLayout(modifier = Modifier
-            .padding(padding)
-            .fillMaxSize()) {
-            val (columnRef, keyboardRef) = createRefs()
+        ConstraintLayout(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+            val (columnRef, hintRef, keyboardRef) = createRefs()
             val uiState = viewModel.uiState
             val spellFieldState = viewModel.uiState.spellFieldState
+
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .fillMaxWidth()
+                    .constrainAs(hintRef) {
+                        top.linkTo(parent.top, 12.dp)
+                        start.linkTo(columnRef.start)
+                        end.linkTo(columnRef.end)
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    modifier = Modifier.size(84.dp, 40.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    onClick = {}
+                ) {
+                    Text(text = "4 of 10")
+                }
+                Button(
+                    modifier = Modifier.size(84.dp, 40.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    onClick = {}
+                ) {
+                    Text(text = "Hint")
+                }
+            }
+
             Column(
                 modifier = Modifier.constrainAs(columnRef) {
-                    bottom.linkTo(keyboardRef.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    top.linkTo(parent.top)
+                    top.linkTo(hintRef.bottom)
+                    bottom.linkTo(keyboardRef.top)
                 },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        modifier = Modifier.size(84.dp, 40.dp),
-                        shape = RoundedCornerShape(6.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        onClick = {}
-                    ) {
-                        Text(text = "4 of 10")
-                    }
-                    Button(
-                        modifier = Modifier.size(84.dp, 40.dp),
-                        shape = RoundedCornerShape(6.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        onClick = {}
-                    ) {
-                        Text(text = "Hint")
-                    }
-                }
-
-
                 SoundControls(
-                    modifier = Modifier.padding(end = 24.dp, start = 24.dp, top = 48.dp),
+                    modifier = Modifier.padding(end = 24.dp, start = 24.dp),
                     onPrevClick = { /*TODO*/ },
                     onPlaySoundClick = { /*TODO*/ }
                 ) {}
 
                 Text(
-                    modifier = Modifier.paddingFromBaseline(top = 48.dp, bottom = 32.dp),
+                    modifier = Modifier.paddingFromBaseline(top = 48.dp, bottom = 16.dp),
                     text = LABEL_QUESTION,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontSize = 22.sp,
@@ -83,10 +90,7 @@ fun ListenAndSpellScreen(viewModel: ListenAndSpellScreenVM = viewModel()) {
                     )
                 )
 
-                SpellField(
-                    Modifier.padding(bottom = 20.dp),
-                    spellFieldState = spellFieldState
-                )
+                SpellField(spellFieldState = spellFieldState)
             }
 
             Keyboard(
@@ -108,7 +112,7 @@ fun ListenAndSpellScreen(viewModel: ListenAndSpellScreenVM = viewModel()) {
 @Composable
 fun ListenAndSpellPreview() {
     SpeechsmithTheme(darkTheme = true) {
-        Surface(){
+        Surface() {
             ListenAndSpellScreen()
         }
 

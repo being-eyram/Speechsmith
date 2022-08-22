@@ -141,7 +141,7 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
 
                 AnimatedVisibility(
                     modifier = Modifier.constrainAs(indicationRef) {
-                        top.linkTo(parent.top, 20.dp)
+                        top.linkTo(parent.top, 12.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
@@ -163,7 +163,6 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     ImageView(
-                        modifier = Modifier.padding(top = 12.dp),
                         onPrevClick = {},
                         onNextClick = {}
                     )
@@ -171,11 +170,12 @@ fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
                 }
 
                 Keyboard(
-                    modifier = Modifier.constrainAs(keyboardRef) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    },
+                    modifier = Modifier
+                        .constrainAs(keyboardRef) {
+                            bottom.linkTo(parent.bottom, 12.dp)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        },
                     keyboardLabels = uiState.keyboardLabels,
                     onKeyPress = spellFieldState::onKeyPress,
                     onEnterPress = {
