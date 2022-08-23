@@ -1,4 +1,4 @@
-package io.eyram.speechsmith.ui.screens.spellingexercise
+package io.eyram.speechsmith.ui.screens.pictureSpell
 
 
 import androidx.annotation.DrawableRes
@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
     ExperimentalMaterialApi::class
 )
 @Composable
-fun SpellingExerciseScreen(viewModel: SpellingExerciseScreenVM = viewModel()) {
+fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
 
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
@@ -283,7 +283,7 @@ fun SpellingExerciseAppBar(onHomeClick: () -> Unit, onSettingsClick: () -> Unit)
 @Composable
 fun SpellingExerciseScreenPreview() {
     SpeechsmithTheme {
-        SpellingExerciseScreen()
+        PictureSpellScreen()
     }
 }
 

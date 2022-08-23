@@ -1,4 +1,4 @@
-package io.eyram.speechsmith.ui.screens.listenandspell
+package io.eyram.speechsmith.ui.screens.pictureSpell
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,19 +11,14 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 @HiltViewModel
-class ListenAndSpellScreenVM @Inject constructor(private val dictionaryService: DictionaryService) : ViewModel() {
+class PictureSpellViewModel @Inject constructor(private val dictionaryService: DictionaryService) : ViewModel() {
 
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
     private var keyboardLabels by mutableStateOf(listOf(""))
-
-
-    var uiState by mutableStateOf(
-        ListenAndSpellScreenState(spellFieldState, keyboardLabels)
-    )
+    var uiState by mutableStateOf(PictureSpellScreenState(spellFieldState, keyboardLabels))
         private set
 
-    private val guessList = listOf("ant", "cat", "hen", "dog",)
-
+    private val guessList = listOf("ant", "cat", "hen", "dog")
     private fun getWord() = guessList.random(Random(System.currentTimeMillis()))
 
     init {
@@ -31,7 +26,6 @@ class ListenAndSpellScreenVM @Inject constructor(private val dictionaryService: 
 
         spellFieldState = SpellFieldState(wordToSpell)
         keyboardLabels = generateKeyboardLabels(wordToSpell)
-        //getSound overhere, should add sound as field in uiState.
 
         uiState = uiState.copy(
             spellFieldState = spellFieldState,
@@ -53,9 +47,16 @@ class ListenAndSpellScreenVM @Inject constructor(private val dictionaryService: 
         return keyboardLabelsFromWord.shuffled()
     }
 
+    fun showNextWord() {
+        val nxtWordToSpell = getWord()
+        spellFieldState = SpellFieldState(nxtWordToSpell)
+        keyboardLabels = generateKeyboardLabels(nxtWordToSpell)
+        uiState = uiState.copy(spellFieldState, keyboardLabels)
+        println(nxtWordToSpell)
+    }
 }
 
-data class ListenAndSpellScreenState(
+data class PictureSpellScreenState(
     val spellFieldState: SpellFieldState,
     val keyboardLabels: List<String>
 )

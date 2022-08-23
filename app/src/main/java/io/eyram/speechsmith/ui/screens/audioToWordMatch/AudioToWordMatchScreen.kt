@@ -1,4 +1,4 @@
-package io.eyram.speechsmith.ui.screens.listenandchoose
+package io.eyram.speechsmith.ui.screens.audioToWordMatch
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.components.PrevNextButton
-import io.eyram.speechsmith.ui.screens.spellingexercise.LABEL_NEXT
-import io.eyram.speechsmith.ui.screens.spellingexercise.LABEL_PREV
-import io.eyram.speechsmith.ui.screens.spellingexercise.SpellingExerciseAppBar
+import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_NEXT
+import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_PREV
+import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListenAndChooseTextScreen() {
+fun AudioToWordMatchScreen() {
     Scaffold(
         topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
     ) { padding ->
@@ -133,7 +133,7 @@ fun ListenNChoosePreview() {
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            ListenAndChooseTextScreen()
+            AudioToWordMatchScreen()
         }
     }
 }

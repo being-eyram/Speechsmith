@@ -1,4 +1,4 @@
-package io.eyram.speechsmith.ui.screens.listenandspell
+package io.eyram.speechsmith.ui.screens.audioSpell
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,15 +14,15 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.ui.components.Keyboard
 import io.eyram.speechsmith.ui.components.SpellField
-import io.eyram.speechsmith.ui.screens.listenandchoose.LABEL_QUESTION
-import io.eyram.speechsmith.ui.screens.listenandchoose.SoundControls
-import io.eyram.speechsmith.ui.screens.spellingexercise.SpellingExerciseAppBar
+import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
+import io.eyram.speechsmith.ui.screens.audioToWordMatch.SoundControls
+import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListenAndSpellScreen(viewModel: ListenAndSpellScreenVM = viewModel()) {
+fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
     Scaffold(
         topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
     ) { padding ->
@@ -113,7 +113,7 @@ fun ListenAndSpellScreen(viewModel: ListenAndSpellScreenVM = viewModel()) {
 fun ListenAndSpellPreview() {
     SpeechsmithTheme(darkTheme = true) {
         Surface() {
-            ListenAndSpellScreen()
+            AudioSpellScreen()
         }
 
     }

@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.eyram.speechsmith.R
-import io.eyram.speechsmith.ui.screens.spellingexercise.LABEL_NEXT
+import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_NEXT
 
 @Composable
 fun PrevNextButton(
