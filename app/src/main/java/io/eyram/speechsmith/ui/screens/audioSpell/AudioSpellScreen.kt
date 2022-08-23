@@ -1,7 +1,6 @@
 package io.eyram.speechsmith.ui.screens.audioSpell
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,12 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.eyram.speechsmith.ui.components.HintRow
-import io.eyram.speechsmith.ui.components.Keyboard
-import io.eyram.speechsmith.ui.components.SoundControls
-import io.eyram.speechsmith.ui.components.SpellField
+import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
-import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 
@@ -25,7 +20,7 @@ import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 @Composable
 fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
     Scaffold(
-        topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
+        topBar = { SpeechSmithAppBar(onHomeClick = { /*TODO*/ }) {} }
     ) { padding ->
 
         ConstraintLayout(

@@ -14,11 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import io.eyram.speechsmith.ui.components.HintRow
-import io.eyram.speechsmith.ui.components.OptionButton
-import io.eyram.speechsmith.ui.components.PlaySoundButton
-import io.eyram.speechsmith.ui.components.SoundControls
-import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
+import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -28,7 +24,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AudioToWordMatchScreen() {
     Scaffold(
-        topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
+        topBar = { SpeechSmithAppBar(onHomeClick = { /*TODO*/ }) {} }
     ) { padding ->
 
         ConstraintLayout(

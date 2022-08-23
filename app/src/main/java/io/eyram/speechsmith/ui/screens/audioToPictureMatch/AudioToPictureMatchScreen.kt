@@ -21,7 +21,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import io.eyram.speechsmith.ui.components.HintRow
 import io.eyram.speechsmith.ui.components.PlaySoundButton
 import io.eyram.speechsmith.ui.components.SoundControls
-import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
+import io.eyram.speechsmith.ui.components.SpeechSmithAppBar
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 
@@ -29,7 +29,7 @@ import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 @Composable
 fun AudioToPictureMatchScreen() {
     Scaffold(
-        topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
+        topBar = { SpeechSmithAppBar(onHomeClick = { /*TODO*/ }) {} }
     ) { padding ->
 
         ConstraintLayout(

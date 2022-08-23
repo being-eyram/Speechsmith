@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.eyram.speechsmith.ui.components.ExerciseCardContainer
-import io.eyram.speechsmith.ui.components.SpeechsmithAppBar
+import io.eyram.speechsmith.ui.components.SpeechSmithAppBar
 import io.eyram.speechsmith.ui.components.exerciseMap
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
@@ -18,7 +18,7 @@ import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 @Composable
 fun HomeScreen() {
     Scaffold(
-        topBar = { SpeechsmithAppBar() }
+        topBar = { SpeechSmithAppBar(onHomeClick = {}, onSettingsClick = {} ) }
     ) { innerPadding ->
 
         Column(

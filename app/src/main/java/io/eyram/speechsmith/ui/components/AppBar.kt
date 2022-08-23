@@ -1,124 +1,115 @@
 package io.eyram.speechsmith.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import io.eyram.speechsmith.R
+import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_HOME
+import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_SETTINGS
+import io.eyram.speechsmith.ui.screens.pictureSpell.PictureSpellScreen
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import java.util.*
 
 
 @Composable
-fun SpeechsmithAppBar() {
-    Box(
+fun SpeechSmithAppBar(onHomeClick: () -> Unit, onSettingsClick: () -> Unit) {
+
+    ConstraintLayout(
         modifier = Modifier
-            .background(color = Color(0xFF1E1E1E))
             .fillMaxWidth()
-            .height(272.dp)
-            .padding(start = 16.dp),
+            .height(72.dp)
+            .background(Color.Black),
 
         ) {
-        Image(
-            modifier = Modifier.align(Alignment.TopEnd),
-            painter = painterResource(id = R.drawable.ic_memphis_decor),
-            contentDescription = null
+        val (homeRef, settingsRef) = createRefs()
+        AppBarButton(
+            modifier = Modifier.constrainAs(homeRef) {
+                start.linkTo(parent.start)
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                end.linkTo(settingsRef.start)
+            },
+            icon = R.drawable.ic_home,
+            onClick = onHomeClick::invoke,
+            label = LABEL_HOME
         )
 
-        Column(Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.height(12.dp))
-            Image(
-                painter = painterResource(id = R.drawable.ic_app_logo),
-                contentDescription = null
-            )
-
-            Text(
-                modifier = Modifier.paddingFromBaseline(top = 60.dp, bottom = 12.dp),
-                text = "Welcome \n Sally,",
-                style = MaterialTheme.typography.displaySmall,
-                color = Color.White,
-            )
-
-            Text(
-                modifier = Modifier.paddingFromBaseline(top = 24.dp, bottom = 40.dp),
-                text = """
-                    Press start button to begin an exercise. 
-                    Press page 2 to see other exercises. 
-                """.trimIndent(),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
-                ),
-                color = Color.White.copy(alpha = 0.87F)
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 16.dp)
-            ) {
-                Button(
-                    modifier = Modifier
-                        .height(28.dp)
-                        .weight(1f),
-                    onClick = {},
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text(
-                        text = "Page 1".uppercase(Locale.ROOT),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    modifier = Modifier
-                        .height(28.dp)
-                        .weight(1f),
-                    onClick = {},
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_page),
-                        contentDescription = null,
-                        tint = Color.Black
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Page 2".uppercase(Locale.ROOT),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-
-                }
-            }
-        }
+        AppBarButton(
+            modifier = Modifier.constrainAs(settingsRef) {
+                start.linkTo(homeRef.end)
+                top.linkTo(homeRef.top)
+                bottom.linkTo(homeRef.bottom)
+                end.linkTo(parent.end)
+            },
+            icon = R.drawable.ic_settings,
+            onClick = onSettingsClick::invoke,
+            label = LABEL_SETTINGS
+        )
     }
 }
 
 
 @Preview
 @Composable
-fun SpeechsmithAppBarPreview() {
+fun SpellingExerciseScreenPreview() {
     SpeechsmithTheme {
-        SpeechsmithAppBar()
+        PictureSpellScreen()
+    }
+}
+
+@Composable
+fun AppBarButton(
+    modifier: Modifier = Modifier,
+    @DrawableRes icon: Int,
+    onClick: () -> Unit,
+    label: String,
+) {
+    ConstraintLayout(
+        modifier = modifier
+            .height(36.dp)
+            .wrapContentWidth()
+            .clip(RoundedCornerShape(50))
+            .clickable(onClick = onClick::invoke)
+            .border(Dp.Hairline, Color.DarkGray, RoundedCornerShape(50)),
+    ) {
+        val (iconRef, textRef) = createRefs()
+        Icon(
+            modifier = Modifier.constrainAs(iconRef) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start, 20.dp)
+            },
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            tint = Color.Unspecified
+        )
+        Text(
+            modifier = Modifier.constrainAs(textRef) {
+                top.linkTo(iconRef.top)
+                bottom.linkTo(iconRef.bottom)
+                start.linkTo(iconRef.end, 8.dp)
+                end.linkTo(parent.end, 20.dp)
+            },
+            text = label,
+            style = MaterialTheme.typography.labelMedium
+        )
+        Spacer(Modifier.width(20.dp))
     }
 }
