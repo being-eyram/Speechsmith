@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import io.eyram.speechsmith.ui.components.HintRow
 import io.eyram.speechsmith.ui.components.PlaySoundButton
 import io.eyram.speechsmith.ui.components.SoundControls
 import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
@@ -36,7 +39,7 @@ fun AudioToPictureMatchScreen() {
         ) {
             val (soundCtrlRef, optCardRef, hintRef) = createRefs()
 
-            Row(
+            HintRow(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .fillMaxWidth()
@@ -45,25 +48,7 @@ fun AudioToPictureMatchScreen() {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Button(
-                    modifier = Modifier.size(84.dp, 40.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    onClick = {}
-                ) {
-                    Text(text = "4 of 10")
-                }
-                Button(
-                    modifier = Modifier.size(84.dp, 40.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    onClick = {}
-                ) {
-                    Text(text = "Hint")
-                }
-            }
+            ) {}
 
             Column(
                 modifier = Modifier.constrainAs(soundCtrlRef) {

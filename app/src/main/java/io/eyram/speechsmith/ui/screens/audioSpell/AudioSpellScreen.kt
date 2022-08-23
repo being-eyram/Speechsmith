@@ -12,10 +12,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.eyram.speechsmith.ui.components.HintRow
 import io.eyram.speechsmith.ui.components.Keyboard
+import io.eyram.speechsmith.ui.components.SoundControls
 import io.eyram.speechsmith.ui.components.SpellField
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
-import io.eyram.speechsmith.ui.screens.audioToWordMatch.SoundControls
 import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
@@ -36,7 +37,7 @@ fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
             val uiState = viewModel.uiState
             val spellFieldState = viewModel.uiState.spellFieldState
 
-            Row(
+            HintRow(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .fillMaxWidth()
@@ -45,25 +46,7 @@ fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
                         start.linkTo(columnRef.start)
                         end.linkTo(columnRef.end)
                     },
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Button(
-                    modifier = Modifier.size(84.dp, 40.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    onClick = {}
-                ) {
-                    Text(text = "4 of 10")
-                }
-                Button(
-                    modifier = Modifier.size(84.dp, 40.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    onClick = {}
-                ) {
-                    Text(text = "Hint")
-                }
-            }
+            ) {}
 
             Column(
                 modifier = Modifier.constrainAs(columnRef) {
@@ -115,7 +98,6 @@ fun ListenAndSpellPreview() {
         Surface() {
             AudioSpellScreen()
         }
-
     }
 }
 
