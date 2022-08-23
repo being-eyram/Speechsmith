@@ -5,13 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.eyram.speechsmith.network.DictionaryService
+import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldState
 import javax.inject.Inject
 import kotlin.random.Random
 
 @HiltViewModel
-class AudioSpellViewModel @Inject constructor(private val dictionaryService: DictionaryService) :
+class AudioSpellViewModel @Inject constructor(val repository: SpeechSmithRepository) :
     ViewModel() {
 
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
