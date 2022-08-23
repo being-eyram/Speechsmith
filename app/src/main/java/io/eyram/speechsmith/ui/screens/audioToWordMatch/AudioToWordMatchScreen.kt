@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import io.eyram.speechsmith.R
+import io.eyram.speechsmith.ui.components.PlaySoundButton
 import io.eyram.speechsmith.ui.components.PrevNextButton
+import io.eyram.speechsmith.ui.components.SoundControls
 import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_NEXT
 import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_PREV
 import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
@@ -138,55 +140,17 @@ fun ListenNChoosePreview() {
     }
 }
 
-@Composable
-fun SoundControls(
-    modifier: Modifier = Modifier,
-    onPrevClick: () -> Unit,
-    onPlaySoundClick: () -> Unit,
-    onNextClick: () -> Unit
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        PrevNextButton(label = LABEL_PREV, onClick = { /*TODO*/ }, enabled = true)
-        PlaySoundButton {}
-        PrevNextButton(label = LABEL_NEXT, onClick = { /*TODO*/ }, enabled = true)
-    }
-}
+
 
 @Preview
 @Composable
 fun BottomControlsPreview() {
     SpeechsmithTheme {
-        SoundControls(onPrevClick = { /*TODO*/ }, onPlaySoundClick = { /*TODO*/ }) {
-
-        }
+        SoundControls(onPrevClick = { /*TODO*/ }, onPlaySoundClick = { /*TODO*/ }) {}
     }
 }
 
-@Composable
-fun PlaySoundButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Button(
-        modifier = modifier.size(184.dp, 56.dp),
-        onClick = onClick::invoke,
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 0.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(0.05F))
-    ) {
-        Icon(
-            modifier = Modifier.padding(end = 12.dp),
-            painter = painterResource(id = R.drawable.ic_play_circle),
-            contentDescription = null
-        )
-        Text(
-            text = PLAY_SOUND,
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
+
 
 @Composable
 private fun OptionCard(
@@ -345,19 +309,14 @@ fun OptionLabel(
 @Composable
 fun PlayButtonPrev() {
     SpeechsmithTheme {
-        PlaySoundButton {
-        }
+        PlaySoundButton {}
     }
 }
 
 const val PLAY_SOUND = "PLAY SOUND"
 const val LABEL_QUESTION = "What did you hear?"
 
-enum class OptionButtonState {
-    Initial,
-    Correct,
-    Incorrect
-}
+enum class OptionButtonState { Initial, Correct, Incorrect }
 
 data class Question(
     val optA: String,

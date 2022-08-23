@@ -7,25 +7,22 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldState
+import io.eyram.speechsmith.ui.screens.pictureSpell.NUM_OF_KEYBOARD_LABELS
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
-class AudioSpellViewModel @Inject constructor(val repository: SpeechSmithRepository) :
+class AudioSpellViewModel @Inject constructor(repository: SpeechSmithRepository) :
     ViewModel() {
+
+    var uiState by mutableStateOf(AudioSpellScreenState())
+        private set
 
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
     private var keyboardLabels by mutableStateOf(listOf(""))
 
-    var uiState by mutableStateOf(AudioSpellScreenState(spellFieldState, keyboardLabels))
-        private set
-
-    private val guessList = listOf("ant", "cat", "hen", "dog")
-
-    private fun getWord() = guessList.random(Random(System.currentTimeMillis()))
 
     init {
-        val wordToSpell = getWord()
+        val wordToSpell = repository.getWord()
 
         spellFieldState = SpellFieldState(wordToSpell)
         keyboardLabels = generateKeyboardLabels(wordToSpell)
@@ -40,20 +37,21 @@ class AudioSpellViewModel @Inject constructor(val repository: SpeechSmithReposit
 
     private fun generateKeyboardLabels(wordToSpell: String): List<String> {
         val charsToSpell = wordToSpell.map { it.uppercaseChar().toString() }
-        val keyboardLabelsFromWord = mutableListOf<String>().apply {
-            addAll(charsToSpell.distinct())
-        }
-        while (keyboardLabelsFromWord.size < 15) {
-            val random = ('A'..'Z').random().toString()
-            if (random !in keyboardLabelsFromWord) keyboardLabelsFromWord.add(random)
-        }
 
-        return keyboardLabelsFromWord.shuffled()
+        return mutableListOf<String>().run {
+            addAll(charsToSpell.distinct())
+            while (size < NUM_OF_KEYBOARD_LABELS) {
+                val random = ('A'..'Z').random().toString()
+                if (random !in this) add(random)
+            }
+            shuffled()
+        }
     }
+
 
 }
 
 data class AudioSpellScreenState(
-    val spellFieldState: SpellFieldState,
-    val keyboardLabels: List<String>
+    val spellFieldState: SpellFieldState = SpellFieldState(""),
+    val keyboardLabels: List<String> = listOf()
 )

@@ -10,18 +10,19 @@ import io.eyram.speechsmith.ui.components.SpellFieldState
 import javax.inject.Inject
 
 @HiltViewModel
-class PictureSpellViewModel @Inject constructor(private val repository: SpeechSmithRepository) :
-    ViewModel() {
+class PictureSpellViewModel @Inject constructor(
+    private val repository: SpeechSmithRepository
+) : ViewModel() {
+
+    var uiState by mutableStateOf(PictureSpellScreenState())
+        private set
 
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
     private var keyboardLabels by mutableStateOf(listOf(""))
 
-    var uiState by mutableStateOf(PictureSpellScreenState(spellFieldState, keyboardLabels))
-        private set
-
     init {
-
         val wordToSpell = repository.getWord()
+
         spellFieldState = SpellFieldState(wordToSpell)
         keyboardLabels = generateKeyboardLabels(wordToSpell)
 
@@ -43,24 +44,22 @@ class PictureSpellViewModel @Inject constructor(private val repository: SpeechSm
         }
     }
 
-    fun showNextWord() {
-        repository.getWord()
-            .apply {
-                spellFieldState = SpellFieldState(this)
-                keyboardLabels = generateKeyboardLabels(this)
-            }.also {
-                uiState = uiState.copy(
-                    spellFieldState = spellFieldState,
-                    keyboardLabels = keyboardLabels
-                )
-            }
+    fun showNextWord() = repository.getWord().apply {
+        spellFieldState = SpellFieldState(this)
+        keyboardLabels = generateKeyboardLabels(this)
+    }.also {
+        uiState = uiState.copy(
+            spellFieldState = spellFieldState,
+            keyboardLabels = keyboardLabels
+        )
     }
+
 
 }
 
 data class PictureSpellScreenState(
-    val spellFieldState: SpellFieldState,
-    val keyboardLabels: List<String>
+    val spellFieldState: SpellFieldState = SpellFieldState(""),
+    val keyboardLabels: List<String> = listOf()
 )
 
 const val NUM_OF_KEYBOARD_LABELS = 15

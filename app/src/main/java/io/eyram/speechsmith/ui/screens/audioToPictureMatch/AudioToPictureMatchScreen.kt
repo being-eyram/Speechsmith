@@ -16,10 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import io.eyram.speechsmith.ui.components.PrevNextButton
-import io.eyram.speechsmith.ui.screens.audioToWordMatch.PlaySoundButton
-import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_NEXT
-import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_PREV
+import io.eyram.speechsmith.ui.components.PlaySoundButton
+import io.eyram.speechsmith.ui.components.SoundControls
 import io.eyram.speechsmith.ui.screens.pictureSpell.SpellingExerciseAppBar
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
@@ -30,7 +28,6 @@ fun AudioToPictureMatchScreen() {
     Scaffold(
         topBar = { SpellingExerciseAppBar(onHomeClick = { /*TODO*/ }) {} }
     ) { padding ->
-
 
         ConstraintLayout(
             modifier = Modifier
@@ -129,22 +126,6 @@ fun ListenAndSelectPicPreview() {
     }
 }
 
-@Composable
-fun SoundControls(
-    modifier: Modifier = Modifier,
-    onPrevClick: () -> Unit,
-    onPlaySoundClick: () -> Unit,
-    onNextClick: () -> Unit
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        PrevNextButton(label = LABEL_PREV, onClick = { /*TODO*/ }, enabled = true)
-        PlaySoundButton {}
-        PrevNextButton(label = LABEL_NEXT, onClick = { /*TODO*/ }, enabled = true)
-    }
-}
 
 @Composable
 fun ImgView() {
