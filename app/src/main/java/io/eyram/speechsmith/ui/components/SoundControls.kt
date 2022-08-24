@@ -38,7 +38,10 @@ fun PlaySoundButton(
         modifier = modifier.size(184.dp, 56.dp),
         onClick = onClick::invoke,
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 0.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(0.05F))
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White.copy(0.05F),
+            contentColor = Color.White
+        )
     ) {
         Icon(
             modifier = Modifier.padding(end = 12.dp),

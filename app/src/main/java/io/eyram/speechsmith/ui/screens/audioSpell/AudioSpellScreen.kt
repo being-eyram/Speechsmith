@@ -1,11 +1,13 @@
 package io.eyram.speechsmith.ui.screens.audioSpell
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,11 +18,45 @@ import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
+    val uiState = viewModel.uiState
+    val spellFieldState = viewModel.uiState.spellFieldState
+
+    AudioSpellContent(
+        uiState = uiState,
+        spellFieldState = spellFieldState,
+        onHintClick = {},
+        onPrevClick = {},
+        onNextClick = {},
+        onHomeClick = {},
+        onEnterPress = viewModel::onEnterPress,
+        onSettingsClick = {},
+        onPlaySoundClick = {}
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@Composable
+fun AudioSpellContent(
+    uiState: AudioSpellScreenState,
+    spellFieldState: SpellFieldState,
+    onHintClick: () -> Unit,
+    onPrevClick: () -> Unit,
+    onNextClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    onEnterPress: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onPlaySoundClick: () -> Unit
+) {
+
     Scaffold(
-        topBar = { SpeechSmithAppBar(onHomeClick = { /*TODO*/ }) {} }
+        topBar = {
+            SpeechSmithAppBar(
+                onHomeClick = onHomeClick::invoke,
+                onSettingsClick = onSettingsClick::invoke
+            )
+        }
     ) { padding ->
 
         ConstraintLayout(
@@ -28,9 +64,7 @@ fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            val (columnRef, hintRef, keyboardRef) = createRefs()
-            val uiState = viewModel.uiState
-            val spellFieldState = viewModel.uiState.spellFieldState
+            val (columnRef, hintRef, keyboardRef, indicationRef) = createRefs()
 
             HintRow(
                 modifier = Modifier
@@ -41,7 +75,43 @@ fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
                         start.linkTo(columnRef.start)
                         end.linkTo(columnRef.end)
                     },
-            ) {}
+                onHintClick = onHintClick::invoke
+            )
+
+            AnimatedVisibility(
+                modifier = Modifier.constrainAs(indicationRef) {
+                    top.linkTo(parent.top, 12.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+                visible = uiState.showFieldStateIndicator,
+                enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
+                exit = scaleOut() + fadeOut()
+            ) {
+                val visualIndicatorState = uiState.visualIndicatorState
+
+                Card(
+                    modifier = Modifier.size(240.dp, 40.dp),
+                    colors = CardDefaults.cardColors(visualIndicatorState.color)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 16.dp),
+                            text = visualIndicatorState.message
+                        )
+
+                        Icon(
+                            modifier = Modifier.padding(end = 16.dp),
+                            painter = painterResource(id = visualIndicatorState.icon),
+                            contentDescription = null
+                        )
+                    }
+                }
+            }
 
             Column(
                 modifier = Modifier.constrainAs(columnRef) {
@@ -54,10 +124,11 @@ fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
             ) {
 
                 SoundControls(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    onPrevClick = { /*TODO*/ },
-                    onPlaySoundClick = { /*TODO*/ }
-                ) {}
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    onPrevClick = onPrevClick::invoke,
+                    onNextClick = onNextClick::invoke,
+                    onPlaySoundClick = onPlaySoundClick::invoke,
+                )
 
                 Text(
                     modifier = Modifier.paddingFromBaseline(top = 48.dp, bottom = 16.dp),
@@ -80,7 +151,7 @@ fun AudioSpellScreen(viewModel: AudioSpellViewModel = viewModel()) {
                 keyboardLabels = uiState.keyboardLabels,
                 onKeyPress = spellFieldState::onKeyPress,
                 onBackSpacePress = spellFieldState::onBackSpacePress,
-                onEnterPress = { /*TODO*/ }
+                onEnterPress = onEnterPress::invoke
             )
         }
     }
