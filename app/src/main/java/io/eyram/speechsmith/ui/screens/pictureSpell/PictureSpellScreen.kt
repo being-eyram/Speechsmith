@@ -4,12 +4,15 @@ package io.eyram.speechsmith.ui.screens.pictureSpell
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,8 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.ui.components.*
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
+
+    PictureSpellScreenContent(viewModel)
+}
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -26,20 +37,18 @@ import kotlinx.coroutines.launch
     ExperimentalMaterialApi::class
 )
 @Composable
-fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
-
+fun PictureSpellScreenContent(
+    viewModel: PictureSpellViewModel,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+) {
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
-    var showDialog by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden
-    )
 
     ModalBottomSheetLayout(
         sheetBackgroundColor = Color.Black,
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        sheetState = sheetState,
+        sheetState = bottomSheetState,
         sheetContent = {
             DragIndicator(Modifier.align(Alignment.CenterHorizontally))
 
@@ -68,14 +77,14 @@ fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
             Button(
                 modifier = Modifier
                     .padding(top = 24.dp, bottom = 24.dp)
-                    .size(160.dp, 32.dp)
+                    .size(160.dp, 40.dp)
                     .align(Alignment.CenterHorizontally),
                 shape = RoundedCornerShape(4.dp),
+                contentPadding = PaddingValues(0.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color.Black
                 ),
-                contentPadding = PaddingValues(0.dp),
                 onClick = { /*TODO*/ }) {
                 Text(
                     "SAVE CHANGES",
@@ -88,7 +97,7 @@ fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
             topBar = {
                 SpeechSmithAppBar(
                     onHomeClick = {},
-                    onSettingsClick = { coroutineScope.launch { sheetState.show() } }
+                    onSettingsClick = { coroutineScope.launch { bottomSheetState.show() } }
                 )
             },
         ) { paddingValues ->
@@ -117,11 +126,18 @@ fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                    visible = showDialog,
+                    visible = uiState.showFieldStateIndicator,
                     enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
                     exit = scaleOut() + fadeOut()
                 ) {
-                    Card(Modifier.size(240.dp, 40.dp)) {}
+                    Card(Modifier.size(240.dp, 40.dp)) {
+                        val text = when (uiState.spellFieldInputState) {
+                            SpellFieldInputState.Correct -> CORRECT
+                            SpellFieldInputState.InComplete -> INCOMPLETE
+                            SpellFieldInputState.Incorrect -> WRONG
+                        }
+                        Text(text = text)
+                    }
                 }
 
                 Column(
@@ -142,42 +158,20 @@ fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
                 }
 
                 Keyboard(
-                    modifier = Modifier
-                        .constrainAs(keyboardRef) {
-                            bottom.linkTo(parent.bottom, 12.dp)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
+                    modifier = Modifier.constrainAs(keyboardRef) {
+                        bottom.linkTo(parent.bottom, 12.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
                     keyboardLabels = uiState.keyboardLabels,
                     onKeyPress = spellFieldState::onKeyPress,
-                    onEnterPress = {
-                        coroutineScope.launch {
-                            spellFieldState.onEnterPress()
-                            val inputFieldState = when {
-                                spellFieldState.isSpellInputFilled() -> {
-                                    if (spellFieldState.isSpellingCorrect())
-                                        SpellFieldInputState.Correct
-                                    else
-                                        SpellFieldInputState.Incorrect
-                                }
-                                else -> SpellFieldInputState.InComplete
-                            }
-                            showDialog = true
-                            delay(800)
-                            showDialog = false
-                            if (inputFieldState == SpellFieldInputState.Correct) {
-                                delay(300)
-                                viewModel.showNextWord()
-                            }
-                        }
-                    },
+                    onEnterPress = viewModel::onEnterPress,
                     onBackSpacePress = spellFieldState::onBackSpacePress
                 )
             }
         }
     }
 }
-
 
 @Composable
 fun ImageView(
@@ -213,8 +207,10 @@ fun ImageView(
     }
 }
 
-
 const val LABEL_HOME = "HOME"
 const val LABEL_SETTINGS = "SETTINGS"
 const val LABEL_PREV = "PREV"
 const val LABEL_NEXT = "NEXT"
+const val CORRECT = "Correct"
+const val WRONG = "Wrong"
+const val INCOMPLETE = "Incomplete"

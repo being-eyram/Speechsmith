@@ -34,7 +34,7 @@ fun BottomSheetItem(
             .height(64.dp)
             .fillMaxWidth()
             // .border(width = Dp.Hairline .times(0.01F), Color.Gray, shape = RoundedCornerShape(6.dp))
-            .background(Color.White.copy(alpha = 0.07F), shape = RoundedCornerShape(6.dp)),
+            .background(Color.White.copy(alpha = 0.06F), shape = RoundedCornerShape(6.dp)),
         content = content
     )
 }
@@ -185,7 +185,7 @@ fun ConstraintLayoutScope.OptionsWithSelection(
 fun DragIndicator(modifier : Modifier = Modifier) {
     Box(
         modifier = modifier
-            .padding(top = 2.dp)
+            .padding(top = 4.dp)
             .size(36.dp, 4.dp)
             .background(Color.DarkGray, shape = RoundedCornerShape(50)),
     )

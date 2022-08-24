@@ -49,15 +49,7 @@ class SpellFieldState(wordToSpell: String) {
     fun isSpellInputFilled() = charsToDisplay.size == charsToSpell.size
 }
 
-enum class CharMatchState {
-    Initial,
-    Matched,
-    Unmatched,
-}
+enum class CharMatchState { Initial, Matched, Unmatched, }
 
 //TODO : Use in conjuction with a stateflow to update screenstate
-enum class SpellFieldInputState{
-    Correct,
-    Incorrect,
-    InComplete
-}
+enum class SpellFieldInputState{ Correct, Incorrect, InComplete }

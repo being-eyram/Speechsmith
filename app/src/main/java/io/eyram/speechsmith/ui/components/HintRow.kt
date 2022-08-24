@@ -37,9 +37,11 @@ fun HintRow(modifier: Modifier = Modifier, onHintClick: () -> Unit) {
             onClick = onHintClick::invoke
         ) {
             Text(
-                text = "Hint",
+                text = HINT,
                 style = MaterialTheme.typography.labelMedium
             )
         }
     }
 }
+
+const val HINT = "HINT"
