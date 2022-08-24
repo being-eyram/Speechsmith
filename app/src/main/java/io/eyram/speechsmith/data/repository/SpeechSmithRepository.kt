@@ -1,5 +1,9 @@
 package io.eyram.speechsmith.data.repository
 
+import io.eyram.speechsmith.data.network.DictionaryService
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.lang.Exception
 import javax.inject.Inject
 import kotlin.random.Random
 

@@ -17,7 +17,7 @@ object DictionaryModule {
     @Singleton
     fun provideDictionaryService(): DictionaryService {
         return Retrofit.Builder()
-            .baseUrl("https://api.chucknorris.io/")
+            .baseUrl("https://api.wordnik.com/v4/word.json/")
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create(DictionaryService::class.java)

@@ -1,17 +1,14 @@
 package io.eyram.speechsmith.data.network
 
+import io.eyram.speechsmith.BuildConfig
+import io.eyram.speechsmith.data.model.Pronunciation
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.Path
 
 interface DictionaryService {
-    @GET("jokes/random")
-    suspend fun getJoke(): Response<Joke>
+    @Headers("useCanonical=false&limit=1&api_key=${BuildConfig.API_KEY}")
+    @GET("{word}/audio")
+    suspend fun getPronunciation(@Path("word") word: String): Response<List<Pronunciation>>
 }
-
-
-data class Joke(
-    val icon_url: String,
-    val id: String,
-    val url: String,
-    val value: String
-)
