@@ -1,6 +1,8 @@
 package io.eyram.speechsmith.ui.components
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
 
@@ -11,7 +13,7 @@ class SpellFieldState(wordToSpell: String) {
     var charsToDisplay = mutableStateListOf<String>()
         private set
 
-    val indicatorPosition by derivedStateOf{charsToDisplay.lastIndex + 1}
+    val indicatorPosition by derivedStateOf { charsToDisplay.lastIndex + 1 }
 
     var charMatchList = SnapshotStateList<CharMatchState>().apply {
         val init = List(charsToSpell.size) { CharMatchState.Initial }
@@ -27,9 +29,9 @@ class SpellFieldState(wordToSpell: String) {
     }
 
     fun spellCheck() {
-        if(charsToDisplay.size == charsToSpell.size){
+        if (charsToDisplay.size == charsToSpell.size) {
             charsToDisplay.mapIndexed { idx, inputChar ->
-                if ( inputChar == charsToSpell[idx]) {
+                if (inputChar == charsToSpell[idx]) {
                     charMatchList[idx] = CharMatchState.Matched
                 } else {
                     charMatchList[idx] = CharMatchState.Unmatched
@@ -45,11 +47,23 @@ class SpellFieldState(wordToSpell: String) {
         }
     }
 
-    fun isSpellingCorrect() = charMatchList.all { it == CharMatchState.Matched }
-    fun isSpellInputFilled() = charsToDisplay.size == charsToSpell.size
+    private fun isSpellingCorrect() = charMatchList.all { it == CharMatchState.Matched }
+    private fun isSpellInputFilled() = charsToDisplay.size == charsToSpell.size
+
+    fun getSpellFieldInputState(): SpellFieldInputState {
+        return if (isSpellInputFilled()) {
+            if (isSpellingCorrect())
+                SpellFieldInputState.Correct
+            else
+                SpellFieldInputState.Incorrect
+        } else {
+            SpellFieldInputState.InComplete
+        }
+    }
+
 }
 
 enum class CharMatchState { Initial, Matched, Unmatched, }
 
 //TODO : Use in conjuction with a stateflow to update screenstate
-enum class SpellFieldInputState{ Correct, Incorrect, InComplete }
+enum class SpellFieldInputState { Correct, Incorrect, InComplete }

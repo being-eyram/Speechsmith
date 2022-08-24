@@ -7,7 +7,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,19 +15,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.eyram.speechsmith.ui.components.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.material3.Icon as Material3Icon
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
 
-    PictureSpellScreenContent(viewModel)
+    PictureSpellScreenContent(
+        viewModel,
+        onPrevClick = {},
+        onNextClick = {},
+        onHomeClick = {}
+    )
 }
 
 @OptIn(
@@ -40,7 +46,10 @@ fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
 fun PictureSpellScreenContent(
     viewModel: PictureSpellViewModel,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
+    onPrevClick: () -> Unit,
+    onNextClick: () -> Unit,
+    onHomeClick : () -> Unit,
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
@@ -96,7 +105,7 @@ fun PictureSpellScreenContent(
         Scaffold(
             topBar = {
                 SpeechSmithAppBar(
-                    onHomeClick = {},
+                    onHomeClick = onHomeClick::invoke,
                     onSettingsClick = { coroutineScope.launch { bottomSheetState.show() } }
                 )
             },
@@ -130,13 +139,28 @@ fun PictureSpellScreenContent(
                     enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
                     exit = scaleOut() + fadeOut()
                 ) {
-                    Card(Modifier.size(240.dp, 40.dp)) {
-                        val text = when (uiState.spellFieldInputState) {
-                            SpellFieldInputState.Correct -> CORRECT
-                            SpellFieldInputState.InComplete -> INCOMPLETE
-                            SpellFieldInputState.Incorrect -> WRONG
+                    val visualIndicatorState = uiState.visualIndicatorState
+
+                    Card(
+                        modifier = Modifier.size(240.dp, 40.dp),
+                        colors = CardDefaults.cardColors( visualIndicatorState.color  )
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(start = 16.dp),
+                                text = visualIndicatorState.message
+                            )
+
+                            Material3Icon(
+                                modifier = Modifier.padding(end = 16.dp),
+                                painter = painterResource(id = visualIndicatorState.icon),
+                                contentDescription = null
+                            )
                         }
-                        Text(text = text)
                     }
                 }
 
@@ -151,8 +175,8 @@ fun PictureSpellScreenContent(
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     ImageView(
-                        onPrevClick = {},
-                        onNextClick = {}
+                        onPrevClick = onPrevClick::invoke,
+                        onNextClick = onNextClick::invoke
                     )
                     SpellField(spellFieldState = spellFieldState)
                 }
@@ -211,6 +235,3 @@ const val LABEL_HOME = "HOME"
 const val LABEL_SETTINGS = "SETTINGS"
 const val LABEL_PREV = "PREV"
 const val LABEL_NEXT = "NEXT"
-const val CORRECT = "Correct"
-const val WRONG = "Wrong"
-const val INCOMPLETE = "Incomplete"
