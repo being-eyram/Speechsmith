@@ -22,75 +22,98 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AudioToWordMatchScreen() {
+fun AudioToWordMatchScreen(
+    onHomeClick: () -> Unit,
+    onSettingsClick: () -> Unit
+) {
     Scaffold(
-        topBar = { SpeechSmithAppBar(onHomeClick = { /*TODO*/ }) {} }
+        topBar = {
+            SpeechSmithAppBar(
+                onHomeClick = onHomeClick::invoke,
+                onSettingsClick = onSettingsClick::invoke
+            )
+        }
     ) { padding ->
 
-        ConstraintLayout(
+        AudioToWordMatchContent(
+            Modifier.padding(padding),
+            onPrevClick = {},
+            onNextClick = {},
+            onPlaySoundClick = {}
+        )
+    }
+}
+
+
+@Composable
+fun AudioToWordMatchContent(
+    modifier: Modifier = Modifier,
+    onPrevClick: () -> Unit,
+    onNextClick: () -> Unit,
+    onPlaySoundClick: () -> Unit,
+) {
+
+    ConstraintLayout(modifier = modifier.fillMaxSize()) {
+        val (soundCtrlRef, optCardRef, hintRef) = createRefs()
+
+        HintRow(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-        ) {
-            val (soundCtrlRef, optCardRef, hintRef) = createRefs()
-
-            HintRow(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth()
-                    .constrainAs(hintRef) {
-                        top.linkTo(parent.top, 12.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    },
-            ) {}
-
-            Column(
-                modifier = Modifier.constrainAs(soundCtrlRef) {
+                .padding(horizontal = 24.dp)
+                .fillMaxWidth()
+                .constrainAs(hintRef) {
+                    top.linkTo(parent.top, 12.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    top.linkTo(hintRef.bottom)
-                    bottom.linkTo(optCardRef.top)
                 },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        ) {}
 
-                SoundControls(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    onPrevClick = { /*TODO*/ },
-                    onPlaySoundClick = { /*TODO*/ }
-                ) {}
+        Column(
+            modifier = Modifier.constrainAs(soundCtrlRef) {
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                top.linkTo(hintRef.bottom)
+                bottom.linkTo(optCardRef.top)
+            },
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-                Text(
-                    modifier = Modifier.paddingFromBaseline(top = 40.dp),
-                    text = LABEL_QUESTION,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 22.sp,
-                        color = Color.White
-                    )
+            SoundControls(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                onPrevClick = onPrevClick::invoke,
+                onNextClick = onNextClick::invoke,
+                onPlaySoundClick = onPlaySoundClick::invoke,
+
                 )
+
+            Text(
+                modifier = Modifier.paddingFromBaseline(top = 40.dp),
+                text = LABEL_QUESTION,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontSize = 22.sp,
+                    color = Color.White
+                )
+            )
+        }
+
+        Column(
+            modifier = Modifier.constrainAs(optCardRef) {
+                bottom.linkTo(parent.bottom, margin = 16.dp)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
             }
+        ) {
+            val optionsList = testQuestion.optionsAsList()
+            var revealAnswer by remember { mutableStateOf(false) }
+            val coroutineScope = rememberCoroutineScope()
 
-            Column(
-                modifier = Modifier.constrainAs(optCardRef) {
-                    bottom.linkTo(parent.bottom, margin = 16.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-            ) {
-                val optionsList = testQuestion.optionsAsList()
-                var revealAnswer by remember { mutableStateOf(false) }
-                val coroutineScope = rememberCoroutineScope()
-
-                optionsList.forEachIndexed { index, body ->
-                    OptionButton(index + 1, body, testQuestion.ans, revealAnswer) {
-                        coroutineScope.launch {
-                            delay(650)
-                            revealAnswer = !revealAnswer
-                        }
+            optionsList.forEachIndexed { index, body ->
+                OptionButton(index + 1, body, testQuestion.ans, revealAnswer) {
+                    coroutineScope.launch {
+                        delay(650)
+                        revealAnswer = !revealAnswer
                     }
-                    Spacer(Modifier.height(8.dp))
                 }
+                Spacer(Modifier.height(8.dp))
             }
         }
     }
@@ -106,7 +129,7 @@ fun ListenNChoosePreview() {
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            AudioToWordMatchScreen()
+            //AudioToWordMatchScreen()
         }
     }
 }

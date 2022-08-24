@@ -25,31 +25,13 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.Icon as Material3Icon
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun PictureSpellScreen(viewModel: PictureSpellViewModel = viewModel()) {
-
-    PictureSpellScreenContent(
-        viewModel,
-        onPrevClick = {},
-        onNextClick = {},
-        onHomeClick = {}
-    )
-}
-
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterialApi::class
-)
-@Composable
-fun PictureSpellScreenContent(
-    viewModel: PictureSpellViewModel,
+fun PictureSpellScreen(
+    viewModel: PictureSpellViewModel = viewModel(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-    onPrevClick: () -> Unit,
-    onNextClick: () -> Unit,
-    onHomeClick : () -> Unit,
+    onHomeClick: () -> Unit,
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
@@ -58,49 +40,7 @@ fun PictureSpellScreenContent(
         sheetBackgroundColor = Color.Black,
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetState = bottomSheetState,
-        sheetContent = {
-            DragIndicator(Modifier.align(Alignment.CenterHorizontally))
-
-            BottomSheetItem(
-                modifier = Modifier.padding(top = 32.dp),
-                content = {
-                    OptionsWithSelection(text = "Word Group") {
-
-                    }
-                })
-
-            BottomSheetItem(content = {
-                OptionsWithOps(text = "Total Questions",
-                    onAddButtonClick = {},
-                    onSubButtonClick = {}
-                )
-            })
-
-            BottomSheetItem(content = {
-                OptionsWithOps(text = "Max Letters In Word",
-                    onAddButtonClick = {},
-                    onSubButtonClick = {}
-                )
-            })
-
-            Button(
-                modifier = Modifier
-                    .padding(top = 24.dp, bottom = 24.dp)
-                    .size(160.dp, 40.dp)
-                    .align(Alignment.CenterHorizontally),
-                shape = RoundedCornerShape(4.dp),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
-                ),
-                onClick = { /*TODO*/ }) {
-                Text(
-                    "SAVE CHANGES",
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
-        }
+        sheetContent = { BottomSheetContent() }
     ) {
         Scaffold(
             topBar = {
@@ -111,89 +51,109 @@ fun PictureSpellScreenContent(
             },
         ) { paddingValues ->
 
-            ConstraintLayout(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
+            PictureSpellScreenContent(
+                modifier = Modifier.padding(paddingValues),
+                uiState = uiState,
+                spellFieldState = spellFieldState,
+                onPrevClick = {},
+                onNextClick = {},
+                onHintClick = {},
+                onEnterPress = viewModel::onEnterPress
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun PictureSpellScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: PictureSpellScreenState,
+    spellFieldState: SpellFieldState,
+    onPrevClick: () -> Unit,
+    onNextClick: () -> Unit,
+    onEnterPress: () -> Unit,
+    onHintClick: () -> Unit
+) {
+
+    ConstraintLayout(modifier = modifier.fillMaxSize()) {
+        val (hintRef, keyboardRef, imageColumnRef, indicationRef) = createRefs()
+
+        HintRow(
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .fillMaxWidth()
+                .constrainAs(hintRef) {
+                    top.linkTo(parent.top, 12.dp)
+                    start.linkTo(imageColumnRef.start)
+                    end.linkTo(imageColumnRef.end)
+                },
+            onHintClick = onHintClick::invoke
+        )
+
+        AnimatedVisibility(
+            modifier = Modifier.constrainAs(indicationRef) {
+                top.linkTo(parent.top, 12.dp)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            },
+            visible = uiState.showFieldStateIndicator,
+            enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
+            exit = scaleOut() + fadeOut()
+        ) {
+            val visualIndicatorState = uiState.visualIndicatorState
+
+            Card(
+                modifier = Modifier.size(240.dp, 40.dp),
+                colors = CardDefaults.cardColors(visualIndicatorState.color)
             ) {
-                val (hintRef, keyboardRef, imageColumnRef, indicationRef) = createRefs()
-
-                HintRow(
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .fillMaxWidth()
-                        .constrainAs(hintRef) {
-                            top.linkTo(parent.top, 12.dp)
-                            start.linkTo(imageColumnRef.start)
-                            end.linkTo(imageColumnRef.end)
-                        },
-                ) {}
-
-                AnimatedVisibility(
-                    modifier = Modifier.constrainAs(indicationRef) {
-                        top.linkTo(parent.top, 12.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    },
-                    visible = uiState.showFieldStateIndicator,
-                    enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
-                    exit = scaleOut() + fadeOut()
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val visualIndicatorState = uiState.visualIndicatorState
-
-                    Card(
-                        modifier = Modifier.size(240.dp, 40.dp),
-                        colors = CardDefaults.cardColors( visualIndicatorState.color  )
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(start = 16.dp),
-                                text = visualIndicatorState.message
-                            )
-
-                            Material3Icon(
-                                modifier = Modifier.padding(end = 16.dp),
-                                painter = painterResource(id = visualIndicatorState.icon),
-                                contentDescription = null
-                            )
-                        }
-                    }
-                }
-
-                Column(
-                    modifier = Modifier.constrainAs(imageColumnRef) {
-                        top.linkTo(hintRef.bottom)
-                        bottom.linkTo(keyboardRef.top)
-                        start.linkTo(keyboardRef.start)
-                        end.linkTo(keyboardRef.end)
-                    },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    ImageView(
-                        onPrevClick = onPrevClick::invoke,
-                        onNextClick = onNextClick::invoke
+                    Text(
+                        modifier = Modifier.padding(start = 16.dp),
+                        text = visualIndicatorState.message
                     )
-                    SpellField(spellFieldState = spellFieldState)
-                }
 
-                Keyboard(
-                    modifier = Modifier.constrainAs(keyboardRef) {
-                        bottom.linkTo(parent.bottom, 12.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    },
-                    keyboardLabels = uiState.keyboardLabels,
-                    onKeyPress = spellFieldState::onKeyPress,
-                    onEnterPress = viewModel::onEnterPress,
-                    onBackSpacePress = spellFieldState::onBackSpacePress
-                )
+                    Material3Icon(
+                        modifier = Modifier.padding(end = 16.dp),
+                        painter = painterResource(id = visualIndicatorState.icon),
+                        contentDescription = null
+                    )
+                }
             }
         }
+
+        Column(
+            modifier = Modifier.constrainAs(imageColumnRef) {
+                top.linkTo(hintRef.bottom)
+                bottom.linkTo(keyboardRef.top)
+                start.linkTo(keyboardRef.start)
+                end.linkTo(keyboardRef.end)
+            },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            ImageView(
+                onPrevClick = onPrevClick::invoke,
+                onNextClick = onNextClick::invoke
+            )
+            SpellField(spellFieldState = spellFieldState)
+        }
+
+        Keyboard(
+            modifier = Modifier.constrainAs(keyboardRef) {
+                bottom.linkTo(parent.bottom, 12.dp)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            },
+            keyboardLabels = uiState.keyboardLabels,
+            onKeyPress = spellFieldState::onKeyPress,
+            onEnterPress = onEnterPress::invoke,
+            onBackSpacePress = spellFieldState::onBackSpacePress
+        )
     }
 }
 
@@ -227,6 +187,57 @@ fun ImageView(
             label = LABEL_NEXT,
             onClick = onNextClick::invoke,
             enabled = enableNextButton
+        )
+    }
+}
+
+@Composable
+fun ColumnScope.BottomSheetContent() {
+
+    DragIndicator(Modifier.align(Alignment.CenterHorizontally))
+
+    BottomSheetItem(
+        modifier = Modifier.padding(top = 32.dp),
+        content = {
+            OptionsWithSelection(text = "Word Group") {
+
+            }
+        })
+
+    BottomSheetItem(content = {
+        OptionsWithOps(text = "Total Questions",
+            onAddButtonClick = {},
+            onSubButtonClick = {}
+        )
+    })
+
+    BottomSheetItem(content = {
+        OptionsWithOps(text = "Max Letters In Word",
+            onAddButtonClick = {},
+            onSubButtonClick = {}
+        )
+    })
+
+    SaveChangesButton()
+}
+
+@Composable
+fun ColumnScope.SaveChangesButton(modifier: Modifier = Modifier) {
+    Button(
+        modifier = Modifier
+            .padding(top = 24.dp, bottom = 24.dp)
+            .size(160.dp, 40.dp)
+            .align(Alignment.CenterHorizontally),
+        shape = RoundedCornerShape(4.dp),
+        contentPadding = PaddingValues(0.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White,
+            contentColor = Color.Black
+        ),
+        onClick = { /*TODO*/ }) {
+        Text(
+            "SAVE CHANGES",
+            style = MaterialTheme.typography.labelMedium
         )
     }
 }

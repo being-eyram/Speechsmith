@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
 import io.eyram.speechsmith.ui.screens.audioSpell.AudioSpellScreen
-import io.eyram.speechsmith.ui.screens.pictureSpell.PictureSpellScreen
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 @AndroidEntryPoint
@@ -29,7 +28,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     //PictureSpellScreen()
-                    AudioSpellScreen()
+                    AudioSpellScreen(
+                        onHomeClick = {},
+                    )
                 }
             }
         }
@@ -48,6 +49,6 @@ fun DefaultPreview() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        PictureSpellScreen()
+        //PictureSpellScreen()
     }
 }

@@ -65,15 +65,6 @@ fun SpeechSmithAppBar(onHomeClick: () -> Unit, onSettingsClick: () -> Unit) {
     }
 }
 
-
-@Preview
-@Composable
-fun SpellingExerciseScreenPreview() {
-    SpeechsmithTheme {
-        PictureSpellScreen()
-    }
-}
-
 @Composable
 fun AppBarButton(
     modifier: Modifier = Modifier,
