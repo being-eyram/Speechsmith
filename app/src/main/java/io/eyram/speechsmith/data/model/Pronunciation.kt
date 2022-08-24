@@ -1,7 +1,5 @@
 package io.eyram.speechsmith.data.model
 
-import com.squareup.moshi.Json
-
 data class Pronunciation(
     val attributionText: String,
     val attributionUrl: String,
@@ -10,7 +8,7 @@ data class Pronunciation(
     val createdAt: String,
     val createdBy: String,
     val description: String,
-    val duration: Int,
+    val duration: Float,
     val fileUrl: String,
     val id: Int,
     val voteAverage: Int,

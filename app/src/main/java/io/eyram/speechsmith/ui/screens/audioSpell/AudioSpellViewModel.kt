@@ -4,16 +4,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.eyram.speechsmith.R
+import io.eyram.speechsmith.data.network.DictionaryService
 import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
 import io.eyram.speechsmith.ui.screens.pictureSpell.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,8 +33,25 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
     private var keyboardLabels by mutableStateOf(listOf(""))
 
 
+
     init {
         val wordToSpell = repository.getWord()
+
+       val deferredResult = viewModelScope.async{
+            runCatching {
+                repository.getPronunciation(wordToSpell.toLowerCase(Locale.current))
+            }
+        }
+
+        viewModelScope.launch {
+           val result = deferredResult.await()
+            if(result.isSuccess){
+                result.getOrNull()?.apply {
+                    body()?.get(0)?.fileUrl
+                }
+            }
+        }
+
 
         spellFieldState = SpellFieldState(wordToSpell)
         keyboardLabels = generateKeyboardLabels(wordToSpell)
