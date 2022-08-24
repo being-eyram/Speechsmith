@@ -24,7 +24,7 @@ fun SoundControls(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         PrevNextButton(label = LABEL_PREV, onClick = { /*TODO*/ }, enabled = true)
-        PlaySoundButton {}
+        PlaySoundButton ( onClick =  onPlaySoundClick::invoke)
         PrevNextButton(label = LABEL_NEXT, onClick = { /*TODO*/ }, enabled = true)
     }
 }

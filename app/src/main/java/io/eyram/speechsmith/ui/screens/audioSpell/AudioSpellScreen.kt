@@ -1,18 +1,25 @@
 package io.eyram.speechsmith.ui.screens.audioSpell
 
+import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
 import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
@@ -22,10 +29,13 @@ import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 @Composable
 fun AudioSpellScreen(
     viewModel: AudioSpellViewModel = viewModel(),
+    context: Context = LocalContext.current,
     onHomeClick: () -> Unit,
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = viewModel.uiState.spellFieldState
+    val player = remember { ExoPlayer.Builder(context).build() }
+
 
     Scaffold(
         topBar = {
@@ -43,8 +53,25 @@ fun AudioSpellScreen(
             onPrevClick = {},
             onNextClick = {},
             onEnterPress = viewModel::onEnterPress,
-            onPlaySoundClick = {}
+            onPlaySoundClick = {
+                println("audio url" + uiState.audioUrl)
+                val audio = MediaItem.fromUri(uiState.audioUrl)
+                player.apply {
+                    addMediaItem(audio)
+                    prepare()
+                    play()
+                }
+            }
         )
+    }
+//    DisposableEffect(Unit) {
+//        onDispose {
+//            player.release()
+//        }
+//    }
+
+    LaunchedEffect(uiState.audioUrl){
+        println(uiState.audioUrl)
     }
 }
 

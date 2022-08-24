@@ -8,7 +8,7 @@ import retrofit2.http.Headers
 import retrofit2.http.Path
 
 interface DictionaryService {
-    @Headers("useCanonical=false&limit=1&api_key=${BuildConfig.API_KEY}")
-    @GET("{word}/audio")
+
+    @GET("{word}/audio?useCanonical=false&limit=1&api_key=${BuildConfig.API_KEY}")
     suspend fun getPronunciation(@Path("word") word: String): Response<List<Pronunciation>>
 }

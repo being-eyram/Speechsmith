@@ -12,6 +12,7 @@ import io.eyram.speechsmith.R
 import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
+import io.eyram.speechsmith.util.generateKeyboardLabels
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,18 +41,6 @@ class PictureSpellViewModel @Inject constructor(
         )
     }
 
-    private fun generateKeyboardLabels(wordToSpell: String): List<String> {
-        val charsToSpell = wordToSpell.map { it.uppercaseChar().toString() }
-
-        return mutableListOf<String>().run {
-            addAll(charsToSpell.distinct())
-            while (size < NUM_OF_KEYBOARD_LABELS) {
-                val random = ('A'..'Z').random().toString()
-                if (random !in this) add(random)
-            }
-            shuffled()
-        }
-    }
 
     private fun showNextWord() = repository.getWord().apply {
         spellFieldState = SpellFieldState(this)
@@ -120,7 +109,6 @@ data class SpellInputStateVisualIndicatorState(
     @DrawableRes val icon: Int
 )
 
-const val NUM_OF_KEYBOARD_LABELS = 15
 const val CORRECT = "CORRECT"
 const val WRONG = "WRONG"
 const val INCOMPLETE = "INCOMPLETE"

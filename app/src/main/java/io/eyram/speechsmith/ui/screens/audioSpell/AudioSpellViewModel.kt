@@ -4,6 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +14,7 @@ import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
 import io.eyram.speechsmith.ui.screens.pictureSpell.*
+import io.eyram.speechsmith.util.generateKeyboardLabels
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,40 +31,41 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
 
 
     init {
-        val wordToSpell = repository.getWord()
-
-        spellFieldState = SpellFieldState(wordToSpell)
-        keyboardLabels = generateKeyboardLabels(wordToSpell)
-        //getSound overhere, should add sound as field in uiState.
-
-        uiState = uiState.copy(
-            spellFieldState = spellFieldState,
-            keyboardLabels = keyboardLabels
-        )
+       showNextWord()
     }
 
-
-    private fun generateKeyboardLabels(wordToSpell: String): List<String> {
-        val charsToSpell = wordToSpell.map { it.uppercaseChar().toString() }
-
-        return mutableListOf<String>().run {
-            addAll(charsToSpell.distinct())
-            while (size < NUM_OF_KEYBOARD_LABELS) {
-                val random = ('A'..'Z').random().toString()
-                if (random !in this) add(random)
+    private fun updateAudio(wordToSpell: String) {
+        viewModelScope.launch {
+            try {
+                val word = wordToSpell.toLowerCase(Locale.current)
+                repository.getPronunciation(word).apply {
+                    if (isSuccessful) {
+                        body()?.let {
+                            uiState = uiState.copy(audioUrl = it[0].fileUrl)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println(e.message)
             }
-            shuffled()
         }
     }
 
+    private fun updateKeyboard(wordToSpell: String) {
+        keyboardLabels = generateKeyboardLabels(wordToSpell)
+        uiState = uiState.copy(keyboardLabels = keyboardLabels)
+    }
+
+    private fun updateSpellField(wordToSpell: String) {
+        spellFieldState = SpellFieldState(wordToSpell)
+        uiState = uiState.copy(spellFieldState = spellFieldState)
+    }
+
+
     private fun showNextWord() = repository.getWord().apply {
-        spellFieldState = SpellFieldState(this)
-        keyboardLabels = generateKeyboardLabels(this)
-    }.also {
-        uiState = uiState.copy(
-            spellFieldState = spellFieldState,
-            keyboardLabels = keyboardLabels
-        )
+        updateAudio(this)
+        updateSpellField(this)
+        updateKeyboard(this)
     }
 
     fun onEnterPress() {
@@ -104,13 +108,12 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
             )
         }
     }
-
-
 }
 
 data class AudioSpellScreenState(
     val spellFieldState: SpellFieldState = SpellFieldState(""),
     val keyboardLabels: List<String> = listOf(),
+    val audioUrl: String = "",
     val showFieldStateIndicator: Boolean = false,
     val visualIndicatorState: SpellInputStateVisualIndicatorState =
         SpellInputStateVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
