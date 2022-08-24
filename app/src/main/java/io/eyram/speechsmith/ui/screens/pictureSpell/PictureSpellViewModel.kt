@@ -60,9 +60,26 @@ class PictureSpellViewModel @Inject constructor(
         )
     }
 
-    fun onEnterPress() = spellFieldState.run {
-        this.onEnterPress()
+    fun onEnterPress() {
+        spellFieldState.run {
+            spellCheck()
+            getSpellFieldInputState()
+        }.also {
+            uiState = uiState.copy(spellFieldInputState = it)
 
+            viewModelScope.launch {
+                uiState = uiState.copy(showFieldStateIndicator = true)
+                delay(1500)
+                uiState = uiState.copy(showFieldStateIndicator = false)
+            }
+            viewModelScope.launch {
+                delay(1000)
+                if (it == SpellFieldInputState.Correct) showNextWord()
+            }
+        }
+    }
+
+    private fun getSpellFieldInputState() = spellFieldState.run {
         if (isSpellInputFilled()) {
             if (isSpellingCorrect())
                 SpellFieldInputState.Correct
@@ -71,21 +88,8 @@ class PictureSpellViewModel @Inject constructor(
         } else {
             SpellFieldInputState.InComplete
         }
-    }.also {
-        uiState = uiState.copy(spellFieldInputState = it)
-
-        viewModelScope.launch {
-            uiState = uiState.copy(showFieldStateIndicator = true)
-            delay(1200)
-            uiState = uiState.copy(showFieldStateIndicator = false)
-        }
-        viewModelScope.launch {
-            delay(1000)
-            if (it == SpellFieldInputState.Correct) showNextWord()
-        }
     }
 }
-
 
 data class PictureSpellScreenState(
     val spellFieldState: SpellFieldState = SpellFieldState(""),

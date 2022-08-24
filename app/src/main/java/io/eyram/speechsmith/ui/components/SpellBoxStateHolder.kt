@@ -26,7 +26,7 @@ class SpellFieldState(wordToSpell: String) {
         }
     }
 
-    fun onEnterPress() {
+    fun spellCheck() {
         if(charsToDisplay.size == charsToSpell.size){
             charsToDisplay.mapIndexed { idx, inputChar ->
                 if ( inputChar == charsToSpell[idx]) {
