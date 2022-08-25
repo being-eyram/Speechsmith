@@ -13,8 +13,12 @@ import io.eyram.speechsmith.R
 import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
-import io.eyram.speechsmith.ui.screens.pictureSpell.*
+import io.eyram.speechsmith.ui.screens.pictureSpell.CORRECT
+import io.eyram.speechsmith.ui.screens.pictureSpell.INCOMPLETE
+import io.eyram.speechsmith.ui.screens.pictureSpell.SpellInputStateVisualIndicatorState
+import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
 import io.eyram.speechsmith.util.generateKeyboardLabels
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,7 +32,6 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
 
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
     private var keyboardLabels by mutableStateOf(listOf(""))
-
 
     init {
        showNextWord()
