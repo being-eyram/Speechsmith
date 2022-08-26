@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
@@ -35,7 +34,6 @@ fun AudioSpellScreen(
     val uiState = viewModel.uiState
     val spellFieldState = viewModel.uiState.spellFieldState
     val player = remember { ExoPlayer.Builder(context).build() }
-
 
     Scaffold(
         topBar = {
@@ -54,24 +52,20 @@ fun AudioSpellScreen(
             onNextClick = {},
             onEnterPress = viewModel::onEnterPress,
             onPlaySoundClick = {
-                println("audio url" + uiState.audioUrl)
-                val audio = MediaItem.fromUri(uiState.audioUrl)
-                player.apply {
-                    addMediaItem(audio)
-                    prepare()
+                player.apply{
+                    setMediaItem(MediaItem.fromUri(uiState.audioUrl))
                     play()
                 }
             }
         )
     }
-//    DisposableEffect(Unit) {
-//        onDispose {
-//            player.release()
-//        }
-//    }
 
-    LaunchedEffect(uiState.audioUrl){
-        println(uiState.audioUrl)
+    DisposableEffect(Unit) {
+        player.prepare()
+
+        onDispose {
+            player.release()
+        }
     }
 }
 
