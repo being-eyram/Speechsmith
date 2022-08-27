@@ -48,11 +48,13 @@ fun AudioSpellScreen(
             uiState = uiState,
             spellFieldState = spellFieldState,
             onHintClick = {},
-            onPrevClick = {},
-            onNextClick = {},
+            onScoreClick = {},
+            onPrevClick = viewModel::onPrevPress,
+            onNextClick = viewModel::onNextPress,
             onEnterPress = viewModel::onEnterPress,
+            score = "${uiState.currentExerciseNumber + 1} OF 10",
             onPlaySoundClick = {
-                player.apply{
+                player.apply {
                     setMediaItem(MediaItem.fromUri(uiState.audioUrl))
                     play()
                 }
@@ -75,10 +77,12 @@ fun AudioSpellContent(
     modifier: Modifier = Modifier,
     uiState: AudioSpellScreenState,
     spellFieldState: SpellFieldState,
+    score : String,
     onHintClick: () -> Unit,
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit,
     onEnterPress: () -> Unit,
+    onScoreClick : () -> Unit,
     onPlaySoundClick: () -> Unit
 ) {
 
@@ -94,7 +98,9 @@ fun AudioSpellContent(
                     start.linkTo(columnRef.start)
                     end.linkTo(columnRef.end)
                 },
-            onHintClick = onHintClick::invoke
+            score = score,
+            onHintClick = onHintClick::invoke,
+            onScoreCardClick = onScoreClick::invoke
         )
 
         AnimatedVisibility(

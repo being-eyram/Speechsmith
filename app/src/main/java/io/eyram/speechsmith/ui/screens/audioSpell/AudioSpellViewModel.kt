@@ -18,7 +18,6 @@ import io.eyram.speechsmith.ui.screens.pictureSpell.INCOMPLETE
 import io.eyram.speechsmith.ui.screens.pictureSpell.SpellInputStateVisualIndicatorState
 import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
 import io.eyram.speechsmith.util.generateKeyboardLabels
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,9 +31,11 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
 
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
     private var keyboardLabels by mutableStateOf(listOf(""))
+    private val wordsToSpell = repository.getWordsToSpell(10)
+    private var currentWordIndex = 0
 
     init {
-       showNextWord()
+        getWordAndUpdateUiState()
     }
 
     private fun updateAudio(wordToSpell: String) {
@@ -65,10 +66,30 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
     }
 
 
-    private fun showNextWord() = repository.getWord().apply {
+    private fun getWordAndUpdateUiState() = wordsToSpell[currentWordIndex].apply {
+        println("currentIndex" + currentWordIndex)
         updateAudio(this)
         updateSpellField(this)
         updateKeyboard(this)
+
+    }
+
+    fun onNextPress() {
+        if (currentWordIndex < 10) {
+            currentWordIndex += 1
+            uiState = uiState.copy(currentExerciseNumber = currentWordIndex)
+            getWordAndUpdateUiState()
+        }
+
+    }
+
+    fun onPrevPress() {
+        if (currentWordIndex > 0) {
+            currentWordIndex -= 1
+            uiState = uiState.copy(currentExerciseNumber = currentWordIndex)
+            getWordAndUpdateUiState()
+        }
+
     }
 
     fun onEnterPress() {
@@ -86,7 +107,7 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
             }
             viewModelScope.launch {
                 delay(1000)
-                if (it == SpellFieldInputState.Correct) showNextWord()
+                if (it == SpellFieldInputState.Correct) onNextPress()
             }
         }
     }
@@ -114,10 +135,11 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
 }
 
 data class AudioSpellScreenState(
-    val spellFieldState: SpellFieldState = SpellFieldState(""),
-    val keyboardLabels: List<String> = listOf(),
     val audioUrl: String = "",
+    val currentExerciseNumber: Int = 0,
+    val keyboardLabels: List<String> = listOf(),
     val showFieldStateIndicator: Boolean = false,
+    val spellFieldState: SpellFieldState = SpellFieldState(""),
     val visualIndicatorState: SpellInputStateVisualIndicatorState =
         SpellInputStateVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
 )

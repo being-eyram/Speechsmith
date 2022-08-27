@@ -88,7 +88,9 @@ fun PictureSpellScreenContent(
                     start.linkTo(imageColumnRef.start)
                     end.linkTo(imageColumnRef.end)
                 },
-            onHintClick = onHintClick::invoke
+            onHintClick = onHintClick::invoke,
+            score = "",
+            onScoreCardClick = {},
         )
 
         AnimatedVisibility(

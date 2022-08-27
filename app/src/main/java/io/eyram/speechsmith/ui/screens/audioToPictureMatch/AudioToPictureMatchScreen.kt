@@ -48,7 +48,10 @@ fun AudioToPictureMatchScreen() {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-            ) {}
+                score = "",
+                onScoreCardClick = {},
+                onHintClick = {}
+            )
 
             Column(
                 modifier = Modifier.constrainAs(soundCtrlRef) {

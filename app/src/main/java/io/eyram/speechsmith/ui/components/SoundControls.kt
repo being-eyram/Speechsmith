@@ -23,9 +23,9 @@ fun SoundControls(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        PrevNextButton(label = LABEL_PREV, onClick = { /*TODO*/ }, enabled = true)
-        PlaySoundButton ( onClick =  onPlaySoundClick::invoke)
-        PrevNextButton(label = LABEL_NEXT, onClick = { /*TODO*/ }, enabled = true)
+        PrevNextButton(label = LABEL_PREV, onClick = onPrevClick::invoke, enabled = true)
+        PlaySoundButton(onClick = onPlaySoundClick::invoke)
+        PrevNextButton(label = LABEL_NEXT, onClick = onNextClick::invoke, enabled = true)
     }
 }
 
