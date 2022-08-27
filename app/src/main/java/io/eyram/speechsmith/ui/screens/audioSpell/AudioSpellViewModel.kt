@@ -75,12 +75,11 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
     }
 
     fun onNextPress() {
-        if (currentWordIndex < 10) {
+        if (currentWordIndex < wordsToSpell.lastIndex) {
             currentWordIndex += 1
             uiState = uiState.copy(currentExerciseNumber = currentWordIndex)
             getWordAndUpdateUiState()
         }
-
     }
 
     fun onPrevPress() {

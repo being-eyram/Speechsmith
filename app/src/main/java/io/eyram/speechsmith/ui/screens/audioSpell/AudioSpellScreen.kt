@@ -18,9 +18,13 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem
+import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
+import io.eyram.speechsmith.ui.screens.pictureSpell.CORRECT
+import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 
@@ -51,7 +55,26 @@ fun AudioSpellScreen(
             onScoreClick = {},
             onPrevClick = viewModel::onPrevPress,
             onNextClick = viewModel::onNextPress,
-            onEnterPress = viewModel::onEnterPress,
+            onEnterPress = {
+                viewModel.onEnterPress()
+                if (uiState.visualIndicatorState.message == CORRECT) {
+                    player.setMediaItem(
+                        MediaItem.fromUri(
+                            RawResourceDataSource.buildRawResourceUri(R.raw.right_ans_audio)
+                        )
+                    )
+
+                    player.play()
+                }
+                if (uiState.visualIndicatorState.message == WRONG) {
+                    player.setMediaItem(
+                        MediaItem.fromUri(
+                            RawResourceDataSource.buildRawResourceUri(R.raw.wrong_ans_audio)
+                        )
+                    )
+                    player.play()
+                }
+            },
             score = "${uiState.currentExerciseNumber + 1} OF 10",
             onPlaySoundClick = {
                 player.apply {
@@ -63,7 +86,11 @@ fun AudioSpellScreen(
     }
 
     DisposableEffect(Unit) {
-        player.prepare()
+        player.apply {
+
+            volume = 1F
+            prepare()
+        }
 
         onDispose {
             player.release()
@@ -77,12 +104,12 @@ fun AudioSpellContent(
     modifier: Modifier = Modifier,
     uiState: AudioSpellScreenState,
     spellFieldState: SpellFieldState,
-    score : String,
+    score: String,
     onHintClick: () -> Unit,
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit,
     onEnterPress: () -> Unit,
-    onScoreClick : () -> Unit,
+    onScoreClick: () -> Unit,
     onPlaySoundClick: () -> Unit
 ) {
 
