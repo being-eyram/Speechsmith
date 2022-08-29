@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.eyram.speechsmith.R
+import io.eyram.speechsmith.data.model.AppSettings
+import io.eyram.speechsmith.data.model.DIFFICULTY_EASY
 import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
@@ -23,7 +25,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmithRepository) :
+class AudioSpellViewModel @Inject constructor(
+    private val repository: SpeechSmithRepository,
+    private val appSettings: AppSettings
+) :
     ViewModel() {
 
     var uiState by mutableStateOf(AudioSpellScreenState())
@@ -71,7 +76,7 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
         updateAudio(this)
         updateSpellField(this)
         updateKeyboard(this)
-
+        updateSettings()
     }
 
     fun onNextPress() {
@@ -88,7 +93,6 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
             uiState = uiState.copy(currentExerciseNumber = currentWordIndex)
             getWordAndUpdateUiState()
         }
-
     }
 
     fun onEnterPress() {
@@ -109,6 +113,53 @@ class AudioSpellViewModel @Inject constructor(private val repository: SpeechSmit
                 if (it == SpellFieldInputState.Correct) onNextPress()
             }
         }
+    }
+
+    private fun updateSettings() {
+        viewModelScope.launch {
+            appSettings.getAudioSpellDifficulty.collect {
+                uiState = uiState.copy(exerciseDifficulty = it)
+            }
+        }
+        viewModelScope.launch {
+            appSettings.getTotalAudioQuestions.collect {
+                uiState = uiState.copy(totalNumberOfQuestions = it)
+            }
+        }
+        viewModelScope.launch {
+            appSettings.getAudioWordGroup.collect {
+                uiState = uiState.copy(exerciseWordGroup = it)
+            }
+        }
+    }
+
+    fun onDifficultyDropDownClick(difficulty: String) = viewModelScope.launch {
+        appSettings.setAudioSpellDifficulty(difficulty)
+    }
+
+    fun onAddQuestionsClick() {
+        val totalNumberOfQuestions = uiState.totalNumberOfQuestions
+        if (totalNumberOfQuestions < 20) {
+            val num = totalNumberOfQuestions + 5
+            viewModelScope.launch {
+                appSettings.setTotalNumberOfAudioExercises(num)
+            }
+        }
+    }
+
+    fun onSubtractQuestionsClick() {
+        val totalNumberOfQuestions = uiState.totalNumberOfQuestions
+        if (totalNumberOfQuestions > 10) {
+            val num = totalNumberOfQuestions - 5
+            viewModelScope.launch {
+                appSettings.setTotalNumberOfAudioExercises(num)
+            }
+        }
+    }
+
+    fun onWordGroupDropDownClick(wordGroup: String) = viewModelScope.launch {
+        println("vm" + wordGroup)
+        appSettings.setAudioWordGroup(wordGroup)
     }
 
     private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputStateVisualIndicatorState {
@@ -139,6 +190,9 @@ data class AudioSpellScreenState(
     val keyboardLabels: List<String> = listOf(),
     val showFieldStateIndicator: Boolean = false,
     val spellFieldState: SpellFieldState = SpellFieldState(""),
+    val exerciseDifficulty: String = DIFFICULTY_EASY,
+    val totalNumberOfQuestions: Int = 10,
+    val exerciseWordGroup: String = "Animal - Domestic",
     val visualIndicatorState: SpellInputStateVisualIndicatorState =
         SpellInputStateVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
 )

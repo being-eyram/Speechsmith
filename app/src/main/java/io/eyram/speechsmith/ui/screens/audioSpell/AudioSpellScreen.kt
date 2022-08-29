@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -34,7 +32,6 @@ import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import io.eyram.speechsmith.ui.screens.pictureSpell.CORRECT
 import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
-import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlinx.coroutines.launch
 
 
@@ -57,43 +54,14 @@ fun AudioSpellScreen(
         sheetState = bottomSheetState,
         sheetContent = {
 
-            val appSettings = AppSettings(context)
-            val difficulty by appSettings.getAudioSpellDifficulty.collectAsState(initial = DIFFICULTY_EASY)
-            val totalNumberOfQuestions by appSettings.getTotalAudioQuestions.collectAsState(initial = 10)
-            val wordGroup by appSettings.getAudioWordGroup.collectAsState(initial = "Animals - Domestic")
-
             AudioSpellBottomSheetContent(
-                difficulty = difficulty,
-                onDifficultyDropDownClick = {
-                    coroutineScope.launch {
-                        appSettings.setAudioSpellDifficulty(it)
-                    }
-                },
-                totalNumberOfQuestions = totalNumberOfQuestions,
-                onAddQuestionsClick = {
-                    if (totalNumberOfQuestions < 20) {
-                        val num = totalNumberOfQuestions + 5
-                        coroutineScope.launch {
-                            appSettings.setTotalNumberOfAudioExercises(num)
-                        }
-
-                    }
-                },
-                onSubtractQuestionsClick = {
-                    if (totalNumberOfQuestions > 10) {
-                        val num = totalNumberOfQuestions - 5
-                        coroutineScope.launch {
-                            appSettings.setTotalNumberOfAudioExercises(num)
-                        }
-
-                    }
-                },
-                wordGroup = wordGroup,
-                onWordGroupDropDownClick = {
-                    coroutineScope.launch {
-                        appSettings.setAudioWordGroup(it)
-                    }
-                }
+                difficulty = uiState.exerciseDifficulty,
+                onDifficultyDropDownClick = viewModel::onDifficultyDropDownClick,
+                totalNumberOfQuestions = uiState.totalNumberOfQuestions,
+                onAddQuestionsClick = viewModel::onAddQuestionsClick,
+                onSubtractQuestionsClick = viewModel::onSubtractQuestionsClick,
+                wordGroup = uiState.exerciseWordGroup,
+                onWordGroupDropDownClick = viewModel::onWordGroupDropDownClick
             )
         }
     ) {
@@ -285,7 +253,7 @@ fun ColumnScope.AudioSpellBottomSheetContent(
     DragIndicator(Modifier.align(Alignment.CenterHorizontally))
 
     Spacer(Modifier.height(32.dp))
-   // Difficulty
+    // Difficulty
     BottomSheetItem(content = {
 
         val options = listOf(DIFFICULTY_EASY, DIFFICULTY_MEDIUM, DIFFICULTY_HARD)
@@ -319,6 +287,7 @@ fun ColumnScope.AudioSpellBottomSheetContent(
             selectedOptionText = wordGroup,
             onDismissRequest = { expanded = false },
             onDropMenuClick = {
+                println(it)
                 onWordGroupDropDownClick.invoke(it)
                 expanded = false
             },
@@ -364,13 +333,13 @@ fun ColumnScope.SaveChangesButton(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@Preview
-@Composable
-fun ListenAndSpellPreview() {
-    SpeechsmithTheme(darkTheme = true) {
-        Surface() {
-            AudioSpellScreen(onHomeClick = {})
-        }
-    }
-}
+//@OptIn(ExperimentalMaterialApi::class)
+//@Preview
+//@Composable
+//fun ListenAndSpellPreview() {
+//    SpeechsmithTheme(darkTheme = true) {
+//        Surface() {
+//            AudioSpellScreen(onHomeClick = {})
+//        }
+//    }
+//}
