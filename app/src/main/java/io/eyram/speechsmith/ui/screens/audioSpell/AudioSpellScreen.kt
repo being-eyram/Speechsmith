@@ -11,10 +11,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +26,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import io.eyram.speechsmith.R
+import io.eyram.speechsmith.data.model.AppSettings
+import io.eyram.speechsmith.data.model.DIFFICULTY_EASY
+import io.eyram.speechsmith.data.model.DIFFICULTY_HARD
+import io.eyram.speechsmith.data.model.DIFFICULTY_MEDIUM
 import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import io.eyram.speechsmith.ui.screens.pictureSpell.CORRECT
@@ -54,7 +55,47 @@ fun AudioSpellScreen(
         sheetBackgroundColor = Color.Black,
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetState = bottomSheetState,
-        sheetContent = { AudioSpellBottomSheetContent() }
+        sheetContent = {
+
+            val appSettings = AppSettings(context)
+            val difficulty by appSettings.getAudioSpellDifficulty.collectAsState(initial = DIFFICULTY_EASY)
+            val totalNumberOfQuestions by appSettings.getTotalAudioQuestions.collectAsState(initial = 10)
+            val wordGroup by appSettings.getAudioWordGroup.collectAsState(initial = "Animals - Domestic")
+
+            AudioSpellBottomSheetContent(
+                difficulty = difficulty,
+                onDifficultyDropDownClick = {
+                    coroutineScope.launch {
+                        appSettings.setAudioSpellDifficulty(it)
+                    }
+                },
+                totalNumberOfQuestions = totalNumberOfQuestions,
+                onAddQuestionsClick = {
+                    if (totalNumberOfQuestions < 20) {
+                        val num = totalNumberOfQuestions + 5
+                        coroutineScope.launch {
+                            appSettings.setTotalNumberOfAudioExercises(num)
+                        }
+
+                    }
+                },
+                onSubtractQuestionsClick = {
+                    if (totalNumberOfQuestions > 10) {
+                        val num = totalNumberOfQuestions - 5
+                        coroutineScope.launch {
+                            appSettings.setTotalNumberOfAudioExercises(num)
+                        }
+
+                    }
+                },
+                wordGroup = wordGroup,
+                onWordGroupDropDownClick = {
+                    coroutineScope.launch {
+                        appSettings.setAudioWordGroup(it)
+                    }
+                }
+            )
+        }
     ) {
         Scaffold(
             topBar = {
@@ -232,40 +273,79 @@ fun AudioSpellContent(
 
 
 @Composable
-fun ColumnScope.AudioSpellBottomSheetContent() {
-
+fun ColumnScope.AudioSpellBottomSheetContent(
+    difficulty: String,
+    onDifficultyDropDownClick: (String) -> Unit,
+    wordGroup: String,
+    onWordGroupDropDownClick: (String) -> Unit,
+    totalNumberOfQuestions: Int,
+    onAddQuestionsClick: () -> Unit,
+    onSubtractQuestionsClick: () -> Unit
+) {
     DragIndicator(Modifier.align(Alignment.CenterHorizontally))
 
     Spacer(Modifier.height(32.dp))
-
+   // Difficulty
     BottomSheetItem(content = {
-        DropDown(text = "Difficulty") {
 
-        }
-    })
+        val options = listOf(DIFFICULTY_EASY, DIFFICULTY_MEDIUM, DIFFICULTY_HARD)
+        var expanded by remember { mutableStateOf(false) }
 
-    BottomSheetItem(
-        modifier = Modifier,
-        content = {
-            DropDown(text = "Word Group") {
-
-            }
-        })
-
-    BottomSheetItem(content = {
-        AddNSubOption(text = "Total Questions",
-            onAddButtonClick = {},
-            onSubButtonClick = {}
+        OptionWithDropDown(
+            options = options,
+            optionLabel = "Difficulty",
+            showDropDown = expanded,
+            selectedOptionText = difficulty,
+            onDismissRequest = { expanded = false },
+            onDropMenuClick = {
+                onDifficultyDropDownClick.invoke(it)
+                expanded = false
+            },
+            onExpandedChange = { expanded = !expanded }
         )
     })
 
-    SaveChangesButton()
+
+    // WordGroup
+    BottomSheetItem(content = {
+
+        val options = listOf("Animals - Domestic", "Animals - Wild", "Home - Kitchen")
+        var expanded by remember { mutableStateOf(false) }
+
+        OptionWithDropDown(
+            options = options,
+            optionLabel = "Word Group",
+            showDropDown = expanded,
+            selectedOptionText = wordGroup,
+            onDismissRequest = { expanded = false },
+            onDropMenuClick = {
+                onWordGroupDropDownClick.invoke(it)
+                expanded = false
+            },
+            onExpandedChange = { expanded = !expanded }
+        )
+    })
+
+    //TotalNumber of Questions
+    BottomSheetItem(content = {
+        AddNSubOption(
+            text = "Total Questions",
+            onAddButtonClick = onAddQuestionsClick::invoke,
+            onSubButtonClick = onSubtractQuestionsClick::invoke,
+            total = "$totalNumberOfQuestions"
+        )
+    })
+
+    SaveChangesButton(onSaveChangesClick = {})
 }
 
 @Composable
-fun ColumnScope.SaveChangesButton(modifier: Modifier = Modifier) {
+fun ColumnScope.SaveChangesButton(
+    modifier: Modifier = Modifier,
+    onSaveChangesClick: () -> Unit
+) {
     Button(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 24.dp, bottom = 24.dp)
             .size(160.dp, 40.dp)
             .align(Alignment.CenterHorizontally),
@@ -275,7 +355,8 @@ fun ColumnScope.SaveChangesButton(modifier: Modifier = Modifier) {
             containerColor = Color.White,
             contentColor = Color.Black
         ),
-        onClick = { /*TODO*/ }) {
+        onClick = onSaveChangesClick::invoke
+    ) {
         Text(
             "SAVE CHANGES",
             style = MaterialTheme.typography.labelMedium

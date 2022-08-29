@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -40,26 +39,27 @@ fun BottomSheetItem(
 
 
 @Composable
-fun OpButtonGroup(
+fun AddSubtractGroup(
     modifier: Modifier = Modifier,
+    number: String,
     onAddButtonClick: () -> Unit,
     onSubButtonClick: () -> Unit
 ) {
     Row(modifier = modifier) {
         AddOrSubButton(
             onClick = onSubButtonClick::invoke,
-            icon = R.drawable.ic_settings,
+            icon = R.drawable.ic_subtract,
             shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
         )
         Box(
             modifier = Modifier
                 .background(Color(0xFF252525))
                 .size(64.dp, 32.dp)
-                .border(Dp.Hairline, Color.DarkGray),
+                .border(1.dp, Color.DarkGray),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "20",
+                text = number,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     Color.White, fontSize = 16.sp,
                 )
@@ -67,7 +67,7 @@ fun OpButtonGroup(
         }
         AddOrSubButton(
             onClick = onAddButtonClick::invoke,
-            icon = R.drawable.ic_settings,
+            icon = R.drawable.ic_add,
             shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
         )
     }
@@ -102,6 +102,7 @@ fun AddOrSubButton(
 @Composable
 fun ConstraintLayoutScope.AddNSubOption(
     text: String,
+    total: String,
     onAddButtonClick: () -> Unit,
     onSubButtonClick: () -> Unit
 ) {
@@ -110,8 +111,8 @@ fun ConstraintLayoutScope.AddNSubOption(
     Text(
         modifier = Modifier.constrainAs(textRef) {
             start.linkTo(parent.start, margin = 16.dp)
-            top.linkTo(buttonsRef.top)
-            bottom.linkTo(buttonsRef.bottom)
+            top.linkTo(parent.top)
+            bottom.linkTo(parent.bottom)
         },
         text = text,
         style = MaterialTheme.typography.bodyLarge.copy(
@@ -119,22 +120,28 @@ fun ConstraintLayoutScope.AddNSubOption(
         )
     )
 
-    OpButtonGroup(
+    AddSubtractGroup(
         modifier = Modifier.constrainAs(buttonsRef) {
             end.linkTo(parent.end, margin = 16.dp)
             bottom.linkTo(parent.bottom)
             top.linkTo(parent.top)
         },
         onAddButtonClick = onAddButtonClick::invoke,
-        onSubButtonClick = onSubButtonClick::invoke
+        onSubButtonClick = onSubButtonClick::invoke,
+        number = total
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConstraintLayoutScope.DropDown(
-    option : String = "",
-    text: String,
-    onDropDownClick: () -> Unit
+fun ConstraintLayoutScope.OptionWithDropDown(
+    options: List<String> = listOf("Eeenie", "Meenie", "Minee"),
+    optionLabel: String,
+    showDropDown: Boolean,
+    selectedOptionText: String,
+    onDropMenuClick: (String) -> Unit,
+    onExpandedChange: () -> Unit,
+    onDismissRequest: () -> Unit
 ) {
 
     val (textRef, buttonsRef) = createRefs()
@@ -142,46 +149,70 @@ fun ConstraintLayoutScope.DropDown(
     Text(
         modifier = Modifier.constrainAs(textRef) {
             start.linkTo(parent.start, margin = 16.dp)
-            top.linkTo(buttonsRef.top)
-            bottom.linkTo(buttonsRef.bottom)
+            top.linkTo(parent.top)
+            bottom.linkTo(parent.bottom)
         },
-        text = text,
+        text = optionLabel,
         style = MaterialTheme.typography.bodyLarge.copy(
             Color.White, fontSize = 16.sp,
         )
     )
 
-    Row(modifier = Modifier
-        .constrainAs(buttonsRef) {
+    ExposedDropdownMenuBox(
+        modifier = Modifier.constrainAs(buttonsRef) {
             end.linkTo(parent.end, margin = 16.dp)
             bottom.linkTo(parent.bottom)
             top.linkTo(parent.top)
-        }
-        .clickable(onClick = onDropDownClick::invoke)
+        },
+        expanded = showDropDown,
+        onExpandedChange = { onExpandedChange.invoke() }
     ) {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp))
-                .size(104.dp, 32.dp)
-                .background(
-                    color = Color(0xFF252525),
-                    shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
-                )
-                .border(1.dp, Color.DarkGray),
-            contentAlignment = Alignment.Center
+        Row(
+            modifier = Modifier.clickable(onClick = {})
         ) {
-            Text(
-                text = option,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    Color.White, fontSize = 16.sp,
+
+            Button(
+                modifier = Modifier.height(32.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF252525),
+                ),
+                shape = RoundedCornerShape(topStart = 4.dp, bottomStart= 4.dp),
+                border = BorderStroke(1.dp, Color.DarkGray),
+                contentPadding = PaddingValues(0.dp),
+                onClick = {}
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = selectedOptionText,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        Color.White, fontSize = 16.sp,
+                    )
                 )
+            }
+
+            AddOrSubButton(
+                onClick = {},
+                icon = R.drawable.ic_chevron_down,
+                shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
             )
+
+            ExposedDropdownMenu(
+                expanded = showDropDown,
+                onDismissRequest = onDismissRequest::invoke
+            ) {
+                options.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = selectionOption,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
+                        onClick = { onDropMenuClick.invoke(selectionOption) }
+                    )
+                }
+            }
         }
-        AddOrSubButton(
-            onClick = onDropDownClick::invoke,
-            icon = R.drawable.ic_chevron_down,
-            shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
-        )
     }
 }
 

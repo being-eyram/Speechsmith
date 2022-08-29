@@ -198,27 +198,27 @@ fun ColumnScope.BottomSheetContent() {
 
     DragIndicator(Modifier.align(Alignment.CenterHorizontally))
 
-    BottomSheetItem(
-        modifier = Modifier.padding(top = 32.dp),
-        content = {
-            DropDown(text = "Word Group") {
+//    BottomSheetItem(
+//        modifier = Modifier.padding(top = 32.dp),
+//        content = {
+//            OptionWithDropDown(optionLabel = "Word Group") {
+//
+//            }
+//        })
 
-            }
-        })
-
-    BottomSheetItem(content = {
-        AddNSubOption(text = "Total Questions",
-            onAddButtonClick = {},
-            onSubButtonClick = {}
-        )
-    })
-
-    BottomSheetItem(content = {
-        AddNSubOption(text = "Max Letters In Word",
-            onAddButtonClick = {},
-            onSubButtonClick = {}
-        )
-    })
+//    BottomSheetItem(content = {
+//        AddNSubOption(text = "Total Questions",
+//            onAddButtonClick = {},
+//            onSubButtonClick = {}
+//        )
+//    })
+//
+//    BottomSheetItem(content = {
+//        AddNSubOption(text = "Max Letters In Word",
+//            onAddButtonClick = {},
+//            onSubButtonClick = {}
+//        )
+//    })
 
     SaveChangesButton()
 }
