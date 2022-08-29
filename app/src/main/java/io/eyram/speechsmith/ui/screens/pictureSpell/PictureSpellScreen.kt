@@ -201,20 +201,20 @@ fun ColumnScope.BottomSheetContent() {
     BottomSheetItem(
         modifier = Modifier.padding(top = 32.dp),
         content = {
-            OptionsWithSelection(text = "Word Group") {
+            DropDown(text = "Word Group") {
 
             }
         })
 
     BottomSheetItem(content = {
-        OptionsWithOps(text = "Total Questions",
+        AddNSubOption(text = "Total Questions",
             onAddButtonClick = {},
             onSubButtonClick = {}
         )
     })
 
     BottomSheetItem(content = {
-        OptionsWithOps(text = "Max Letters In Word",
+        AddNSubOption(text = "Max Letters In Word",
             onAddButtonClick = {},
             onSubButtonClick = {}
         )

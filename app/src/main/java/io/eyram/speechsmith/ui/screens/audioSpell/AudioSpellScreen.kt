@@ -3,10 +3,18 @@ package io.eyram.speechsmith.ui.screens.audioSpell
 import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,74 +34,88 @@ import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import io.eyram.speechsmith.ui.screens.pictureSpell.CORRECT
 import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun AudioSpellScreen(
     viewModel: AudioSpellViewModel = viewModel(),
     context: Context = LocalContext.current,
+    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
     onHomeClick: () -> Unit,
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = viewModel.uiState.spellFieldState
     val player = remember { ExoPlayer.Builder(context).build() }
+    val coroutineScope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            SpeechSmithAppBar(
-                onHomeClick = onHomeClick::invoke,
-                onSettingsClick = {}
+    ModalBottomSheetLayout(
+        sheetBackgroundColor = Color.Black,
+        sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        sheetState = bottomSheetState,
+        sheetContent = { AudioSpellBottomSheetContent() }
+    ) {
+        Scaffold(
+            topBar = {
+                SpeechSmithAppBar(
+                    onHomeClick = onHomeClick::invoke,
+                    onSettingsClick = {
+                        coroutineScope.launch {
+                            bottomSheetState.show()
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            AudioSpellContent(
+                modifier = Modifier.padding(padding),
+                uiState = uiState,
+                spellFieldState = spellFieldState,
+                onHintClick = {},
+                onScoreClick = {},
+                onPrevClick = viewModel::onPrevPress,
+                onNextClick = viewModel::onNextPress,
+                onEnterPress = {
+                    viewModel.onEnterPress()
+                    if (uiState.visualIndicatorState.message == CORRECT) {
+                        player.setMediaItem(
+                            MediaItem.fromUri(
+                                RawResourceDataSource.buildRawResourceUri(R.raw.right_ans_audio)
+                            )
+                        )
+
+                        player.play()
+                    }
+                    if (uiState.visualIndicatorState.message == WRONG) {
+                        player.setMediaItem(
+                            MediaItem.fromUri(
+                                RawResourceDataSource.buildRawResourceUri(R.raw.wrong_ans_audio)
+                            )
+                        )
+                        player.play()
+                    }
+                },
+                score = "${uiState.currentExerciseNumber + 1} OF 10",
+                onPlaySoundClick = {
+                    player.apply {
+                        setMediaItem(MediaItem.fromUri(uiState.audioUrl))
+                        play()
+                    }
+                }
             )
         }
-    ) { padding ->
-        AudioSpellContent(
-            modifier = Modifier.padding(padding),
-            uiState = uiState,
-            spellFieldState = spellFieldState,
-            onHintClick = {},
-            onScoreClick = {},
-            onPrevClick = viewModel::onPrevPress,
-            onNextClick = viewModel::onNextPress,
-            onEnterPress = {
-                viewModel.onEnterPress()
-                if (uiState.visualIndicatorState.message == CORRECT) {
-                    player.setMediaItem(
-                        MediaItem.fromUri(
-                            RawResourceDataSource.buildRawResourceUri(R.raw.right_ans_audio)
-                        )
-                    )
 
-                    player.play()
-                }
-                if (uiState.visualIndicatorState.message == WRONG) {
-                    player.setMediaItem(
-                        MediaItem.fromUri(
-                            RawResourceDataSource.buildRawResourceUri(R.raw.wrong_ans_audio)
-                        )
-                    )
-                    player.play()
-                }
-            },
-            score = "${uiState.currentExerciseNumber + 1} OF 10",
-            onPlaySoundClick = {
-                player.apply {
-                    setMediaItem(MediaItem.fromUri(uiState.audioUrl))
-                    play()
-                }
+        DisposableEffect(Unit) {
+            player.apply {
+
+                volume = 1F
+                prepare()
             }
-        )
-    }
 
-    DisposableEffect(Unit) {
-        player.apply {
-
-            volume = 1F
-            prepare()
-        }
-
-        onDispose {
-            player.release()
+            onDispose {
+                player.release()
+            }
         }
     }
 }
@@ -208,6 +230,60 @@ fun AudioSpellContent(
     }
 }
 
+
+@Composable
+fun ColumnScope.AudioSpellBottomSheetContent() {
+
+    DragIndicator(Modifier.align(Alignment.CenterHorizontally))
+
+    Spacer(Modifier.height(32.dp))
+
+    BottomSheetItem(content = {
+        DropDown(text = "Difficulty") {
+
+        }
+    })
+
+    BottomSheetItem(
+        modifier = Modifier,
+        content = {
+            DropDown(text = "Word Group") {
+
+            }
+        })
+
+    BottomSheetItem(content = {
+        AddNSubOption(text = "Total Questions",
+            onAddButtonClick = {},
+            onSubButtonClick = {}
+        )
+    })
+
+    SaveChangesButton()
+}
+
+@Composable
+fun ColumnScope.SaveChangesButton(modifier: Modifier = Modifier) {
+    Button(
+        modifier = Modifier
+            .padding(top = 24.dp, bottom = 24.dp)
+            .size(160.dp, 40.dp)
+            .align(Alignment.CenterHorizontally),
+        shape = RoundedCornerShape(4.dp),
+        contentPadding = PaddingValues(0.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White,
+            contentColor = Color.Black
+        ),
+        onClick = { /*TODO*/ }) {
+        Text(
+            "SAVE CHANGES",
+            style = MaterialTheme.typography.labelMedium
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun ListenAndSpellPreview() {
@@ -217,5 +293,3 @@ fun ListenAndSpellPreview() {
         }
     }
 }
-
-

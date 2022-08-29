@@ -1,27 +1,26 @@
 package io.eyram.speechsmith.ui.components
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
 import io.eyram.speechsmith.R
-import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 @Composable
 fun BottomSheetItem(
@@ -47,8 +46,8 @@ fun OpButtonGroup(
     onSubButtonClick: () -> Unit
 ) {
     Row(modifier = modifier) {
-        OpButton(
-            onClick = onSubButtonClick,
+        AddOrSubButton(
+            onClick = onSubButtonClick::invoke,
             icon = R.drawable.ic_settings,
             shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
         )
@@ -66,8 +65,8 @@ fun OpButtonGroup(
                 )
             )
         }
-        OpButton(
-            onClick = onAddButtonClick,
+        AddOrSubButton(
+            onClick = onAddButtonClick::invoke,
             icon = R.drawable.ic_settings,
             shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
         )
@@ -75,7 +74,7 @@ fun OpButtonGroup(
 }
 
 @Composable
-fun OpButton(
+fun AddOrSubButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     shape: Shape,
@@ -85,12 +84,12 @@ fun OpButton(
         modifier = modifier.size(32.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Black,
-            contentColor = Color.White
+            contentColor = Color.DarkGray
         ),
         contentPadding = PaddingValues(0.dp),
         shape = shape,
         onClick = onClick::invoke,
-        border = BorderStroke(Dp.Hairline, Color.DarkGray)
+        border = BorderStroke(1.dp, Color.DarkGray)
     ) {
         Icon(
             painter = painterResource(id = icon),
@@ -101,7 +100,7 @@ fun OpButton(
 }
 
 @Composable
-fun ConstraintLayoutScope.OptionsWithOps(
+fun ConstraintLayoutScope.AddNSubOption(
     text: String,
     onAddButtonClick: () -> Unit,
     onSubButtonClick: () -> Unit
@@ -132,7 +131,8 @@ fun ConstraintLayoutScope.OptionsWithOps(
 }
 
 @Composable
-fun ConstraintLayoutScope.OptionsWithSelection(
+fun ConstraintLayoutScope.DropDown(
+    option : String = "",
     text: String,
     onDropDownClick: () -> Unit
 ) {
@@ -151,38 +151,42 @@ fun ConstraintLayoutScope.OptionsWithSelection(
         )
     )
 
-    Row(modifier = Modifier.constrainAs(buttonsRef) {
-        end.linkTo(parent.end, margin = 16.dp)
-        bottom.linkTo(parent.bottom)
-        top.linkTo(parent.top)
-    }) {
+    Row(modifier = Modifier
+        .constrainAs(buttonsRef) {
+            end.linkTo(parent.end, margin = 16.dp)
+            bottom.linkTo(parent.bottom)
+            top.linkTo(parent.top)
+        }
+        .clickable(onClick = onDropDownClick::invoke)
+    ) {
         Box(
             modifier = Modifier
+                .clip(RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp))
+                .size(104.dp, 32.dp)
                 .background(
                     color = Color(0xFF252525),
                     shape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
                 )
-                .size(104.dp, 32.dp)
-                .border(Dp.Hairline, Color.DarkGray),
+                .border(1.dp, Color.DarkGray),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Animals",
+                text = option,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     Color.White, fontSize = 16.sp,
                 )
             )
         }
-        OpButton(
+        AddOrSubButton(
             onClick = onDropDownClick::invoke,
-            icon = R.drawable.ic_settings,
+            icon = R.drawable.ic_chevron_down,
             shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
         )
     }
 }
 
 @Composable
-fun DragIndicator(modifier : Modifier = Modifier) {
+fun DragIndicator(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .padding(top = 4.dp)
