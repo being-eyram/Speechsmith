@@ -39,13 +39,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun AudioSpellScreen(
     viewModel: AudioSpellViewModel = viewModel(),
-    context: Context = LocalContext.current,
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
     onHomeClick: () -> Unit,
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = viewModel.uiState.spellFieldState
-    val player = remember { ExoPlayer.Builder(context).build() }
     val coroutineScope = rememberCoroutineScope()
 
     ModalBottomSheetLayout(
@@ -53,7 +51,6 @@ fun AudioSpellScreen(
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetState = bottomSheetState,
         sheetContent = {
-
             AudioSpellBottomSheetContent(
                 difficulty = uiState.exerciseDifficulty,
                 onDifficultyDropDownClick = viewModel::onDifficultyDropDownClick,
@@ -70,9 +67,7 @@ fun AudioSpellScreen(
                 SpeechSmithAppBar(
                     onHomeClick = onHomeClick::invoke,
                     onSettingsClick = {
-                        coroutineScope.launch {
-                            bottomSheetState.show()
-                        }
+                        coroutineScope.launch { bottomSheetState.show() }
                     }
                 )
             }
@@ -85,46 +80,10 @@ fun AudioSpellScreen(
                 onScoreClick = {},
                 onPrevClick = viewModel::onPrevPress,
                 onNextClick = viewModel::onNextPress,
-                onEnterPress = {
-                    viewModel.onEnterPress()
-                    if (uiState.visualIndicatorState.message == CORRECT) {
-                        player.setMediaItem(
-                            MediaItem.fromUri(
-                                RawResourceDataSource.buildRawResourceUri(R.raw.right_ans_audio)
-                            )
-                        )
-
-                        player.play()
-                    }
-                    if (uiState.visualIndicatorState.message == WRONG) {
-                        player.setMediaItem(
-                            MediaItem.fromUri(
-                                RawResourceDataSource.buildRawResourceUri(R.raw.wrong_ans_audio)
-                            )
-                        )
-                        player.play()
-                    }
-                },
+                onEnterPress = viewModel::onEnterPress,
                 score = "${uiState.currentExerciseNumber + 1} OF 10",
-                onPlaySoundClick = {
-                    player.apply {
-                        setMediaItem(MediaItem.fromUri(uiState.audioUrl))
-                        play()
-                    }
-                }
+                onPlaySoundClick = viewModel::onPlaySoundClick
             )
-        }
-
-        DisposableEffect(Unit) {
-            player.apply {
-
-                volume = 1F
-                prepare()
-            }
-
-            onDispose {
-                player.release()
-            }
         }
     }
 }

@@ -8,6 +8,9 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.datasource.RawResourceDataSource
+import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.data.model.AppSettings
@@ -27,7 +30,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AudioSpellViewModel @Inject constructor(
     private val repository: SpeechSmithRepository,
-    private val appSettings: AppSettings
+    private val appSettings: AppSettings,
+    private val audioPlayer: ExoPlayer
 ) :
     ViewModel() {
 
@@ -41,6 +45,11 @@ class AudioSpellViewModel @Inject constructor(
 
     init {
         getWordAndUpdateUiState()
+        audioPlayer.apply {
+            volume = 1F
+            setPlaybackSpeed(0.75F)
+            prepare()
+        }
     }
 
     private fun updateAudio(wordToSpell: String) {
@@ -70,9 +79,26 @@ class AudioSpellViewModel @Inject constructor(
         uiState = uiState.copy(spellFieldState = spellFieldState)
     }
 
+    private fun updateSettings() {
+        viewModelScope.launch {
+            appSettings.getAudioSpellDifficulty.collect {
+                uiState = uiState.copy(exerciseDifficulty = it)
+            }
+        }
+        viewModelScope.launch {
+            appSettings.getTotalAudioQuestions.collect {
+                uiState = uiState.copy(totalNumberOfQuestions = it)
+            }
+        }
+        viewModelScope.launch {
+            appSettings.getAudioWordGroup.collect {
+                uiState = uiState.copy(exerciseWordGroup = it)
+            }
+        }
+    }
+
 
     private fun getWordAndUpdateUiState() = wordsToSpell[currentWordIndex].apply {
-        println("currentIndex" + currentWordIndex)
         updateAudio(this)
         updateSpellField(this)
         updateKeyboard(this)
@@ -95,6 +121,14 @@ class AudioSpellViewModel @Inject constructor(
         }
     }
 
+    fun onPlaySoundClick() {
+        audioPlayer.apply {
+            setMediaItem(MediaItem.fromUri(uiState.audioUrl))
+            println(uiState.audioUrl)
+            play()
+        }
+    }
+
     fun onEnterPress() {
         spellFieldState.run {
             spellCheck()
@@ -108,6 +142,25 @@ class AudioSpellViewModel @Inject constructor(
                 delay(1500)
                 uiState = uiState.copy(showFieldStateIndicator = false)
             }
+
+            if (uiState.visualIndicatorState.message == CORRECT) {
+                audioPlayer.setMediaItem(
+                    MediaItem.fromUri(
+                        RawResourceDataSource.buildRawResourceUri(R.raw.right_ans_audio)
+                    )
+                )
+
+                audioPlayer.play()
+            }
+            if (uiState.visualIndicatorState.message == WRONG) {
+                audioPlayer.setMediaItem(
+                    MediaItem.fromUri(
+                        RawResourceDataSource.buildRawResourceUri(R.raw.wrong_ans_audio)
+                    )
+                )
+                audioPlayer.play()
+            }
+
             viewModelScope.launch {
                 delay(1000)
                 if (it == SpellFieldInputState.Correct) onNextPress()
@@ -115,26 +168,12 @@ class AudioSpellViewModel @Inject constructor(
         }
     }
 
-    private fun updateSettings() {
-        viewModelScope.launch {
-            appSettings.getAudioSpellDifficulty.collect {
-                uiState = uiState.copy(exerciseDifficulty = it)
-            }
-        }
-        viewModelScope.launch {
-            appSettings.getTotalAudioQuestions.collect {
-                uiState = uiState.copy(totalNumberOfQuestions = it)
-            }
-        }
-        viewModelScope.launch {
-            appSettings.getAudioWordGroup.collect {
-                uiState = uiState.copy(exerciseWordGroup = it)
-            }
-        }
-    }
-
     fun onDifficultyDropDownClick(difficulty: String) = viewModelScope.launch {
         appSettings.setAudioSpellDifficulty(difficulty)
+    }
+
+    fun onWordGroupDropDownClick(wordGroup: String) = viewModelScope.launch {
+        appSettings.setAudioWordGroup(wordGroup)
     }
 
     fun onAddQuestionsClick() {
@@ -157,31 +196,7 @@ class AudioSpellViewModel @Inject constructor(
         }
     }
 
-    fun onWordGroupDropDownClick(wordGroup: String) = viewModelScope.launch {
-        println("vm" + wordGroup)
-        appSettings.setAudioWordGroup(wordGroup)
-    }
 
-    private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputStateVisualIndicatorState {
-        return when (state) {
-
-            SpellFieldInputState.Correct -> SpellInputStateVisualIndicatorState(
-                color = Color(0xFF538D4E),
-                message = CORRECT,
-                icon = R.drawable.ic_correct
-            )
-            SpellFieldInputState.Incorrect -> SpellInputStateVisualIndicatorState(
-                color = Color(0xFFBF4040),
-                message = WRONG,
-                icon = R.drawable.ic_incorrect
-            )
-            SpellFieldInputState.InComplete -> SpellInputStateVisualIndicatorState(
-                color = Color(0xFF3A3A3C),
-                message = INCOMPLETE,
-                icon = R.drawable.ic_incomplete
-            )
-        }
-    }
 }
 
 data class AudioSpellScreenState(
@@ -196,3 +211,24 @@ data class AudioSpellScreenState(
     val visualIndicatorState: SpellInputStateVisualIndicatorState =
         SpellInputStateVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
 )
+
+private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputStateVisualIndicatorState {
+    return when (state) {
+
+        SpellFieldInputState.Correct -> SpellInputStateVisualIndicatorState(
+            color = Color(0xFF538D4E),
+            message = CORRECT,
+            icon = R.drawable.ic_correct
+        )
+        SpellFieldInputState.Incorrect -> SpellInputStateVisualIndicatorState(
+            color = Color(0xFFBF4040),
+            message = WRONG,
+            icon = R.drawable.ic_incorrect
+        )
+        SpellFieldInputState.InComplete -> SpellInputStateVisualIndicatorState(
+            color = Color(0xFF3A3A3C),
+            message = INCOMPLETE,
+            icon = R.drawable.ic_incomplete
+        )
+    }
+}
