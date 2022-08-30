@@ -48,7 +48,7 @@ fun AudioToPictureMatchScreen() {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                score = "",
+                exerciseNumberTracker = "",
                 onScoreCardClick = {},
                 onHintClick = {}
             )

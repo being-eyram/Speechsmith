@@ -13,7 +13,7 @@ import io.eyram.speechsmith.R
 @Composable
 fun HintRow(
     modifier: Modifier = Modifier,
-    score: String,
+    exerciseNumberTracker: String,
     onHintClick: () -> Unit,
     onScoreCardClick: () -> Unit
 ) {
@@ -33,7 +33,7 @@ fun HintRow(
             onClick = onScoreCardClick::invoke
         ) {
             Text(
-                text = score,
+                text = exerciseNumberTracker,
                 style = MaterialTheme.typography.labelMedium
             )
         }

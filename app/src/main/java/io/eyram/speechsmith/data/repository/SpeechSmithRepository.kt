@@ -23,5 +23,6 @@ class SpeechSmithRepository @Inject constructor(private val dictionaryService: D
                 if (it !in this) add(it)
             }
         }
+        this
     }
 }

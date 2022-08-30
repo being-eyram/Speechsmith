@@ -25,7 +25,9 @@ import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
 import io.eyram.speechsmith.util.generateKeyboardLabels
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,16 +41,36 @@ class AudioSpellViewModel @Inject constructor(
         private set
 
     private var currentWordIndex = 0
+    private var wordsToSpell: List<String>
     private var spellFieldState = SpellFieldState("")
-    private val wordsToSpell = repository.getWordsToSpell(10)
+
 
     init {
+
+        getExerciseSettings()
+        wordsToSpell = repository.getWordsToSpell(uiState.totalNumberOfQuestions)
         getWordAndUpdateUiState()
-        getAppSettings()
+
         audioPlayer.apply {
             volume = 1F
             setPlaybackSpeed(0.75F)
             prepare()
+        }
+    }
+
+    //https://medium.com/androiddevelopers/datastore-and-synchronous-work-576f3869ec4c
+    private fun getExerciseSettings() {
+
+        runBlocking {
+            appSettings.getTotalAudioQuestions.first().apply {
+                uiState = uiState.copy(totalNumberOfQuestions = this)
+            }
+            appSettings.getAudioSpellDifficulty.first().apply {
+                uiState = uiState.copy(exerciseDifficulty = this)
+            }
+            appSettings.getAudioWordGroup.first().apply {
+                uiState = uiState.copy(exerciseWordGroup = this)
+            }
         }
     }
 
@@ -78,24 +100,6 @@ class AudioSpellViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 println(e.message)
-            }
-        }
-    }
-
-    fun getAppSettings() {
-        viewModelScope.launch {
-            appSettings.getAudioSpellDifficulty.collect {
-                uiState = uiState.copy(exerciseDifficulty = it)
-            }
-        }
-        viewModelScope.launch {
-            appSettings.getTotalAudioQuestions.collect {
-                uiState = uiState.copy(totalNumberOfQuestions = it)
-            }
-        }
-        viewModelScope.launch {
-            appSettings.getAudioWordGroup.collect {
-                uiState = uiState.copy(exerciseWordGroup = it)
             }
         }
     }
@@ -168,6 +172,8 @@ class AudioSpellViewModel @Inject constructor(
             if (it == SpellFieldInputState.Correct) onNextPress()
         }
     }
+
+    // BottomSheet functions to persist user settings
 
     fun onDifficultyDropDownClick(difficulty: String) {
         uiState = uiState.copy(exerciseDifficulty = difficulty)

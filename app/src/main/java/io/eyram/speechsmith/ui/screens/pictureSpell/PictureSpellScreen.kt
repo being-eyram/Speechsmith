@@ -89,7 +89,7 @@ fun PictureSpellScreenContent(
                     end.linkTo(imageColumnRef.end)
                 },
             onHintClick = onHintClick::invoke,
-            score = "",
+            exerciseNumberTracker = "",
             onScoreCardClick = {},
         )
 
@@ -226,7 +226,7 @@ fun ColumnScope.BottomSheetContent() {
 @Composable
 fun ColumnScope.SaveChangesButton(modifier: Modifier = Modifier) {
     Button(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 24.dp, bottom = 24.dp)
             .size(160.dp, 40.dp)
             .align(Alignment.CenterHorizontally),
