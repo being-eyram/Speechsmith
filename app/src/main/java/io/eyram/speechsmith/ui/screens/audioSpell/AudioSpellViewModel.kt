@@ -11,10 +11,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem.fromUri
 import androidx.media3.datasource.RawResourceDataSource.buildRawResourceUri
 import androidx.media3.exoplayer.ExoPlayer
+import com.skydoves.sandwich.getOrNull
+import com.skydoves.sandwich.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.eyram.speechsmith.R
-import io.eyram.speechsmith.data.model.AppSettings
-import io.eyram.speechsmith.data.model.DIFFICULTY_EASY
+import io.eyram.speechsmith.data.preferences.AppSettings
+import io.eyram.speechsmith.data.preferences.DIFFICULTY_EASY
 import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
@@ -71,17 +73,13 @@ class AudioSpellViewModel @Inject constructor(
 
     private fun updateAudio(wordToSpell: String) {
         viewModelScope.launch {
-            try {
-                val word = wordToSpell.toLowerCase(Locale.current)
-                repository.getPronunciation(word).apply {
-                    if (isSuccessful) {
-                        body()?.let {
-                            uiState = uiState.copy(audioUrl = it[0].fileUrl)
-                        }
+            val word = wordToSpell.toLowerCase(Locale.current)
+            repository.getPronunciation(word).apply {
+                onSuccess {
+                    getOrNull()?.let {
+                        uiState = uiState.copy(audioUrl = it[0].fileUrl)
                     }
                 }
-            } catch (e: Exception) {
-                println(e.message)
             }
         }
     }
@@ -96,7 +94,6 @@ class AudioSpellViewModel @Inject constructor(
 
     //https://medium.com/androiddevelopers/datastore-and-synchronous-work-576f3869ec4c
     private fun getExerciseSettings() {
-
         runBlocking {
             appSettings.getTotalAudioQuestions.first().apply {
                 uiState = uiState.copy(totalNumberOfQuestions = this)

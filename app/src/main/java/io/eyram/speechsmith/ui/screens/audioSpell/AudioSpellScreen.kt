@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.eyram.speechsmith.data.model.DIFFICULTY_EASY
-import io.eyram.speechsmith.data.model.DIFFICULTY_HARD
-import io.eyram.speechsmith.data.model.DIFFICULTY_MEDIUM
+import io.eyram.speechsmith.data.preferences.DIFFICULTY_EASY
+import io.eyram.speechsmith.data.preferences.DIFFICULTY_HARD
+import io.eyram.speechsmith.data.preferences.DIFFICULTY_MEDIUM
 import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import kotlinx.coroutines.launch

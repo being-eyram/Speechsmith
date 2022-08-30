@@ -1,4 +1,4 @@
-package io.eyram.speechsmith.data.model
+package io.eyram.speechsmith.data.preferences
 
 import android.content.Context
 import androidx.datastore.core.DataStore

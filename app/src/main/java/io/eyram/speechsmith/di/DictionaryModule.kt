@@ -1,5 +1,6 @@
 package io.eyram.speechsmith.di
 
+import com.skydoves.sandwich.adapters.ApiResponseCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,6 +20,7 @@ object DictionaryModule {
         return Retrofit.Builder()
             .baseUrl("https://api.wordnik.com/v4/word.json/")
             .addConverterFactory(MoshiConverterFactory.create())
+            .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
             .create(DictionaryService::class.java)
     }
