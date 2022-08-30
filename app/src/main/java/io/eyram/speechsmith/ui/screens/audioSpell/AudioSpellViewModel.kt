@@ -8,8 +8,8 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
-import androidx.media3.datasource.RawResourceDataSource
+import androidx.media3.common.MediaItem.fromUri
+import androidx.media3.datasource.RawResourceDataSource.buildRawResourceUri
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.eyram.speechsmith.R
@@ -44,9 +44,7 @@ class AudioSpellViewModel @Inject constructor(
     private var wordsToSpell: List<String>
     private var spellFieldState = SpellFieldState("")
 
-
     init {
-
         getExerciseSettings()
         wordsToSpell = repository.getWordsToSpell(uiState.totalNumberOfQuestions)
         getWordAndUpdateUiState()
@@ -55,22 +53,6 @@ class AudioSpellViewModel @Inject constructor(
             volume = 1F
             setPlaybackSpeed(0.75F)
             prepare()
-        }
-    }
-
-    //https://medium.com/androiddevelopers/datastore-and-synchronous-work-576f3869ec4c
-    private fun getExerciseSettings() {
-
-        runBlocking {
-            appSettings.getTotalAudioQuestions.first().apply {
-                uiState = uiState.copy(totalNumberOfQuestions = this)
-            }
-            appSettings.getAudioSpellDifficulty.first().apply {
-                uiState = uiState.copy(exerciseDifficulty = this)
-            }
-            appSettings.getAudioWordGroup.first().apply {
-                uiState = uiState.copy(exerciseWordGroup = this)
-            }
         }
     }
 
@@ -112,6 +94,22 @@ class AudioSpellViewModel @Inject constructor(
         }
     }
 
+    //https://medium.com/androiddevelopers/datastore-and-synchronous-work-576f3869ec4c
+    private fun getExerciseSettings() {
+
+        runBlocking {
+            appSettings.getTotalAudioQuestions.first().apply {
+                uiState = uiState.copy(totalNumberOfQuestions = this)
+            }
+            appSettings.getAudioSpellDifficulty.first().apply {
+                uiState = uiState.copy(exerciseDifficulty = this)
+            }
+            appSettings.getAudioWordGroup.first().apply {
+                uiState = uiState.copy(exerciseWordGroup = this)
+            }
+        }
+    }
+
     fun onNextPress() {
         if (currentWordIndex < wordsToSpell.lastIndex) {
             currentWordIndex += 1
@@ -128,44 +126,22 @@ class AudioSpellViewModel @Inject constructor(
         }
     }
 
-    fun onPlaySoundClick() {
-        audioPlayer.apply {
-            setMediaItem(MediaItem.fromUri(uiState.audioUrl))
-            println(uiState.audioUrl)
-            play()
-        }
+    fun onPlaySoundClick() = audioPlayer.apply {
+        setMediaItem(fromUri(uiState.audioUrl))
+        setPlaybackSpeed(1F)
+        play()
     }
 
     fun onEnterPress() = spellFieldState.run {
         spellCheck()
         getSpellFieldInputState()
     }.also {
-        val visualIndicatorState = getVisualIndicatorState(it)
-        uiState = uiState.copy(visualIndicatorState = visualIndicatorState)
-
-        viewModelScope.launch {
-            uiState = uiState.copy(showFieldStateIndicator = true)
-            delay(1500)
-            uiState = uiState.copy(showFieldStateIndicator = false)
+        getVisualIndicatorState(it).apply {
+            uiState = uiState.copy(visualIndicatorState = this)
         }
 
-        if (uiState.visualIndicatorState.message == CORRECT) {
-            audioPlayer.setMediaItem(
-                MediaItem.fromUri(
-                    RawResourceDataSource.buildRawResourceUri(R.raw.right_ans_audio)
-                )
-            )
-            audioPlayer.play()
-        }
-
-        if (uiState.visualIndicatorState.message == WRONG) {
-            audioPlayer.setMediaItem(
-                MediaItem.fromUri(
-                    RawResourceDataSource.buildRawResourceUri(R.raw.wrong_ans_audio)
-                )
-            )
-            audioPlayer.play()
-        }
+        toggleVisualIndicatorOnAndOff()
+        giveRightOrWrongAudioFeedback()
 
         viewModelScope.launch {
             delay(1000)
@@ -173,7 +149,33 @@ class AudioSpellViewModel @Inject constructor(
         }
     }
 
-    // BottomSheet functions to persist user settings
+    private fun giveRightOrWrongAudioFeedback() {
+        if (uiState.visualIndicatorState.message == CORRECT) {
+            audioPlayer.setMediaItem(
+                fromUri(buildRawResourceUri(R.raw.right_ans_audio))
+            )
+        }
+
+        if (uiState.visualIndicatorState.message == WRONG) {
+            audioPlayer.setMediaItem(
+                fromUri(buildRawResourceUri(R.raw.wrong_ans_audio))
+            )
+        }
+        audioPlayer.apply {
+            setPlaybackSpeed(1F)
+            play()
+        }
+    }
+
+    private fun toggleVisualIndicatorOnAndOff() {
+        viewModelScope.launch {
+            uiState = uiState.copy(showFieldStateIndicator = true)
+            delay(1500)
+            uiState = uiState.copy(showFieldStateIndicator = false)
+        }
+    }
+
+// BottomSheet functions to persist user settings
 
     fun onDifficultyDropDownClick(difficulty: String) {
         uiState = uiState.copy(exerciseDifficulty = difficulty)
@@ -215,12 +217,12 @@ class AudioSpellViewModel @Inject constructor(
 data class AudioSpellScreenState(
     val audioUrl: String = "",
     val currentExerciseNumber: Int = 0,
+    val totalNumberOfQuestions: Int = 10,
     val keyboardLabels: List<String> = listOf(),
     val showFieldStateIndicator: Boolean = false,
-    val spellFieldState: SpellFieldState = SpellFieldState(""),
     val exerciseDifficulty: String = DIFFICULTY_EASY,
-    val totalNumberOfQuestions: Int = 10,
     val exerciseWordGroup: String = "Animal - Domestic",
+    val spellFieldState: SpellFieldState = SpellFieldState(""),
     val visualIndicatorState: SpellInputVisualIndicatorState =
         SpellInputVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
 )
