@@ -18,11 +18,10 @@ class SpeechSmithRepository @Inject constructor(private val dictionaryService: D
 
 
     fun getWordsToSpell(totalNumber: Int) = mutableListOf<String>().run {
-        while (size < 10) {
+        while (size < totalNumber) {
             getWord().also {
                 if (it !in this) add(it)
             }
         }
-        shuffled()
     }
 }
