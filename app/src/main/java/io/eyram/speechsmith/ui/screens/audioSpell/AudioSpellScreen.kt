@@ -36,6 +36,8 @@ fun AudioSpellScreen(
     val uiState = viewModel.uiState
     val spellFieldState = viewModel.uiState.spellFieldState
     val coroutineScope = rememberCoroutineScope()
+    fun getCurrentExercise() =
+        "${uiState.currentExerciseNumber + 1} OF ${uiState.totalNumberOfQuestions}"
 
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
@@ -73,7 +75,7 @@ fun AudioSpellScreen(
                 onPrevClick = viewModel::onPrevPress,
                 onNextClick = viewModel::onNextPress,
                 onEnterPress = viewModel::onEnterPress,
-                score = "${uiState.currentExerciseNumber + 1} OF 10",
+                exerciseNumberTracker = getCurrentExercise(),
                 onPlaySoundClick = viewModel::onPlaySoundClick
             )
         }
@@ -86,7 +88,7 @@ fun AudioSpellContent(
     modifier: Modifier = Modifier,
     uiState: AudioSpellScreenState,
     spellFieldState: SpellFieldState,
-    score: String,
+    exerciseNumberTracker: String,
     onHintClick: () -> Unit,
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit,
@@ -107,7 +109,7 @@ fun AudioSpellContent(
                     start.linkTo(columnRef.start)
                     end.linkTo(columnRef.end)
                 },
-            score = score,
+            exerciseNumberTracker = exerciseNumberTracker,
             onHintClick = onHintClick::invoke,
             onScoreCardClick = onScoreClick::invoke
         )
