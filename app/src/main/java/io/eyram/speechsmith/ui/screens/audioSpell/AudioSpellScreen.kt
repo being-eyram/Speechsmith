@@ -1,6 +1,5 @@
 package io.eyram.speechsmith.ui.screens.audioSpell
 
-import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,24 +13,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.media3.common.MediaItem
-import androidx.media3.datasource.RawResourceDataSource
-import androidx.media3.exoplayer.ExoPlayer
-import io.eyram.speechsmith.R
-import io.eyram.speechsmith.data.model.AppSettings
 import io.eyram.speechsmith.data.model.DIFFICULTY_EASY
 import io.eyram.speechsmith.data.model.DIFFICULTY_HARD
 import io.eyram.speechsmith.data.model.DIFFICULTY_MEDIUM
 import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
-import io.eyram.speechsmith.ui.screens.pictureSpell.CORRECT
-import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
 import kotlinx.coroutines.launch
 
 
@@ -47,18 +38,19 @@ fun AudioSpellScreen(
     val coroutineScope = rememberCoroutineScope()
 
     ModalBottomSheetLayout(
+        sheetState = bottomSheetState,
         sheetBackgroundColor = Color.Black,
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        sheetState = bottomSheetState,
         sheetContent = {
             AudioSpellBottomSheetContent(
+                wordGroup = uiState.exerciseWordGroup,
                 difficulty = uiState.exerciseDifficulty,
-                onDifficultyDropDownClick = viewModel::onDifficultyDropDownClick,
                 totalNumberOfQuestions = uiState.totalNumberOfQuestions,
+                onSaveChangesClick = viewModel::onSaveChangesClick,
                 onAddQuestionsClick = viewModel::onAddQuestionsClick,
                 onSubtractQuestionsClick = viewModel::onSubtractQuestionsClick,
-                wordGroup = uiState.exerciseWordGroup,
-                onWordGroupDropDownClick = viewModel::onWordGroupDropDownClick
+                onWordGroupDropDownClick = viewModel::onWordGroupDropDownClick,
+                onDifficultyDropDownClick = viewModel::onDifficultyDropDownClick,
             )
         }
     ) {
@@ -207,7 +199,8 @@ fun ColumnScope.AudioSpellBottomSheetContent(
     onWordGroupDropDownClick: (String) -> Unit,
     totalNumberOfQuestions: Int,
     onAddQuestionsClick: () -> Unit,
-    onSubtractQuestionsClick: () -> Unit
+    onSubtractQuestionsClick: () -> Unit,
+    onSaveChangesClick: () -> Unit,
 ) {
     DragIndicator(Modifier.align(Alignment.CenterHorizontally))
 
@@ -264,7 +257,7 @@ fun ColumnScope.AudioSpellBottomSheetContent(
         )
     })
 
-    SaveChangesButton(onSaveChangesClick = {})
+    SaveChangesButton(onSaveChangesClick = onSaveChangesClick::invoke)
 }
 
 @Composable

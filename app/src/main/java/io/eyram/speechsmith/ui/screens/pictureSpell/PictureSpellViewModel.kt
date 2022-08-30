@@ -72,20 +72,20 @@ class PictureSpellViewModel @Inject constructor(
         }
     }
 
-    private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputStateVisualIndicatorState {
+    private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputVisualIndicatorState {
         return when (state) {
 
-            SpellFieldInputState.Correct -> SpellInputStateVisualIndicatorState(
+            SpellFieldInputState.Correct -> SpellInputVisualIndicatorState(
                 color = Color(0xFF538D4E),
                 message = CORRECT,
                 icon = R.drawable.ic_correct
             )
-            SpellFieldInputState.Incorrect -> SpellInputStateVisualIndicatorState(
+            SpellFieldInputState.Incorrect -> SpellInputVisualIndicatorState(
                 color = Color(0xFFBF4040),
                 message = WRONG,
                 icon = R.drawable.ic_incorrect
             )
-            SpellFieldInputState.InComplete -> SpellInputStateVisualIndicatorState(
+            SpellFieldInputState.InComplete -> SpellInputVisualIndicatorState(
                 color = Color(0xFF3A3A3C),
                 message = INCOMPLETE,
                 icon = R.drawable.ic_incomplete
@@ -98,12 +98,12 @@ data class PictureSpellScreenState(
     val spellFieldState: SpellFieldState = SpellFieldState(""),
     val keyboardLabels: List<String> = listOf(),
     val showFieldStateIndicator: Boolean = false,
-    val visualIndicatorState: SpellInputStateVisualIndicatorState =
-        SpellInputStateVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
+    val visualIndicatorState: SpellInputVisualIndicatorState =
+        SpellInputVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
 )
 
 
-data class SpellInputStateVisualIndicatorState(
+data class SpellInputVisualIndicatorState(
     val color: Color,
     val message: String,
     @DrawableRes val icon: Int
