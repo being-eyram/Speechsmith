@@ -74,11 +74,10 @@ class AudioSpellViewModel @Inject constructor(
     private fun updateAudio(wordToSpell: String) {
         viewModelScope.launch {
             val word = wordToSpell.toLowerCase(Locale.current)
-            repository.getPronunciation(word).apply {
-                onSuccess {
-                    getOrNull()?.let {
-                        uiState = uiState.copy(audioUrl = it[0].fileUrl)
-                    }
+            val response = repository.getPronunciation(word)
+            response.onSuccess {
+                getOrNull()?.let {
+                    uiState = uiState.copy(audioUrl = it[0].fileUrl)
                 }
             }
         }
@@ -129,24 +128,28 @@ class AudioSpellViewModel @Inject constructor(
         play()
     }
 
-    fun onEnterPress() = spellFieldState.run {
-        spellCheck()
-        getSpellFieldInputState()
-    }.also {
-        getVisualIndicatorState(it).apply {
-            uiState = uiState.copy(visualIndicatorState = this)
+    fun onEnterPress() {
+        spellFieldState.run {
+            spellCheck()
+            getSpellFieldInputState()
+        }.also {
+            getVisualIndicatorState(it).apply {
+                uiState = uiState.copy(visualIndicatorState = this)
+            }
+            showVisualIndicatorFor(1500)
+            playRightOrWrongAudioFeedback()
+            getNextWordOnSpellCorrect(it)
         }
+    }
 
-        toggleVisualIndicatorOnAndOff()
-        giveRightOrWrongAudioFeedback()
-
+    private fun getNextWordOnSpellCorrect(it: SpellFieldInputState) {
         viewModelScope.launch {
             delay(1000)
             if (it == SpellFieldInputState.Correct) onNextPress()
         }
     }
 
-    private fun giveRightOrWrongAudioFeedback() {
+    private fun playRightOrWrongAudioFeedback() {
         if (uiState.visualIndicatorState.message == CORRECT) {
             audioPlayer.setMediaItem(
                 fromUri(buildRawResourceUri(R.raw.right_ans_audio))
@@ -164,10 +167,10 @@ class AudioSpellViewModel @Inject constructor(
         }
     }
 
-    private fun toggleVisualIndicatorOnAndOff() {
+    private fun showVisualIndicatorFor(duration: Long) {
         viewModelScope.launch {
             uiState = uiState.copy(showFieldStateIndicator = true)
-            delay(1500)
+            delay(duration)
             uiState = uiState.copy(showFieldStateIndicator = false)
         }
     }
