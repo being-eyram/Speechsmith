@@ -15,14 +15,15 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
 import io.eyram.speechsmith.data.preferences.AppSettings
-import io.eyram.speechsmith.ui.screens.audioSpell.AudioSpellScreen
+import io.eyram.speechsmith.ui.screens.perfectscore.PerfectScore
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject lateinit var appSettings: AppSettings
+    @Inject
+    lateinit var appSettings: AppSettings
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,9 +38,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     //PictureSpellScreen()
-                    AudioSpellScreen(
-                        onHomeClick = {},
-                    )
+//                    AudioSpellScreen(
+//                        onHomeClick = {},
+//                    )
+                    PerfectScore()
                 }
             }
         }
