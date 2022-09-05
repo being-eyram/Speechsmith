@@ -85,8 +85,8 @@ fun AudioToWordMatchContent(
                 onPrevClick = onPrevClick::invoke,
                 onNextClick = onNextClick::invoke,
                 onPlaySoundClick = onPlaySoundClick::invoke,
-
-                )
+                isAudioPlaying = false
+            )
 
             Text(
                 modifier = Modifier.paddingFromBaseline(top = 40.dp),
@@ -141,12 +141,13 @@ fun ListenNChoosePreview() {
 @Composable
 fun PlayButtonPrev() {
     SpeechsmithTheme {
-        PlaySoundButton {}
+      //  PlaySoundButton {}
     }
 }
 
 const val PLAY_SOUND = "PLAY SOUND"
 const val LABEL_QUESTION = "What did you hear?"
+const val PLAYING = "PLAYING"
 
 enum class OptionButtonState { Initial, Correct, Incorrect }
 

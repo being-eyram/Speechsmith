@@ -66,8 +66,10 @@ fun AudioToPictureMatchScreen() {
                 SoundControls(
                     modifier = Modifier.padding(horizontal = 12.dp),
                     onPrevClick = { /*TODO*/ },
-                    onPlaySoundClick = { /*TODO*/ }
-                ) {}
+                    onPlaySoundClick = { /*TODO*/ },
+                    isAudioPlaying = false,
+                    onNextClick = { }
+                )
 
                 Text(
                     modifier = Modifier.paddingFromBaseline(top = 40.dp),
@@ -129,7 +131,7 @@ fun ImgView() {
 @Composable
 fun PlayButtonPrev() {
     SpeechsmithTheme {
-        PlaySoundButton {}
+        //PlaySoundButton {}
     }
 }
 

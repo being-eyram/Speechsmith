@@ -9,6 +9,7 @@ import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem.fromUri
+import androidx.media3.common.Player
 import androidx.media3.datasource.RawResourceDataSource.buildRawResourceUri
 import androidx.media3.exoplayer.ExoPlayer
 import com.skydoves.sandwich.getOrNull
@@ -45,16 +46,26 @@ class AudioSpellViewModel @Inject constructor(
     private var currentWordIndex = 0
     private var wordsToSpell: List<String>
     private var spellFieldState = SpellFieldState("")
+    private var isAudioPlaying = mutableStateOf(audioPlayer.isPlaying)
+
 
     init {
         getUserPreferences()
         wordsToSpell = repository.getWordsToSpell(uiState.totalNumberOfQuestions)
         getWordAndUpdateUiState()
+        initializeAudioPlayer()
+    }
 
+    private fun initializeAudioPlayer() {
         audioPlayer.apply {
-            volume = 1F
-            setPlaybackSpeed(0.75F)
             prepare()
+            volume = 1F
+            setPlaybackSpeed(0.5F)
+            addListener(object : Player.Listener {
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    if (!isPlaying) uiState = uiState.copy(isAudioPlaying = false)
+                }
+            })
         }
     }
 
@@ -124,8 +135,8 @@ class AudioSpellViewModel @Inject constructor(
 
     fun onPlaySoundClick() = audioPlayer.apply {
         setMediaItem(fromUri(uiState.audioUrl))
-        setPlaybackSpeed(1F)
         play()
+        uiState = uiState.copy(isAudioPlaying = true)
     }
 
     fun onEnterPress() {
@@ -216,6 +227,7 @@ class AudioSpellViewModel @Inject constructor(
 
 data class AudioSpellScreenState(
     val audioUrl: String = "",
+    val isAudioPlaying: Boolean = false,
     val currentExerciseNumber: Int = 0,
     val totalNumberOfQuestions: Int = 10,
     val keyboardLabels: List<String> = listOf(),
@@ -224,7 +236,11 @@ data class AudioSpellScreenState(
     val exerciseWordGroup: String = "Animal - Domestic",
     val spellFieldState: SpellFieldState = SpellFieldState(""),
     val visualIndicatorState: SpellInputVisualIndicatorState =
-        SpellInputVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
+        SpellInputVisualIndicatorState(
+            Color.Unspecified,
+            INCOMPLETE,
+            R.drawable.ic_incorrect
+        )
 )
 
 private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputVisualIndicatorState {

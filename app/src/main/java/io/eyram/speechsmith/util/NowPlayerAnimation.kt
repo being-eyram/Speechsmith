@@ -2,9 +2,12 @@ package io.eyram.speechsmith.util
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -12,8 +15,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+
 @Composable
-fun NowPlayingBar(modifier: Modifier = Modifier) {
+fun NowPlayingAnimation(modifier: Modifier = Modifier) {
     val canvasSizePx = with(LocalDensity.current) { 20.dp.toPx() }
     val infiniteScale = rememberInfiniteTransition()
 
@@ -73,7 +77,7 @@ fun NowPlayingBar(modifier: Modifier = Modifier) {
         )
     )
 
-    Canvas(modifier.size(20.dp)) {
+    Canvas(modifier.size(20.dp).clipToBounds()) {
 
         val xSpacing = size.width / 20F
         val barWidth = (size.width - (xSpacing * 5)) / 4f
@@ -95,5 +99,5 @@ fun NowPlayingBar(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun NowPlayingBarPreview() {
-    NowPlayingBar()
+    NowPlayingAnimation()
 }

@@ -164,6 +164,7 @@ fun AudioSpellContent(
                 onPrevClick = onPrevClick::invoke,
                 onNextClick = onNextClick::invoke,
                 onPlaySoundClick = onPlaySoundClick::invoke,
+                isAudioPlaying = uiState.isAudioPlaying
             )
 
             Text(
