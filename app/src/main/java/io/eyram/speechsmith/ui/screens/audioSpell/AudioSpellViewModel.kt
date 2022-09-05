@@ -47,7 +47,7 @@ class AudioSpellViewModel @Inject constructor(
     private var spellFieldState = SpellFieldState("")
 
     init {
-        getExerciseSettings()
+        getUserPreferences()
         wordsToSpell = repository.getWordsToSpell(uiState.totalNumberOfQuestions)
         getWordAndUpdateUiState()
 
@@ -92,7 +92,7 @@ class AudioSpellViewModel @Inject constructor(
     }
 
     //https://medium.com/androiddevelopers/datastore-and-synchronous-work-576f3869ec4c
-    private fun getExerciseSettings() {
+    private fun getUserPreferences() {
         runBlocking {
             appSettings.getTotalAudioQuestions.first().apply {
                 uiState = uiState.copy(totalNumberOfQuestions = this)
