@@ -11,12 +11,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
 import io.eyram.speechsmith.data.preferences.AppSettings
 import io.eyram.speechsmith.ui.screens.audioSpell.AudioSpellScreen
-import io.eyram.speechsmith.ui.screens.perfectscore.PerfectScore
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import javax.inject.Inject
 
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = Color.Yellow
                 ) {
                     //PictureSpellScreen()
                     AudioSpellScreen(

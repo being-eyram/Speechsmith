@@ -46,8 +46,6 @@ class AudioSpellViewModel @Inject constructor(
     private var currentWordIndex = 0
     private var wordsToSpell: List<String>
     private var spellFieldState = SpellFieldState("")
-    private var isAudioPlaying = mutableStateOf(audioPlayer.isPlaying)
-
 
     init {
         getUserPreferences()
@@ -96,6 +94,7 @@ class AudioSpellViewModel @Inject constructor(
 
     private fun getWordAndUpdateUiState() {
         wordsToSpell[currentWordIndex].apply {
+            uiState = uiState.copy(wordToSpell = this)
             updateAudio(this)
             updateSpellField(this)
             updateKeyboard(this)
@@ -227,6 +226,7 @@ class AudioSpellViewModel @Inject constructor(
 
 data class AudioSpellScreenState(
     val audioUrl: String = "",
+    val wordToSpell: String = "",
     val isAudioPlaying: Boolean = false,
     val currentExerciseNumber: Int = 0,
     val totalNumberOfQuestions: Int = 10,

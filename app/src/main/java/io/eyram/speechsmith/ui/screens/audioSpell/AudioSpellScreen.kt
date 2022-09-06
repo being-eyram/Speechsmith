@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -36,6 +38,7 @@ fun AudioSpellScreen(
     val uiState = viewModel.uiState
     val spellFieldState = viewModel.uiState.spellFieldState
     val coroutineScope = rememberCoroutineScope()
+    var showDialog by remember { mutableStateOf(false) }
     fun getCurrentExercise() =
         "${uiState.currentExerciseNumber + 1} OF ${uiState.totalNumberOfQuestions}"
 
@@ -70,7 +73,7 @@ fun AudioSpellScreen(
                 modifier = Modifier.padding(padding),
                 uiState = uiState,
                 spellFieldState = spellFieldState,
-                onHintClick = {},
+                onHintClick = { showDialog = true },
                 onScoreClick = {},
                 onPrevClick = viewModel::onPrevPress,
                 onNextClick = viewModel::onNextPress,
@@ -78,6 +81,13 @@ fun AudioSpellScreen(
                 exerciseNumberTracker = getCurrentExercise(),
                 onPlaySoundClick = viewModel::onPlaySoundClick
             )
+            if (showDialog) {
+                AudioSpellHintDialog(
+                    wordToSpell = uiState.wordToSpell.toUpperCase(Locale.current),
+                    onDismissRequest = { showDialog = false },
+                )
+            }
+
         }
     }
 }
