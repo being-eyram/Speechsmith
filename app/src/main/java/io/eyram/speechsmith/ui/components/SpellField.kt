@@ -93,7 +93,8 @@ fun SpellBox(
             text = text,
             fontSize = 20.sp,
             lineHeight = 24.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            color = Color.White
         )
     }
 }

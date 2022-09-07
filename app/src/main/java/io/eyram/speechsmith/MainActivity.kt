@@ -22,22 +22,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SpeechsmithTheme {
-                // A surface container using the 'background' color from the theme
-                AudioSpellScreen(
-                    onHomeClick = {},
-                )
+                AudioSpellScreen(onHomeClick = {})
             }
         }
     }
 }
-
-//@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, device = Devices.NEXUS_5)
-//@Composable
-//fun DefaultPreview() {
-//    Surface(
-//        modifier = Modifier.fillMaxSize(),
-//        color = MaterialTheme.colorScheme.background
-//    ) {
-//        //PictureSpellScreen()
-//    }
-//}

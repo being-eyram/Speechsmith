@@ -109,7 +109,7 @@ fun DragToReveal(modifier: Modifier = Modifier, wordToSpell: String) {
                 .fillMaxWidth()
                 .alpha(if (state.offset.value > 0f) state.progress.fraction else 0f),
             text = wordToSpell,
-            style = MaterialTheme.typography.labelMedium.copy(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 color = Color.White,
                 textAlign = TextAlign.Center
             )

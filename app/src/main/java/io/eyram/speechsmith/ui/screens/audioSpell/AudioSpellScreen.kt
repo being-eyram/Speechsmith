@@ -165,12 +165,14 @@ fun AudioSpellContent(
                 ) {
                     Text(
                         modifier = Modifier.padding(start = 16.dp),
-                        text = visualIndicatorState.message
+                        text = visualIndicatorState.message,
+                        color = Color.White
                     )
 
                     Icon(
                         modifier = Modifier.padding(end = 16.dp),
                         painter = painterResource(id = visualIndicatorState.icon),
+                        tint = Color.White,
                         contentDescription = null
                     )
                 }

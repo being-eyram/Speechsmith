@@ -99,7 +99,7 @@ fun AppBarButton(
                 end.linkTo(parent.end, 20.dp)
             },
             text = label,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium.copy(color = Color.White)
         )
         Spacer(Modifier.width(20.dp))
     }
