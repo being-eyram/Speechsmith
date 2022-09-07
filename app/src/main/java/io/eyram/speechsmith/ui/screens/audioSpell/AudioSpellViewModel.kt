@@ -1,5 +1,7 @@
 package io.eyram.speechsmith.ui.screens.audioSpell
 
+import android.net.ConnectivityManager
+import android.net.Network
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,7 +29,9 @@ import io.eyram.speechsmith.ui.screens.pictureSpell.SpellInputVisualIndicatorSta
 import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
 import io.eyram.speechsmith.util.generateKeyboardLabels
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -37,7 +41,8 @@ import javax.inject.Inject
 class AudioSpellViewModel @Inject constructor(
     private val repository: SpeechSmithRepository,
     private val appSettings: AppSettings,
-    private val audioPlayer: ExoPlayer
+    private val audioPlayer: ExoPlayer,
+    private val connectivityManager: ConnectivityManager
 ) : ViewModel() {
 
     var uiState by mutableStateOf(AudioSpellScreenState())
@@ -222,6 +227,30 @@ class AudioSpellViewModel @Inject constructor(
             appSettings.setTotalNumberOfAudioExercises(uiState.totalNumberOfQuestions)
         }
     }
+
+    fun listenForConnectivity() = callbackFlow {
+        val connectivityListener = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                trySend(ConnectivityStatus.Available)
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                trySend(ConnectivityStatus.Unavailable)
+            }
+
+            override fun onUnavailable() {
+                super.onUnavailable()
+                trySend(ConnectivityStatus.Unavailable)
+            }
+        }
+        connectivityManager.registerDefaultNetworkCallback(connectivityListener)
+        awaitClose {
+            connectivityManager.unregisterNetworkCallback(connectivityListener)
+        }
+    }
+    //TODO : Remember to unregister this callback when viewmodel is destroyed.
 }
 
 data class AudioSpellScreenState(
@@ -263,3 +292,5 @@ private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputVisu
         )
     }
 }
+
+enum class ConnectivityStatus { Available, Unavailable }

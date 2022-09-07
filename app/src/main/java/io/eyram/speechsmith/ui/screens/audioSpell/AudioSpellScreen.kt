@@ -8,6 +8,9 @@ import androidx.compose.material3.*
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,7 +31,7 @@ import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AudioSpellScreen(
     viewModel: AudioSpellViewModel = viewModel(),
@@ -37,8 +40,12 @@ fun AudioSpellScreen(
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = viewModel.uiState.spellFieldState
+    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
+    val connectivityStatus =
+        viewModel.listenForConnectivity().collectAsState(initial = ConnectivityStatus.Unavailable)
+
     fun getCurrentExercise() =
         "${uiState.currentExerciseNumber + 1} OF ${uiState.totalNumberOfQuestions}"
 
@@ -67,6 +74,9 @@ fun AudioSpellScreen(
                         coroutineScope.launch { bottomSheetState.show() }
                     }
                 )
+            },
+            snackbarHost = {
+                SnackbarHost(snackbarHostState)
             }
         ) { padding ->
             AudioSpellContent(
@@ -88,6 +98,14 @@ fun AudioSpellScreen(
                 )
             }
 
+            if (connectivityStatus.value == ConnectivityStatus.Unavailable) {
+                LaunchedEffect(connectivityStatus.value) {
+                    snackbarHostState.showSnackbar(
+                        message = "Network Connection Unavailable",
+                        duration = SnackbarDuration.Indefinite
+                    )
+                }
+            }
         }
     }
 }
@@ -203,7 +221,6 @@ fun AudioSpellContent(
     }
 }
 
-
 @Composable
 fun ColumnScope.AudioSpellBottomSheetContent(
     difficulty: String,
@@ -237,7 +254,6 @@ fun ColumnScope.AudioSpellBottomSheetContent(
             onExpandedChange = { expanded = !expanded }
         )
     })
-
 
     // WordGroup
     BottomSheetItem(content = {
@@ -297,14 +313,3 @@ fun ColumnScope.SaveChangesButton(
         )
     }
 }
-
-//@OptIn(ExperimentalMaterialApi::class)
-//@Preview
-//@Composable
-//fun ListenAndSpellPreview() {
-//    SpeechsmithTheme(darkTheme = true) {
-//        Surface() {
-//            AudioSpellScreen(onHomeClick = {})
-//        }
-//    }
-//}
