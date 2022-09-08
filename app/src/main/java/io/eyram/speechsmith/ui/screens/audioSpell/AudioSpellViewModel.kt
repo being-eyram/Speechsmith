@@ -6,6 +6,7 @@ import androidx.annotation.RawRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
@@ -59,7 +60,6 @@ class AudioSpellViewModel @Inject constructor(
         wordsToSpell = repository.getWordsToSpell(uiState.totalNumberOfQuestions)
         getWordAndUpdateUiState()
         initializeAudioPlayer()
-        getHintImage(wordsToSpell[currentWordIndex])
     }
 
     private fun initializeAudioPlayer() = audioPlayer.apply {
@@ -116,12 +116,13 @@ class AudioSpellViewModel @Inject constructor(
         }
     }
 
-    private fun getHintImage(wordToSpell: String){
+    private fun getHintImage(wordToSpell: String) {
         viewModelScope.launch {
-            val response = repository.getImage(wordToSpell)
+            val response = repository.getImage(wordToSpell.toLowerCase(Locale.current))
             response.onSuccess {
-                getOrNull()?.let {
-                    it.results[0].altDescription
+                getOrNull()?.let { image ->
+                    val betterPhoto = image.results.maxBy { it.likes}
+                    uiState = uiState.copy(hintImgUrl = betterPhoto.urls.regular)
                 }
             }
         }
@@ -133,6 +134,7 @@ class AudioSpellViewModel @Inject constructor(
             updateAudio(this)
             updateSpellField(this)
             updateKeyboard(this)
+            getHintImage(this)
         }
     }
 
@@ -171,7 +173,6 @@ class AudioSpellViewModel @Inject constructor(
         setMediaItem(fromUri(uiState.audioUrl))
         setPlaybackSpeed(0.5F)
         play()
-        // uiState = uiState.copy(isAudioPlaying = true)
     }
 
     fun onEnterPress() {
@@ -295,6 +296,7 @@ class AudioSpellViewModel @Inject constructor(
 data class AudioSpellScreenState(
     val audioUrl: String = "",
     val wordToSpell: String = "",
+    val hintImgUrl: String = "",
     val audioPlayerState: AudioPlayerState = AudioPlayerState.Idle,
     val currentExerciseNumber: Int = 0,
     val isExerciseComplete: Boolean = false,

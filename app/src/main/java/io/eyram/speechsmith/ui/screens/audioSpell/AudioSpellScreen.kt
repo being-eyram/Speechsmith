@@ -92,6 +92,7 @@ fun AudioSpellScreen(
             if (showDialog) {
                 AudioSpellHintDialog(
                     wordToSpell = uiState.wordToSpell.toUpperCase(Locale.current),
+                    hintImageUrl = uiState.hintImgUrl,
                     onDismissRequest = { showDialog = false },
                 )
             }

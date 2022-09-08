@@ -83,6 +83,9 @@ dependencies {
     //Konfetti
     implementation 'nl.dionsegijn:konfetti-compose:2.0.2'
 
+    //coil
+    implementation "io.coil-kt:coil-compose:2.2.1"
+
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

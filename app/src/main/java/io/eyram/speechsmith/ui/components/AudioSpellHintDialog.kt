@@ -1,5 +1,7 @@
 package io.eyram.speechsmith.ui.components
 
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -12,17 +14,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.size.Scale
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlin.math.abs
@@ -32,25 +43,33 @@ import kotlin.math.roundToInt
 fun AudioSpellHintDialog(
     modifier: Modifier = Modifier,
     wordToSpell: String,
+    hintImageUrl: String,
     onDismissRequest: () -> Unit
 ) {
 
     Dialog(onDismissRequest = onDismissRequest::invoke) {
         Surface(
-            modifier = modifier.size(256.dp, 341.dp),
+            modifier = modifier.size(320.dp, 480.dp),
             shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.background
+            color = Color(0xFF202020)
         ) {
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceAround
             ) {
-                Surface(
-                    modifier = modifier.size(220.dp, 165.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    color = Color.Gray
-                ) {}
+                AsyncImage(
+                    modifier = modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .size(265.dp, 353.dp),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(hintImageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop
+                )
                 DragToReveal(wordToSpell = wordToSpell)
             }
         }
@@ -60,7 +79,7 @@ fun AudioSpellHintDialog(
 @Preview
 @Composable
 fun AudioSpellHintDialogPreview() {
-   // AudioSpellHintDialog()
+    // AudioSpellHintDialog()
 }
 
 
@@ -90,7 +109,7 @@ fun DragToReveal(modifier: Modifier = Modifier, wordToSpell: String) {
                 enabled = state.currentValue != 1
             )
             .size(220.dp, 48.dp)
-            .background(color = Color(0xFF232323), shape = RoundedCornerShape(50)),
+            .background(color = Color(0xFFE0991A), shape = RoundedCornerShape(50)),
         contentAlignment = Alignment.CenterStart
 
     ) {
@@ -110,8 +129,10 @@ fun DragToReveal(modifier: Modifier = Modifier, wordToSpell: String) {
                 .alpha(if (state.offset.value > 0f) state.progress.fraction else 0f),
             text = wordToSpell,
             style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 16.sp,
                 color = Color.White,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium
             )
         )
 
