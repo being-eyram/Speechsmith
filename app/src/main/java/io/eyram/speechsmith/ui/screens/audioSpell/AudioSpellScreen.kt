@@ -95,6 +95,9 @@ fun AudioSpellScreen(
                     onDismissRequest = { showDialog = false },
                 )
             }
+            if(uiState.isExerciseComplete){
+                println("Is Complete")
+            }
 
             if (connectivityStatus.value == ConnectivityStatus.Unavailable) {
                 LaunchedEffect(connectivityStatus.value) {

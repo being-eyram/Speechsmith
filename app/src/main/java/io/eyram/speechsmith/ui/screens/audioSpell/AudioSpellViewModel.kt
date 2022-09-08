@@ -59,6 +59,7 @@ class AudioSpellViewModel @Inject constructor(
         wordsToSpell = repository.getWordsToSpell(uiState.totalNumberOfQuestions)
         getWordAndUpdateUiState()
         initializeAudioPlayer()
+        getHintImage(wordsToSpell[currentWordIndex])
     }
 
     private fun initializeAudioPlayer() = audioPlayer.apply {
@@ -87,8 +88,7 @@ class AudioSpellViewModel @Inject constructor(
                     }
                 }
             }
-        }
-        )
+        })
     }
 
     private fun updateKeyboard(wordToSpell: String) {
@@ -111,6 +111,17 @@ class AudioSpellViewModel @Inject constructor(
             response.onSuccess {
                 getOrNull()?.let {
                     uiState = uiState.copy(audioUrl = it[0].fileUrl)
+                }
+            }
+        }
+    }
+
+    private fun getHintImage(wordToSpell: String){
+        viewModelScope.launch {
+            val response = repository.getImage(wordToSpell)
+            response.onSuccess {
+                getOrNull()?.let {
+                    it.results[0].altDescription
                 }
             }
         }
@@ -173,14 +184,17 @@ class AudioSpellViewModel @Inject constructor(
             showVisualIndicatorFor(1500)
             playRightOrWrongAudioFeedback()
             getNextWordOnSpellCorrect(it)
-            //Check if this is the last exercise and do something.
         }
     }
 
     private fun getNextWordOnSpellCorrect(it: SpellFieldInputState) {
         viewModelScope.launch {
             delay(1000)
-            if (it == SpellFieldInputState.Correct) onNextPress()
+            if (it == SpellFieldInputState.Correct && currentWordIndex != wordsToSpell.lastIndex) {
+                onNextPress()
+            } else {
+                uiState = uiState.copy(isExerciseComplete = true)
+            }
         }
     }
 
@@ -283,6 +297,7 @@ data class AudioSpellScreenState(
     val wordToSpell: String = "",
     val audioPlayerState: AudioPlayerState = AudioPlayerState.Idle,
     val currentExerciseNumber: Int = 0,
+    val isExerciseComplete: Boolean = false,
     val totalNumberOfQuestions: Int = 10,
     val keyboardLabels: List<String> = listOf(),
     val showFieldStateVisualIndicator: Boolean = false,
