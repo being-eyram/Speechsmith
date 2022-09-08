@@ -277,7 +277,7 @@ class AudioSpellViewModel @Inject constructor(
     }
 }
 
-//Change the name of this class to Model And use state for handling error and loading states.
+
 data class AudioSpellScreenState(
     val audioUrl: String = "",
     val wordToSpell: String = "",
