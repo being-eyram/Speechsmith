@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import io.eyram.speechsmith.ui.components.*
+import io.eyram.speechsmith.ui.screens.audioSpell.AudioPlayerState
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -85,7 +86,7 @@ fun AudioToWordMatchContent(
                 onPrevClick = onPrevClick::invoke,
                 onNextClick = onNextClick::invoke,
                 onPlaySoundClick = onPlaySoundClick::invoke,
-                isAudioPlaying = false
+                audioPlayerState = AudioPlayerState.Idle
             )
 
             Text(
@@ -148,6 +149,7 @@ fun PlayButtonPrev() {
 const val PLAY_SOUND = "PLAY SOUND"
 const val LABEL_QUESTION = "What did you hear?"
 const val PLAYING = "PLAYING"
+const val LOADING = "LOADING"
 
 enum class OptionButtonState { Initial, Correct, Incorrect }
 

@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.eyram.speechsmith.R
+import io.eyram.speechsmith.ui.screens.audioSpell.AudioPlayerState
+import io.eyram.speechsmith.ui.screens.audioToWordMatch.LOADING
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.PLAYING
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.PLAY_SOUND
 import io.eyram.speechsmith.ui.screens.pictureSpell.LABEL_NEXT
@@ -22,14 +24,14 @@ fun SoundControls(
     onPrevClick: () -> Unit,
     onPlaySoundClick: () -> Unit,
     onNextClick: () -> Unit,
-    isAudioPlaying: Boolean
+    audioPlayerState: AudioPlayerState
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         PrevNextButton(label = LABEL_PREV, onClick = onPrevClick::invoke, enabled = true)
-        PlaySoundButton(onClick = onPlaySoundClick::invoke, isAudioPlaying = isAudioPlaying)
+        PlaySoundButton(onClick = onPlaySoundClick::invoke, audioPlayerState = audioPlayerState)
         PrevNextButton(label = LABEL_NEXT, onClick = onNextClick::invoke, enabled = true)
     }
 }
@@ -39,7 +41,7 @@ fun SoundControls(
 fun PlaySoundButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    isAudioPlaying: Boolean
+    audioPlayerState: AudioPlayerState
 ) {
     Button(
         modifier = modifier.size(184.dp, 56.dp),
@@ -50,20 +52,36 @@ fun PlaySoundButton(
             contentColor = Color.White
         )
     ) {
-        AnimatedContent(targetState = isAudioPlaying) { targetState ->
-            if (targetState) {
-                NowPlayingAnimation(Modifier.padding(end = 12.dp, bottom = 10.dp))
-            } else {
-                Icon(
-                    modifier = Modifier.padding(end = 12.dp),
-                    painter = painterResource(id = R.drawable.ic_play_circle),
-                    contentDescription = null
-                )
+
+        AnimatedContent(targetState = audioPlayerState) { targetState ->
+            when (targetState) {
+                AudioPlayerState.Playing -> {
+                    NowPlayingAnimation(Modifier.padding(end = 12.dp, bottom = 10.dp))
+                }
+                AudioPlayerState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = Color(0xFF3E97E0)
+                    )
+                }
+                else -> {
+                    Icon(
+                        modifier = Modifier.padding(end = 12.dp),
+                        painter = painterResource(id = R.drawable.ic_play_circle),
+                        contentDescription = null
+                    )
+                }
             }
         }
-
         Text(
-            text = if(isAudioPlaying) PLAYING else PLAY_SOUND,
+            text = when (audioPlayerState) {
+                AudioPlayerState.Playing -> PLAYING
+                AudioPlayerState.Loading -> LOADING
+                else -> PLAY_SOUND
+            },
             style = MaterialTheme.typography.bodyLarge
         )
     }

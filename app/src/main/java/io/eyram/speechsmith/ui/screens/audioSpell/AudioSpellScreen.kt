@@ -44,7 +44,7 @@ fun AudioSpellScreen(
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     val connectivityStatus =
-        viewModel.listenForConnectivity().collectAsState(initial = ConnectivityStatus.Unavailable)
+        viewModel.listenForConnectivity().collectAsState(initial = ConnectivityStatus.Available)
 
     fun getCurrentExercise() =
         "${uiState.currentExerciseNumber + 1} OF ${uiState.totalNumberOfQuestions}"
@@ -75,9 +75,7 @@ fun AudioSpellScreen(
                     }
                 )
             },
-            snackbarHost = {
-                SnackbarHost(snackbarHostState)
-            }
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { padding ->
             AudioSpellContent(
                 modifier = Modifier.padding(padding),
@@ -148,7 +146,7 @@ fun AudioSpellContent(
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
-            visible = uiState.showFieldStateIndicator,
+            visible = uiState.showFieldStateVisualIndicator,
             enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
             exit = scaleOut() + fadeOut()
         ) {
@@ -194,7 +192,7 @@ fun AudioSpellContent(
                 onPrevClick = onPrevClick::invoke,
                 onNextClick = onNextClick::invoke,
                 onPlaySoundClick = onPlaySoundClick::invoke,
-                isAudioPlaying = uiState.isAudioPlaying
+                audioPlayerState = uiState.audioPlayerState
             )
 
             Text(

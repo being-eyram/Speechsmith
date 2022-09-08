@@ -86,7 +86,7 @@ fun NowPlayingAnimation(modifier: Modifier = Modifier) {
 
         repeat(4) {
             drawRect(
-                color = Color(0xFF42C736),
+                color = Color(0xFF3E97E0),
                 size = Size(barWidth, size.height),
                 topLeft = Offset(x = xSpaceOccupied, y = animatedDotScale[it].value)
             )

@@ -22,6 +22,7 @@ import io.eyram.speechsmith.ui.components.HintRow
 import io.eyram.speechsmith.ui.components.PlaySoundButton
 import io.eyram.speechsmith.ui.components.SoundControls
 import io.eyram.speechsmith.ui.components.SpeechSmithAppBar
+import io.eyram.speechsmith.ui.screens.audioSpell.AudioPlayerState
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 
@@ -67,7 +68,7 @@ fun AudioToPictureMatchScreen() {
                     modifier = Modifier.padding(horizontal = 12.dp),
                     onPrevClick = { /*TODO*/ },
                     onPlaySoundClick = { /*TODO*/ },
-                    isAudioPlaying = false,
+                    audioPlayerState = AudioPlayerState.Idle,
                     onNextClick = { }
                 )
 
