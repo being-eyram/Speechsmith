@@ -5,7 +5,6 @@ import android.net.Network
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
@@ -24,10 +23,11 @@ import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
 import io.eyram.speechsmith.ui.screens.pictureSpell.CORRECT
-import io.eyram.speechsmith.ui.screens.pictureSpell.INCOMPLETE
 import io.eyram.speechsmith.ui.screens.pictureSpell.SpellInputVisualIndicatorState
 import io.eyram.speechsmith.ui.screens.pictureSpell.WRONG
+import io.eyram.speechsmith.util.defaultViState
 import io.eyram.speechsmith.util.generateKeyboardLabels
+import io.eyram.speechsmith.util.getVisualIndicatorState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -45,7 +45,7 @@ class AudioSpellViewModel @Inject constructor(
     private val connectivityManager: ConnectivityManager
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(AudioSpellScreenState())
+    var uiState by mutableStateOf(AudioSpellScreenModel())
         private set
 
     private var currentWordIndex = 0
@@ -59,17 +59,14 @@ class AudioSpellViewModel @Inject constructor(
         initializeAudioPlayer()
     }
 
-    private fun initializeAudioPlayer() {
-        audioPlayer.apply {
-            prepare()
-            volume = 1F
-            setPlaybackSpeed(0.5F)
-            addListener(object : Player.Listener {
-                override fun onIsPlayingChanged(isPlaying: Boolean) {
-                    if (!isPlaying) uiState = uiState.copy(isAudioPlaying = false)
-                }
-            })
-        }
+    private fun initializeAudioPlayer() = audioPlayer.apply {
+        prepare()
+        volume = 1F
+        addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (!isPlaying) uiState = uiState.copy(isAudioPlaying = false)
+            }
+        })
     }
 
     private fun updateKeyboard(wordToSpell: String) {
@@ -139,6 +136,7 @@ class AudioSpellViewModel @Inject constructor(
 
     fun onPlaySoundClick() = audioPlayer.apply {
         setMediaItem(fromUri(uiState.audioUrl))
+        setPlaybackSpeed(0.5F)
         play()
         uiState = uiState.copy(isAudioPlaying = true)
     }
@@ -148,12 +146,12 @@ class AudioSpellViewModel @Inject constructor(
             spellCheck()
             getSpellFieldInputState()
         }.also {
-            getVisualIndicatorState(it).apply {
-                uiState = uiState.copy(visualIndicatorState = this)
-            }
+            val viState = getVisualIndicatorState(it)
+            uiState = uiState.copy(visualIndicatorState = viState)
             showVisualIndicatorFor(1500)
             playRightOrWrongAudioFeedback()
             getNextWordOnSpellCorrect(it)
+            //Check if this is the last exercise and do something.
         }
     }
 
@@ -250,10 +248,10 @@ class AudioSpellViewModel @Inject constructor(
             connectivityManager.unregisterNetworkCallback(connectivityListener)
         }
     }
-    //TODO : Remember to unregister this callback when viewmodel is destroyed.
 }
 
-data class AudioSpellScreenState(
+//Change the name of this class to Model And use state for handling error and loading states.
+data class AudioSpellScreenModel(
     val audioUrl: String = "",
     val wordToSpell: String = "",
     val isAudioPlaying: Boolean = false,
@@ -264,33 +262,13 @@ data class AudioSpellScreenState(
     val exerciseDifficulty: String = DIFFICULTY_EASY,
     val exerciseWordGroup: String = "Animal - Domestic",
     val spellFieldState: SpellFieldState = SpellFieldState(""),
-    val visualIndicatorState: SpellInputVisualIndicatorState =
-        SpellInputVisualIndicatorState(
-            Color.Unspecified,
-            INCOMPLETE,
-            R.drawable.ic_incorrect
-        )
+    val visualIndicatorState: SpellInputVisualIndicatorState = defaultViState
 )
 
-private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputVisualIndicatorState {
-    return when (state) {
-
-        SpellFieldInputState.Correct -> SpellInputVisualIndicatorState(
-            color = Color(0xFF538D4E),
-            message = CORRECT,
-            icon = R.drawable.ic_correct
-        )
-        SpellFieldInputState.Incorrect -> SpellInputVisualIndicatorState(
-            color = Color(0xFFBF4040),
-            message = WRONG,
-            icon = R.drawable.ic_incorrect
-        )
-        SpellFieldInputState.InComplete -> SpellInputVisualIndicatorState(
-            color = Color(0xFF3A3A3C),
-            message = INCOMPLETE,
-            icon = R.drawable.ic_incomplete
-        )
-    }
+sealed class AudioSpellScreenState{
+    object Loading : AudioSpellScreenState()
+    data class Error(val message : String ) : AudioSpellScreenState()
+    data class Success(val screenModel: AudioSpellScreenModel) : AudioSpellScreenState()
 }
 
 enum class ConnectivityStatus { Available, Unavailable }

@@ -75,9 +75,7 @@ fun AudioSpellScreen(
                     }
                 )
             },
-            snackbarHost = {
-                SnackbarHost(snackbarHostState)
-            }
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { padding ->
             AudioSpellContent(
                 modifier = Modifier.padding(padding),
@@ -114,7 +112,7 @@ fun AudioSpellScreen(
 @Composable
 fun AudioSpellContent(
     modifier: Modifier = Modifier,
-    uiState: AudioSpellScreenState,
+    uiState: AudioSpellScreenModel,
     spellFieldState: SpellFieldState,
     exerciseNumberTracker: String,
     onHintClick: () -> Unit,
