@@ -122,7 +122,7 @@ class AudioSpellViewModel @Inject constructor(
             response.onSuccess {
                 getOrNull()?.let { image ->
                     val betterPhoto = image.results.maxBy { it.likes}
-                    uiState = uiState.copy(hintImgUrl = betterPhoto.urls.regular)
+                    uiState = uiState.copy(hintImgUrl = betterPhoto.urls.small)
                 }
             }
         }
