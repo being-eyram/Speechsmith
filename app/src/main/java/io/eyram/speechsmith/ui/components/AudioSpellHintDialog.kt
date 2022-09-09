@@ -1,7 +1,7 @@
 package io.eyram.speechsmith.ui.components
 
-import androidx.compose.animation.Animatable
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,10 +34,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import coil.size.Scale
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
@@ -87,12 +86,28 @@ fun AudioSpellHintDialogPreview() {
 @Composable
 fun DragToReveal(modifier: Modifier = Modifier, wordToSpell: String) {
 
-    val state = rememberSwipeableState(0)
+    val state = rememberSwipeableState(HintState.Hidden)
     val sizePx = with(LocalDensity.current) { 220.dp.toPx() }
     val endAnchor = with(LocalDensity.current) { 220.dp.toPx() - 48.dp.toPx() }
-    val anchors = mapOf(0f to 0, endAnchor to 1) // Maps anchor points (in px) to states
+    val anchors = mapOf(
+        0f to HintState.Hidden,
+        endAnchor to HintState.Revealed
+    ) // Maps anchor points (in px) to states
+    val transition = updateTransition(targetState = state.currentValue, label = "Hidden")
+    val backgroundColor = transition.animateColor(label = "") {
+        when (it) {
+            HintState.Hidden -> Color(0xFFE0991A)
+            HintState.Revealed -> Color(0xFF538D4E)
+        }
+    }
 
-    fun getWordToSpellAlpha() = abs(state.progress.to - state.progress.fraction)
+    // var labelAlpha by remember { mutableStateOf(1F) }
+
+    val labelAlpha = remember((state.progress)) {
+        derivedStateOf {
+            if (state.offset.value > 0F) 1 - state.progress.fraction else 1F
+        }
+    }
 
     Box(
         modifier = modifier
@@ -106,17 +121,17 @@ fun DragToReveal(modifier: Modifier = Modifier, wordToSpell: String) {
                     factorAtMin = StiffResistanceFactor,
                 ),
                 velocityThreshold = 999_000_000.dp,
-                enabled = state.currentValue != 1
+                enabled = state.currentValue != HintState.Revealed
             )
             .size(220.dp, 48.dp)
-            .background(color = Color(0xFFE0991A), shape = RoundedCornerShape(50)),
+            .background(color = backgroundColor.value, shape = RoundedCornerShape(50)),
         contentAlignment = Alignment.CenterStart
 
     ) {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .alpha(getWordToSpellAlpha()),
+                .alpha(labelAlpha.value),
             text = "SWIPE TO REVEAL",
             style = MaterialTheme.typography.labelMedium.copy(
                 Color.White,
@@ -153,6 +168,7 @@ fun DragToReveal(modifier: Modifier = Modifier, wordToSpell: String) {
     }
 }
 
+
 @Preview
 @Composable
 fun DragToRevealPreview() {
@@ -162,3 +178,5 @@ fun DragToRevealPreview() {
         }
     }
 }
+
+enum class HintState { Hidden, Revealed }
