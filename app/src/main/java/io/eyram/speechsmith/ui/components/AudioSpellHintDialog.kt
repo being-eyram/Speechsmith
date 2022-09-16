@@ -1,7 +1,8 @@
 package io.eyram.speechsmith.ui.components
 
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -15,11 +16,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -32,12 +36,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AudioSpellHintDialog(
     modifier: Modifier = Modifier,
@@ -45,6 +51,13 @@ fun AudioSpellHintDialog(
     hintImageUrl: String,
     onDismissRequest: () -> Unit
 ) {
+
+    val painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current)
+            .data(hintImageUrl)
+            .crossfade(true)
+            .build(),
+    )
 
     Dialog(onDismissRequest = onDismissRequest::invoke) {
         Surface(
@@ -58,27 +71,82 @@ fun AudioSpellHintDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceAround
             ) {
-                AsyncImage(
-                    modifier = modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .size(265.dp, 353.dp),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(hintImageUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop
-                )
+                AnimatedContent(
+                    targetState = painter.state,
+                    transitionSpec = {
+                        ContentTransform(
+                            targetContentEnter = fadeIn() + scaleIn(),
+                            initialContentExit = fadeOut()
+                        )
+                    }
+                ) { targetState ->
+                    when (targetState) {
+                        is AsyncImagePainter.State.Success -> {
+                            Image(
+                                modifier = modifier
+                                    .size(265.dp, 353.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                                painter = painter,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                        is AsyncImagePainter.State.Error -> {
+
+                        }
+                        else -> {
+                            ShimmerAnimation()
+                        }
+                    }
+                }
+
                 DragToReveal(wordToSpell = wordToSpell)
             }
         }
     }
 }
 
+
+@Composable
+fun ShimmerAnimation(modifier: Modifier = Modifier) {
+
+    val shimmerColors = listOf(
+        Color.Gray.copy(alpha = 0.5F),
+        Color.Gray.copy(alpha = 0.4F),
+        Color.Gray.copy(alpha = 0.5F),
+    )
+    val transition = rememberInfiniteTransition()
+    val animation by transition.animateFloat(
+        initialValue = 0F,
+        targetValue = 1000F,
+        animationSpec = infiniteRepeatable(
+            tween(durationMillis = 2000, delayMillis = 500),
+        )
+    )
+
+    val brush = Brush.linearGradient(
+        colors = shimmerColors,
+        end = Offset(animation, animation),
+    )
+
+    Box(
+        modifier = modifier
+            .size(265.dp, 353.dp)
+            .background(color = Color.Black, RoundedCornerShape(8.dp))
+    ) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(brush = brush, RoundedCornerShape(8.dp))
+        )
+    }
+}
+
+
 @Preview
 @Composable
 fun AudioSpellHintDialogPreview() {
-    // AudioSpellHintDialog()
+    ShimmerAnimation()
 }
 
 
