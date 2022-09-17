@@ -2,23 +2,29 @@ package io.eyram.speechsmith.ui.screens.pictureSpell
 
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import io.eyram.speechsmith.ui.components.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -140,7 +146,8 @@ fun PictureSpellScreenContent(
         ) {
             ImageView(
                 onPrevClick = onPrevClick::invoke,
-                onNextClick = onNextClick::invoke
+                onNextClick = onNextClick::invoke,
+                imageUrl = ""
             )
             SpellField(spellFieldState = spellFieldState)
         }
@@ -159,14 +166,22 @@ fun PictureSpellScreenContent(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ImageView(
     modifier: Modifier = Modifier,
+    imageUrl: String,
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit,
     enablePrevButton: Boolean = false,
     enableNextButton: Boolean = true,
 ) {
+    val painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current)
+            .data(imageUrl)
+            .crossfade(true)
+            .build(),
+    )
     Row(
         modifier = modifier
             .padding(horizontal = 12.dp)
@@ -180,11 +195,35 @@ fun ImageView(
             onClick = onPrevClick::invoke,
             enabled = enablePrevButton
         )
-        Surface(
-            modifier = modifier.size(220.dp, 165.dp),
-            shape = RoundedCornerShape(12.dp),
-            color = Color.Gray
-        ) {}
+        AnimatedContent(
+            targetState = painter.state,
+            transitionSpec = {
+                ContentTransform(
+                    targetContentEnter = fadeIn() + scaleIn(),
+                    initialContentExit = fadeOut()
+                )
+            }
+        ) { targetState ->
+            when (targetState) {
+                is AsyncImagePainter.State.Success -> {
+                    Image(
+                        modifier = modifier
+                            .size(220.dp, 165.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        painter = painter,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                is AsyncImagePainter.State.Error -> {
+
+                }
+                else -> {
+                    ShimmerAnimation(Modifier.size(220.dp, 165.dp))
+                }
+            }
+        }
+
         PrevNextButton(
             label = LABEL_NEXT,
             onClick = onNextClick::invoke,

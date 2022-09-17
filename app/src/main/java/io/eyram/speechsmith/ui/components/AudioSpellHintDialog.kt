@@ -121,6 +121,7 @@ fun ShimmerAnimation(modifier: Modifier = Modifier) {
         targetValue = 1000F,
         animationSpec = infiniteRepeatable(
             tween(durationMillis = 2000, delayMillis = 500),
+            repeatMode = RepeatMode.Reverse
         )
     )
 

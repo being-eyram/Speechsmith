@@ -7,6 +7,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import dagger.hilt.android.AndroidEntryPoint
 import io.eyram.speechsmith.data.preferences.AppSettings
 import io.eyram.speechsmith.ui.screens.audioSpell.AudioSpellScreen
+import io.eyram.speechsmith.ui.screens.pictureSpell.PictureSpellScreen
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import javax.inject.Inject
 
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SpeechsmithTheme {
-                AudioSpellScreen(onHomeClick = {})
+                PictureSpellScreen() {}
             }
         }
     }
