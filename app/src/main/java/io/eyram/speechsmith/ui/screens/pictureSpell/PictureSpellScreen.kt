@@ -43,6 +43,8 @@ fun PictureSpellScreen(
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
     var showDialog by remember { mutableStateOf(false) }
+    fun getCurrentExercise() =
+        "${uiState.currentExerciseNumber + 1} OF ${uiState.totalNumberOfQuestions}"
 
     ModalBottomSheetLayout(
         sheetBackgroundColor = Color.Black,
@@ -66,7 +68,8 @@ fun PictureSpellScreen(
                 onPrevClick = viewModel::onPrevPress,
                 onNextClick = viewModel::onNextPress,
                 onHintClick = { showDialog = true },
-                onEnterPress = viewModel::onEnterPress
+                onEnterPress = viewModel::onEnterPress,
+                currentExercise = getCurrentExercise()
             )
 
             if (showDialog) {
@@ -85,6 +88,7 @@ fun PictureSpellScreen(
 @Composable
 fun PictureSpellScreenContent(
     modifier: Modifier = Modifier,
+    currentExercise: String,
     uiState: PictureSpellScreenState,
     spellFieldState: SpellFieldState,
     onPrevClick: () -> Unit,
@@ -106,7 +110,7 @@ fun PictureSpellScreenContent(
                     end.linkTo(imageColumnRef.end)
                 },
             onHintClick = onHintClick::invoke,
-            exerciseNumberTracker = "",
+            exerciseNumberTracker = currentExercise,
             onScoreCardClick = {},
         )
 
@@ -184,8 +188,6 @@ fun ImageView(
     imageUrl: String,
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit,
-    enablePrevButton: Boolean = false,
-    enableNextButton: Boolean = true,
 ) {
     val painter = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
@@ -204,7 +206,6 @@ fun ImageView(
         PrevNextButton(
             label = LABEL_PREV,
             onClick = onPrevClick::invoke,
-            enabled = enablePrevButton
         )
         AnimatedContent(
             targetState = painter.state,
@@ -233,12 +234,12 @@ fun ImageView(
                     ShimmerAnimation(Modifier.size(220.dp, 165.dp))
                 }
             }
+            println(targetState)
         }
 
         PrevNextButton(
             label = LABEL_NEXT,
             onClick = onNextClick::invoke,
-            enabled = enableNextButton
         )
     }
 }

@@ -30,9 +30,9 @@ fun SoundControls(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        PrevNextButton(label = LABEL_PREV, onClick = onPrevClick::invoke, enabled = true)
+        PrevNextButton(label = LABEL_PREV, onClick = onPrevClick::invoke)
         PlaySoundButton(onClick = onPlaySoundClick::invoke, audioPlayerState = audioPlayerState)
-        PrevNextButton(label = LABEL_NEXT, onClick = onNextClick::invoke, enabled = true)
+        PrevNextButton(label = LABEL_NEXT, onClick = onNextClick::invoke)
     }
 }
 

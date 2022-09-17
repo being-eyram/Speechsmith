@@ -23,7 +23,6 @@ fun PrevNextButton(
     modifier: Modifier = Modifier,
     label: String,
     onClick: () -> Unit,
-    enabled: Boolean,
 ) {
     Column(
         modifier = modifier,
@@ -35,7 +34,6 @@ fun PrevNextButton(
                 shape = CircleShape
             ),
             onClick = onClick::invoke,
-            enabled = enabled
         ) {
             Icon(
                 modifier = Modifier.rotate(if (label == LABEL_NEXT) 0F else 180F),
