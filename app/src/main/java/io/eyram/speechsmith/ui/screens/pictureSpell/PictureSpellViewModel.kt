@@ -1,17 +1,28 @@
 package io.eyram.speechsmith.ui.screens.pictureSpell
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.RawRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.datasource.RawResourceDataSource
+import androidx.media3.exoplayer.ExoPlayer
+import com.skydoves.sandwich.getOrNull
+import com.skydoves.sandwich.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
+import io.eyram.speechsmith.ui.screens.audioSpell.AudioPlayerState
+import io.eyram.speechsmith.ui.screens.audioSpell.FEEDBACK_AUDIO
 import io.eyram.speechsmith.util.generateKeyboardLabels
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,37 +30,107 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PictureSpellViewModel @Inject constructor(
-    private val repository: SpeechSmithRepository
+    private val repository: SpeechSmithRepository,
+    private val audioPlayer: ExoPlayer,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(PictureSpellScreenState())
         private set
 
     private var spellFieldState by mutableStateOf(SpellFieldState(""))
-    private var keyboardLabels by mutableStateOf(listOf(""))
-    private var showFieldStateIndicator by mutableStateOf(false)
+    private var currentWordIndex = 0
+    private var wordsToSpell: List<String>
 
     init {
-        val wordToSpell = repository.getWord()
-
-        spellFieldState = SpellFieldState(wordToSpell)
-        keyboardLabels = generateKeyboardLabels(wordToSpell)
-        uiState = uiState.copy(
-            spellFieldState = spellFieldState,
-            keyboardLabels = keyboardLabels,
-            showFieldStateIndicator = showFieldStateIndicator,
-        )
+        wordsToSpell = repository.getWordsToSpell(uiState.totalNumberOfQuestions)
+        getWordAndUpdateUiState()
+        initializeAudioPlayer()
     }
 
+    private fun initializeAudioPlayer() = audioPlayer.apply {
+        volume = 0.75F
+        skipSilenceEnabled = true
+        prepare()
+        addListener(object : Player.Listener {
+            override fun onEvents(player: Player, events: Player.Events) {
+                super.onEvents(player, events)
 
-    private fun showNextWord() = repository.getWord().apply {
-        spellFieldState = SpellFieldState(this)
-        keyboardLabels = generateKeyboardLabels(this)
-    }.also {
-        uiState = uiState.copy(
-            spellFieldState = spellFieldState,
-            keyboardLabels = keyboardLabels
-        )
+                fun onIsPlayingChanged() = events.contains(Player.EVENT_IS_PLAYING_CHANGED)
+                fun onIsLoadingChanged() = events.contains(Player.EVENT_IS_LOADING_CHANGED)
+                fun isFeedbackAudio() = player.currentMediaItem?.mediaId != FEEDBACK_AUDIO
+
+                if (onIsPlayingChanged() && isFeedbackAudio()) {
+                    uiState = if (player.isPlaying) {
+                        uiState.copy(audioPlayerState = AudioPlayerState.Playing)
+                    } else {
+                        uiState.copy(audioPlayerState = AudioPlayerState.Idle)
+                    }
+                }
+
+                if (onIsLoadingChanged() && isFeedbackAudio()) {
+                    if (player.isLoading) {
+                        uiState = uiState.copy(audioPlayerState = AudioPlayerState.Loading)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun getWordAndUpdateUiState() {
+        wordsToSpell[currentWordIndex].apply {
+            uiState = uiState.copy(wordToSpell = this)
+            updateAudio(this)
+            updateSpellField(this)
+            updateKeyboard(this)
+            getImage(this)
+        }
+    }
+
+    private fun updateKeyboard(wordToSpell: String) {
+        generateKeyboardLabels(wordToSpell).apply {
+            uiState = uiState.copy(keyboardLabels = this)
+        }
+    }
+
+    private fun updateSpellField(wordToSpell: String) {
+        SpellFieldState(wordToSpell).apply {
+            spellFieldState = this
+            uiState = uiState.copy(spellFieldState = this)
+        }
+    }
+
+    private fun updateAudio(wordToSpell: String) {
+        viewModelScope.launch {
+            val word = wordToSpell.toLowerCase(Locale.current)
+            val response = repository.getPronunciation(word)
+            response.onSuccess {
+                getOrNull()?.let {
+                    uiState = uiState.copy(hintAudioUrl = it[0].fileUrl)
+                }
+            }
+        }
+    }
+
+    fun onNextPress() {
+        if (currentWordIndex < wordsToSpell.lastIndex) {
+            currentWordIndex += 1
+            uiState = uiState.copy(currentExerciseNumber = currentWordIndex)
+            getWordAndUpdateUiState()
+        }
+    }
+
+    fun onPrevPress() {
+        if (currentWordIndex > 0) {
+            currentWordIndex -= 1
+            uiState = uiState.copy(currentExerciseNumber = currentWordIndex)
+            getWordAndUpdateUiState()
+        }
+    }
+
+    fun onPlaySoundClick() = audioPlayer.apply {
+        setMediaItem(MediaItem.fromUri(uiState.hintAudioUrl))
+        setPlaybackSpeed(0.5F)
+        play()
     }
 
     fun onEnterPress() {
@@ -57,47 +138,77 @@ class PictureSpellViewModel @Inject constructor(
             spellCheck()
             getSpellFieldInputState()
         }.also {
-            val visualIndicatorState = getVisualIndicatorState(it)
-            uiState = uiState.copy(visualIndicatorState = visualIndicatorState)
+            val viState = io.eyram.speechsmith.util.getVisualIndicatorState(it)
+            uiState = uiState.copy(visualIndicatorState = viState)
+            showVisualIndicatorFor(1500)
+            playRightOrWrongAudioFeedback()
+            getNextWordOnSpellCorrect(it)
+        }
+    }
 
-            viewModelScope.launch {
-                uiState = uiState.copy(showFieldStateIndicator = true)
-                delay(1500)
-                uiState = uiState.copy(showFieldStateIndicator = false)
-            }
-            viewModelScope.launch {
-                delay(1000)
-                if (it == SpellFieldInputState.Correct) showNextWord()
+    private fun showVisualIndicatorFor(duration: Long) {
+        viewModelScope.launch {
+            uiState = uiState.copy(showFieldStateVisualIndicator = true)
+            delay(duration)
+            uiState = uiState.copy(showFieldStateVisualIndicator = false)
+        }
+    }
+
+    private fun playRightOrWrongAudioFeedback() {
+        if (uiState.visualIndicatorState.message == CORRECT) {
+            setFeedbackAudio(R.raw.right_ans_audio)
+        }
+
+        if (uiState.visualIndicatorState.message == WRONG) {
+            setFeedbackAudio(R.raw.wrong_ans_audio)
+        }
+        audioPlayer.apply {
+            setPlaybackSpeed(1F)
+            play()
+        }
+    }
+
+    private fun setFeedbackAudio(@RawRes audioResource: Int) {
+        audioPlayer.setMediaItem(
+            MediaItem.Builder()
+                .setUri(RawResourceDataSource.buildRawResourceUri(audioResource))
+                .setMediaId(FEEDBACK_AUDIO)
+                .build()
+        )
+    }
+
+    private fun getNextWordOnSpellCorrect(it: SpellFieldInputState) {
+        viewModelScope.launch {
+            delay(1000)
+            if (it == SpellFieldInputState.Correct && currentWordIndex != wordsToSpell.lastIndex) {
+                onNextPress()
             }
         }
     }
 
-    private fun getVisualIndicatorState(state: SpellFieldInputState): SpellInputVisualIndicatorState {
-        return when (state) {
-
-            SpellFieldInputState.Correct -> SpellInputVisualIndicatorState(
-                color = Color(0xFF538D4E),
-                message = CORRECT,
-                icon = R.drawable.ic_correct
-            )
-            SpellFieldInputState.Incorrect -> SpellInputVisualIndicatorState(
-                color = Color(0xFFBF4040),
-                message = WRONG,
-                icon = R.drawable.ic_incorrect
-            )
-            SpellFieldInputState.InComplete -> SpellInputVisualIndicatorState(
-                color = Color(0xFF3A3A3C),
-                message = INCOMPLETE,
-                icon = R.drawable.ic_incomplete
-            )
+    private fun getImage(wordToSpell: String) {
+        viewModelScope.launch {
+            val response = repository.getImage(wordToSpell.toLowerCase(Locale.current))
+            response.onSuccess {
+                getOrNull()?.let { image ->
+                    val betterPhoto = image.results.maxBy { it.likes }
+                    uiState = uiState.copy(imageUrl = betterPhoto.urls.small)
+                }
+            }
         }
     }
 }
 
 data class PictureSpellScreenState(
-    val spellFieldState: SpellFieldState = SpellFieldState(""),
+    val imageUrl: String = "",
+    val wordToSpell: String = "",
+    val hintAudioUrl: String = "",
+    val currentExerciseNumber: Int = 0,
+    val audioPlayerState: AudioPlayerState = AudioPlayerState.Idle,
+    val totalNumberOfQuestions: Int = 10,
     val keyboardLabels: List<String> = listOf(),
-    val showFieldStateIndicator: Boolean = false,
+    val showFieldStateVisualIndicator: Boolean = false,
+    val spellFieldState: SpellFieldState = SpellFieldState(""),
     val visualIndicatorState: SpellInputVisualIndicatorState =
         SpellInputVisualIndicatorState(Color.Unspecified, INCOMPLETE, R.drawable.ic_incorrect)
 )

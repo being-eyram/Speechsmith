@@ -127,7 +127,7 @@ fun ShimmerAnimation(modifier: Modifier = Modifier) {
 
     val brush = Brush.linearGradient(
         colors = shimmerColors,
-        end = Offset(animation, animation),
+        end = Offset(animation, 0F),
     )
 
     Box(

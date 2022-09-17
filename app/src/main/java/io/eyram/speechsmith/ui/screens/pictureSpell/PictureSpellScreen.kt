@@ -10,8 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,6 +42,7 @@ fun PictureSpellScreen(
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
+    var showDialog by remember { mutableStateOf(false) }
 
     ModalBottomSheetLayout(
         sheetBackgroundColor = Color.Black,
@@ -61,11 +63,20 @@ fun PictureSpellScreen(
                 modifier = Modifier.padding(paddingValues),
                 uiState = uiState,
                 spellFieldState = spellFieldState,
-                onPrevClick = {},
-                onNextClick = {},
-                onHintClick = {},
+                onPrevClick = viewModel::onPrevPress,
+                onNextClick = viewModel::onNextPress,
+                onHintClick = { showDialog = true },
                 onEnterPress = viewModel::onEnterPress
             )
+
+            if (showDialog) {
+                PictureSpellHintDialog(
+                    wordToSpell = uiState.wordToSpell.toUpperCase(Locale.current),
+                    onDismissRequest = { showDialog = false },
+                    onPlaySoundClick = viewModel::onPlaySoundClick,
+                    audioPlayerState = uiState.audioPlayerState
+                )
+            }
         }
     }
 }
@@ -105,7 +116,7 @@ fun PictureSpellScreenContent(
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             },
-            visible = uiState.showFieldStateIndicator,
+            visible = uiState.showFieldStateVisualIndicator,
             enter = slideInVertically() + fadeIn(initialAlpha = 0.3f),
             exit = scaleOut() + fadeOut()
         ) {
@@ -147,7 +158,7 @@ fun PictureSpellScreenContent(
             ImageView(
                 onPrevClick = onPrevClick::invoke,
                 onNextClick = onNextClick::invoke,
-                imageUrl = ""
+                imageUrl = uiState.imageUrl
             )
             SpellField(spellFieldState = spellFieldState)
         }
