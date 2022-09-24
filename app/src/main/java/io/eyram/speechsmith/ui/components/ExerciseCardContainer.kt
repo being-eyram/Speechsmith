@@ -1,9 +1,8 @@
 package io.eyram.speechsmith.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.*
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -26,13 +25,10 @@ import io.eyram.speechsmith.util.SquircleShape
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ExerciseCardContainer(
+fun ExerciseCard(
     modifier: Modifier = Modifier,
-    color: Color,
     onStartButtonClick: () -> Unit,
-    @DrawableRes illustration: Int,
-    exerciseType: String,
-    showExerciseCard: Boolean,
+    data : ExerciseCardData
 ) {
     Card(
         modifier = modifier
@@ -45,7 +41,7 @@ fun ExerciseCardContainer(
                 )
             ),
         shape = RoundedCornerShape(6.dp),
-        colors = CardDefaults.cardColors(containerColor = color),
+        colors = CardDefaults.cardColors(containerColor = data.backgroundColor),
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
 
@@ -62,7 +58,7 @@ fun ExerciseCardContainer(
                     Box(modifier = modifier.wrapContentSize()) {
                         Text(
                             modifier = Modifier.paddingFromBaseline(top = 32.dp),
-                            text = exerciseType,
+                            text = data.title,
                             style = MaterialTheme.typography.titleLarge,
                             color = Color.White,
                         )
@@ -109,15 +105,10 @@ fun ExerciseCardContainer(
                 Spacer(Modifier.width(12.dp))
                 Image(
                     modifier = modifier.align(Alignment.Bottom),
-                    painter = painterResource(id = illustration),
+                    painter = painterResource(id = data.illustration),
                     contentDescription = null
                 )
             }
-        }
-        if (showExerciseCard){
-            Spacer(Modifier.height(20.dp))
-            ExerciseCard()
-            Spacer(Modifier.height(20.dp))
         }
     }
 }
@@ -188,21 +179,38 @@ fun ExerciseCard() {
 @Composable
 fun ExerciseCardPreview() {
     SpeechsmithTheme {
-        // A surface container using the 'background' color from the theme
-
-        var showExerciseCard by remember { mutableStateOf(false) }
-        ExerciseCardContainer(
-            color = Color(0xFF263238),
-            onStartButtonClick = { showExerciseCard = !showExerciseCard },
-            exerciseType = "Naming Exercise",
-            illustration = R.drawable.ic_naming_illus,
-            showExerciseCard = showExerciseCard
+        ExerciseCard(
+            onStartButtonClick = {  },
+            data = exerciseCardData[0]
         )
     }
 }
 
+data class ExerciseCardData(
+    val title: String,
+    @DrawableRes val illustration: Int,
+    val backgroundColor: Color
+)
 
-val exerciseMap = mapOf(
-    "Naming Exercise" to R.drawable.ic_naming_illus,
-    "Listening Exercise" to R.drawable.ic_listening_illus
+val exerciseCardData = listOf(
+    ExerciseCardData(
+        title = "Spelling Exercise",
+        illustration = R.drawable.illus_spelling,
+        backgroundColor = Color(0xFFFF8717)
+    ),
+    ExerciseCardData(
+        title = "Listening Exercise",
+        illustration = R.drawable.illus_listening,
+        backgroundColor = Color(0xFF011E23)
+    ),
+    ExerciseCardData(
+        title = "Reading Exercise",
+        illustration = R.drawable.illus_reading,
+        backgroundColor = Color(0xFF212529)
+    ),
+    ExerciseCardData(
+        title = "Naming Exercise",
+        illustration = R.drawable.illus_naming,
+        backgroundColor = Color(0xFF012313)
+    ),
 )
