@@ -26,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import coil.size.Size
 import io.eyram.speechsmith.ui.components.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -189,12 +190,14 @@ fun ImageView(
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit,
 ) {
+
     val painter = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
             .data(imageUrl)
-            .crossfade(true)
+            .size(Size.ORIGINAL)
             .build(),
     )
+
     Row(
         modifier = modifier
             .padding(horizontal = 12.dp)
@@ -203,6 +206,14 @@ fun ImageView(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        LaunchedEffect(painter.state){
+            when(painter.state){
+                is AsyncImagePainter.State.Error -> {println("Image Loading Error")}
+                is AsyncImagePainter.State.Success -> {println("ImageLoading Success")}
+                is AsyncImagePainter.State.Empty -> {println("Image Loading Empty")}
+                is AsyncImagePainter.State.Loading -> {println("Image Loading ")}
+            }
+        }
         PrevNextButton(
             label = LABEL_PREV,
             onClick = onPrevClick::invoke,
@@ -211,7 +222,7 @@ fun ImageView(
             targetState = painter.state,
             transitionSpec = {
                 ContentTransform(
-                    targetContentEnter = fadeIn() + scaleIn(),
+                    targetContentEnter = fadeIn() ,
                     initialContentExit = fadeOut()
                 )
             }
@@ -234,7 +245,6 @@ fun ImageView(
                     ShimmerAnimation(Modifier.size(220.dp, 165.dp))
                 }
             }
-            println(targetState)
         }
 
         PrevNextButton(

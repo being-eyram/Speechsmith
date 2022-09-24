@@ -39,6 +39,7 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import coil.size.Size
 import io.eyram.speechsmith.R
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import kotlin.math.roundToInt
@@ -55,7 +56,7 @@ fun AudioSpellHintDialog(
     val painter = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
             .data(hintImageUrl)
-            .crossfade(true)
+            .size(Size.ORIGINAL)
             .build(),
     )
 
@@ -88,7 +89,7 @@ fun AudioSpellHintDialog(
                                     .clip(RoundedCornerShape(8.dp)),
                                 painter = painter,
                                 contentDescription = null,
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.FillBounds
                             )
                         }
                         is AsyncImagePainter.State.Error -> {

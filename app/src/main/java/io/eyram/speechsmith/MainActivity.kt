@@ -23,7 +23,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SpeechsmithTheme {
-                PictureSpellScreen() {}
+                AudioSpellScreen() {}
+                //PictureSpellScreen() {}
             }
         }
     }
