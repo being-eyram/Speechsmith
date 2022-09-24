@@ -76,29 +76,35 @@ fun AudioSpellHintDialog(
                     targetState = painter.state,
                     transitionSpec = {
                         ContentTransform(
-                            targetContentEnter = fadeIn() + scaleIn(),
+                            targetContentEnter = fadeIn(),
                             initialContentExit = fadeOut()
                         )
                     }
                 ) { targetState ->
-                    when (targetState) {
-                        is AsyncImagePainter.State.Success -> {
-                            Image(
-                                modifier = modifier
-                                    .size(265.dp, 353.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
-                                painter = painter,
-                                contentDescription = null,
-                                contentScale = ContentScale.FillBounds
-                            )
-                        }
-                        is AsyncImagePainter.State.Error -> {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = Color.Gray.copy(alpha = 0.5F)
+                    ) {
+                        when (targetState) {
+                            is AsyncImagePainter.State.Success -> {
+                                Image(
+                                    modifier = modifier
+                                        .size(265.dp, 353.dp)
+                                        .clip(RoundedCornerShape(8.dp)),
+                                    painter = painter,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.FillBounds
+                                )
+                            }
+                            is AsyncImagePainter.State.Error -> {
 
-                        }
-                        else -> {
-                            ShimmerAnimation()
+                            }
+                            else -> {
+                                ShimmerAnimation()
+                            }
                         }
                     }
+
                 }
 
                 DragToReveal(wordToSpell = wordToSpell)

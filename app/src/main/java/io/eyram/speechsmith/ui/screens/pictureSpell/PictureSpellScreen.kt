@@ -206,12 +206,20 @@ fun ImageView(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        LaunchedEffect(painter.state){
-            when(painter.state){
-                is AsyncImagePainter.State.Error -> {println("Image Loading Error")}
-                is AsyncImagePainter.State.Success -> {println("ImageLoading Success")}
-                is AsyncImagePainter.State.Empty -> {println("Image Loading Empty")}
-                is AsyncImagePainter.State.Loading -> {println("Image Loading ")}
+        LaunchedEffect(painter.state) {
+            when (painter.state) {
+                is AsyncImagePainter.State.Error -> {
+                    println("Image Loading Error")
+                }
+                is AsyncImagePainter.State.Success -> {
+                    println("ImageLoading Success")
+                }
+                is AsyncImagePainter.State.Empty -> {
+                    println("Image Loading Empty")
+                }
+                is AsyncImagePainter.State.Loading -> {
+                    println("Image Loading ")
+                }
             }
         }
         PrevNextButton(
@@ -222,27 +230,32 @@ fun ImageView(
             targetState = painter.state,
             transitionSpec = {
                 ContentTransform(
-                    targetContentEnter = fadeIn() ,
+                    targetContentEnter = fadeIn(),
                     initialContentExit = fadeOut()
                 )
             }
         ) { targetState ->
-            when (targetState) {
-                is AsyncImagePainter.State.Success -> {
-                    Image(
-                        modifier = modifier
-                            .size(220.dp, 165.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        painter = painter,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop
-                    )
-                }
-                is AsyncImagePainter.State.Error -> {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = Color.Gray.copy(alpha = 0.5F)
+            ) {
+                when (targetState) {
+                    is AsyncImagePainter.State.Success -> {
+                        Image(
+                            modifier = modifier
+                                .size(220.dp, 165.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                            painter = painter,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    is AsyncImagePainter.State.Error -> {
 
-                }
-                else -> {
-                    ShimmerAnimation(Modifier.size(220.dp, 165.dp))
+                    }
+                    else -> {
+                        ShimmerAnimation(Modifier.size(220.dp, 165.dp))
+                    }
                 }
             }
         }
