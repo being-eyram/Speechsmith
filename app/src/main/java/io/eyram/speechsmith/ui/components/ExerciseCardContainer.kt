@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,7 +59,7 @@ fun ExerciseCard(
                     Box(modifier = modifier.wrapContentSize()) {
                         Text(
                             modifier = Modifier.paddingFromBaseline(top = 32.dp),
-                            text = data.title,
+                            text = "${data.screen.name} Exercise",
                             style = MaterialTheme.typography.titleLarge,
                             color = Color.White,
                         )
@@ -187,30 +188,37 @@ fun ExerciseCardPreview() {
 }
 
 data class ExerciseCardData(
-    val title: String,
+    val screen: ExerciseScreen,
     @DrawableRes val illustration: Int,
     val backgroundColor: Color
 )
 
 val exerciseCardData = listOf(
     ExerciseCardData(
-        title = "Spelling Exercise",
+        screen = ExerciseScreen.Spelling,
         illustration = R.drawable.illus_spelling,
         backgroundColor = Color(0xFFFF8717)
     ),
     ExerciseCardData(
-        title = "Listening Exercise",
+        screen = ExerciseScreen.Listening,
         illustration = R.drawable.illus_listening,
         backgroundColor = Color(0xFF011E23)
     ),
     ExerciseCardData(
-        title = "Reading Exercise",
+        screen = ExerciseScreen.Reading,
         illustration = R.drawable.illus_reading,
         backgroundColor = Color(0xFF212529)
     ),
     ExerciseCardData(
-        title = "Naming Exercise",
+        screen = ExerciseScreen.Naming,
         illustration = R.drawable.illus_naming,
         backgroundColor = Color(0xFF012313)
     ),
 )
+
+enum class ExerciseScreen{
+    Spelling,
+    Listening,
+    Reading,
+    Naming
+}

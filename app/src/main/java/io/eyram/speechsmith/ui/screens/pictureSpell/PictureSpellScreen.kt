@@ -22,24 +22,28 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import io.eyram.speechsmith.ui.components.*
+import io.eyram.speechsmith.ui.screens.destinations.HomeScreenDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.material3.Icon as Material3Icon
 
-
+@Destination
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PictureSpellScreen(
-    viewModel: PictureSpellViewModel = viewModel(),
+    navigator : DestinationsNavigator,
+    viewModel: PictureSpellViewModel = hiltViewModel(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-    onHomeClick: () -> Unit,
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
@@ -56,7 +60,7 @@ fun PictureSpellScreen(
         Scaffold(
             topBar = {
                 SpeechSmithAppBar(
-                    onHomeClick = onHomeClick::invoke,
+                    onHomeClick = {navigator.navigateUp()},
                     onSettingsClick = { coroutineScope.launch { bottomSheetState.show() } }
                 )
             },

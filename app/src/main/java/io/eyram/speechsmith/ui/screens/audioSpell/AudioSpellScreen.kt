@@ -22,7 +22,9 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import io.eyram.speechsmith.data.preferences.DIFFICULTY_EASY
 import io.eyram.speechsmith.data.preferences.DIFFICULTY_HARD
 import io.eyram.speechsmith.data.preferences.DIFFICULTY_MEDIUM
@@ -30,13 +32,13 @@ import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
 import kotlinx.coroutines.launch
 
-
+@Destination
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AudioSpellScreen(
-    viewModel: AudioSpellViewModel = viewModel(),
+    navigator: DestinationsNavigator,
+    viewModel: AudioSpellViewModel = hiltViewModel(),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-    onHomeClick: () -> Unit,
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = viewModel.uiState.spellFieldState
@@ -69,7 +71,7 @@ fun AudioSpellScreen(
         Scaffold(
             topBar = {
                 SpeechSmithAppBar(
-                    onHomeClick = onHomeClick::invoke,
+                    onHomeClick = { navigator.navigateUp() },
                     onSettingsClick = {
                         coroutineScope.launch { bottomSheetState.show() }
                     }
@@ -96,7 +98,7 @@ fun AudioSpellScreen(
                     onDismissRequest = { showDialog = false },
                 )
             }
-            if(uiState.isExerciseComplete){
+            if (uiState.isExerciseComplete) {
                 println("Is Complete")
             }
 
