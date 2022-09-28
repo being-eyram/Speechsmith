@@ -133,7 +133,7 @@ fun ListenNChoosePreview() {
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            //AudioToWordMatchScreen()
+            AudioToWordMatchScreen({}){}
         }
     }
 }

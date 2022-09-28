@@ -21,6 +21,7 @@ import io.eyram.speechsmith.ui.components.ExerciseScreen
 import io.eyram.speechsmith.ui.components.exerciseCardData
 import io.eyram.speechsmith.ui.screens.destinations.AudioSpellScreenDestination
 import io.eyram.speechsmith.ui.screens.destinations.PictureSpellScreenDestination
+import io.eyram.speechsmith.ui.screens.destinations.YesOrNoScreenDestination
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 
 @RootNavGraph(start = true)
@@ -50,7 +51,7 @@ fun HomeScreen(navigator: DestinationsNavigator) {
                                 navigator.navigate(AudioSpellScreenDestination)
                             }
                             ExerciseScreen.Reading -> {
-
+                                navigator.navigate(YesOrNoScreenDestination)
                             }
                             ExerciseScreen.Naming -> {
 
