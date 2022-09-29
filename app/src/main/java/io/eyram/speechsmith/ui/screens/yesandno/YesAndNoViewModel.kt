@@ -1,8 +1,11 @@
 package io.eyram.speechsmith.ui.screens.yesandno
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class YesAndNoViewModel() : ViewModel() {
+@HiltViewModel
+class YesAndNoViewModel @Inject constructor() : ViewModel() {
     val questions = listOf(
         YesOrNoQuestion("Are teachers disciplined by students?", answer = NO),
         YesOrNoQuestion("Are students disciplined by teachers?", answer = YES),
