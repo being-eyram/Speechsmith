@@ -1,14 +1,11 @@
-package io.eyram.speechsmith.ui.screens.perfectscore
+package io.eyram.speechsmith.ui.screens.exercisecomplete
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,8 +17,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import io.eyram.speechsmith.R
+import io.eyram.speechsmith.ui.screens.destinations.AudioSpellScreenDestination
+import io.eyram.speechsmith.ui.screens.destinations.ExerciseCompleteScreenDestination
 import io.eyram.speechsmith.ui.screens.destinations.HomeScreenDestination
+import io.eyram.speechsmith.ui.screens.destinations.PictureSpellScreenDestination
 import io.eyram.speechsmith.ui.theme.SpeechsmithTheme
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.core.Party
@@ -29,13 +30,38 @@ import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination
 @Composable
-fun ExerciseCompleteScreen(navigator: DestinationsNavigator) {
-    ExerciseCompleteContent(
-        onHomeClick = { navigator.navigate(HomeScreenDestination) },
-        onRestartClick = { navigator.navigateUp() }
-    )
+fun ExerciseCompleteScreen(navigator: DestinationsNavigator, from: Screen) {
+    Scaffold {
+        ExerciseCompleteContent(
+            modifier = Modifier.padding(it),
+            onHomeClick = {
+                navigator.navigate(HomeScreenDestination) {
+                    popUpTo(ExerciseCompleteScreenDestination) {
+                        inclusive = true
+                    }
+                }
+            },
+            onRestartClick = {
+                when (from) {
+                    Screen.AudioSpell -> navigator.navigate(AudioSpellScreenDestination) {
+                        popUpTo(ExerciseCompleteScreenDestination) {
+                            inclusive = true
+                        }
+                    }
+                    Screen.PictureSpell -> navigator.navigate(PictureSpellScreenDestination) {
+                        popUpTo(ExerciseCompleteScreenDestination) {
+                            inclusive = true
+                        }
+                    }
+                }
+
+            }
+            //try get the route of of the screen we're moving from.
+        )
+    }
 }
 
 @Composable
@@ -51,7 +77,7 @@ fun ExerciseCompleteContent(
         damping = 0.8f,
         spread = 20,
         colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
-        position = Position.Relative(1.0, 0.35),
+        position = Position.Relative(1.0, 0.25),
         emitter = Emitter(duration = 2000, TimeUnit.MILLISECONDS).max(300)
     )
 
@@ -90,11 +116,11 @@ fun ExerciseCompleteContent(
                 contentDescription = null
             )
 
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
             Row(
                 Modifier
-                    .padding(horizontal = 32.dp)
+                    .padding(horizontal = 56.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -115,7 +141,7 @@ fun ExerciseCompleteContent(
             modifier = Modifier.fillMaxSize(),
             parties = listOf(
                 party,
-                party.copy(angle = 315, position = Position.Relative(0.0, 0.35))
+                party.copy(angle = 315, position = Position.Relative(0.0, 0.25))
             ),
         )
     }
@@ -159,4 +185,9 @@ fun CircularButton(
             style = MaterialTheme.typography.labelMedium.copy(Color.White)
         )
     }
+}
+
+enum class Screen {
+    AudioSpell,
+    PictureSpell
 }

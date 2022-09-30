@@ -1,5 +1,7 @@
 package io.eyram.speechsmith.ui.screens.pictureSpell
 
+import android.net.ConnectivityManager
+import android.net.Network
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import androidx.compose.runtime.getValue
@@ -22,15 +24,19 @@ import io.eyram.speechsmith.data.repository.SpeechSmithRepository
 import io.eyram.speechsmith.ui.components.SpellFieldInputState
 import io.eyram.speechsmith.ui.components.SpellFieldState
 import io.eyram.speechsmith.ui.screens.audioSpell.AudioPlayerState
+import io.eyram.speechsmith.ui.screens.audioSpell.ConnectivityStatus
 import io.eyram.speechsmith.ui.screens.audioSpell.FEEDBACK_AUDIO
 import io.eyram.speechsmith.util.generateKeyboardLabels
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PictureSpellViewModel @Inject constructor(
     private val repository: SpeechSmithRepository,
+    private val connectivityManager: ConnectivityManager,
     private val audioPlayer: ExoPlayer,
 ) : ViewModel() {
 
@@ -182,6 +188,8 @@ class PictureSpellViewModel @Inject constructor(
             delay(1000)
             if (it == SpellFieldInputState.Correct && currentWordIndex != wordsToSpell.lastIndex) {
                 onNextPress()
+            } else {
+                uiState = uiState.copy(isExerciseComplete = true)
             }
         }
     }
@@ -197,6 +205,29 @@ class PictureSpellViewModel @Inject constructor(
             }
         }
     }
+
+    fun listenForConnectivity() = callbackFlow {
+        val connectivityListener = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                trySend(ConnectivityStatus.Available)
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                trySend(ConnectivityStatus.Unavailable)
+            }
+
+            override fun onUnavailable() {
+                super.onUnavailable()
+                trySend(ConnectivityStatus.Unavailable)
+            }
+        }
+        connectivityManager.registerDefaultNetworkCallback(connectivityListener)
+        awaitClose {
+            connectivityManager.unregisterNetworkCallback(connectivityListener)
+        }
+    }
 }
 
 data class PictureSpellScreenState(
@@ -204,6 +235,7 @@ data class PictureSpellScreenState(
     val wordToSpell: String = "",
     val hintAudioUrl: String = "",
     val currentExerciseNumber: Int = 0,
+    val isExerciseComplete: Boolean = false,
     val audioPlayerState: AudioPlayerState = AudioPlayerState.Idle,
     val totalNumberOfQuestions: Int = 10,
     val keyboardLabels: List<String> = listOf(),

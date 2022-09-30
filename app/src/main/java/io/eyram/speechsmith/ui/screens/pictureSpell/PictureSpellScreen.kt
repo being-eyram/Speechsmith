@@ -9,6 +9,8 @@ import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,7 +31,12 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import io.eyram.speechsmith.ui.components.*
+import io.eyram.speechsmith.ui.screens.audioSpell.ConnectivityStatus
+import io.eyram.speechsmith.ui.screens.destinations.AudioSpellScreenDestination
+import io.eyram.speechsmith.ui.screens.destinations.ExerciseCompleteScreenDestination
+import io.eyram.speechsmith.ui.screens.exercisecomplete.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.material3.Icon as Material3Icon
@@ -38,16 +45,19 @@ import androidx.compose.material3.Icon as Material3Icon
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PictureSpellScreen(
-    navigator : DestinationsNavigator,
+    navigator: DestinationsNavigator,
     viewModel: PictureSpellViewModel = hiltViewModel(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
 ) {
     val uiState = viewModel.uiState
     val spellFieldState = uiState.spellFieldState
+    val snackbarHostState = remember { SnackbarHostState() }
     var showDialog by remember { mutableStateOf(false) }
     fun getCurrentExercise() =
         "${uiState.currentExerciseNumber + 1} OF ${uiState.totalNumberOfQuestions}"
+    val connectivityStatus =
+        viewModel.listenForConnectivity().collectAsState(initial = ConnectivityStatus.Available)
 
     ModalBottomSheetLayout(
         sheetBackgroundColor = Color.Black,
@@ -58,7 +68,7 @@ fun PictureSpellScreen(
         Scaffold(
             topBar = {
                 SpeechSmithAppBar(
-                    onHomeClick = {navigator.navigateUp()},
+                    onHomeClick = { navigator.navigateUp() },
                     onSettingsClick = { coroutineScope.launch { bottomSheetState.show() } }
                 )
             },
@@ -82,6 +92,24 @@ fun PictureSpellScreen(
                     onPlaySoundClick = viewModel::onPlaySoundClick,
                     audioPlayerState = uiState.audioPlayerState
                 )
+            }
+
+            if (uiState.isExerciseComplete) {
+                navigator.navigate(
+                    ExerciseCompleteScreenDestination(from = Screen.PictureSpell),
+                    onlyIfResumed = true
+                ) {
+                    popUpTo(AudioSpellScreenDestination) { inclusive = true }
+                }
+            }
+
+            if (connectivityStatus.value == ConnectivityStatus.Unavailable) {
+                LaunchedEffect(connectivityStatus.value) {
+                    snackbarHostState.showSnackbar(
+                        message = "Network Connection Unavailable",
+                        duration = SnackbarDuration.Indefinite
+                    )
+                }
             }
         }
     }

@@ -25,11 +25,15 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import io.eyram.speechsmith.data.preferences.DIFFICULTY_EASY
 import io.eyram.speechsmith.data.preferences.DIFFICULTY_HARD
 import io.eyram.speechsmith.data.preferences.DIFFICULTY_MEDIUM
 import io.eyram.speechsmith.ui.components.*
 import io.eyram.speechsmith.ui.screens.audioToWordMatch.LABEL_QUESTION
+import io.eyram.speechsmith.ui.screens.destinations.AudioSpellScreenDestination
+import io.eyram.speechsmith.ui.screens.destinations.ExerciseCompleteScreenDestination
+import io.eyram.speechsmith.ui.screens.exercisecomplete.Screen
 import kotlinx.coroutines.launch
 
 @Destination
@@ -99,7 +103,12 @@ fun AudioSpellScreen(
                 )
             }
             if (uiState.isExerciseComplete) {
-                println("Is Complete")
+                navigator.navigate(
+                    ExerciseCompleteScreenDestination(from = Screen.AudioSpell),
+                    onlyIfResumed = true
+                ) {
+                    popUpTo(AudioSpellScreenDestination) { inclusive = true }
+                }
             }
 
             if (connectivityStatus.value == ConnectivityStatus.Unavailable) {
