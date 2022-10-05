@@ -188,7 +188,8 @@ class PictureSpellViewModel @Inject constructor(
             delay(1000)
             if (it == SpellFieldInputState.Correct && currentWordIndex != wordsToSpell.lastIndex) {
                 onNextPress()
-            } else {
+            }
+            if (it == SpellFieldInputState.Correct && currentWordIndex == wordsToSpell.lastIndex) {
                 uiState = uiState.copy(isExerciseComplete = true)
             }
         }
