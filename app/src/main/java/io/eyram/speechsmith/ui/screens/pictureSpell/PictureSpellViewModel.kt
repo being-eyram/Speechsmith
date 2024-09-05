@@ -85,7 +85,7 @@ class PictureSpellViewModel @Inject constructor(
     private fun getWordAndUpdateUiState() {
         wordsToSpell[currentWordIndex].apply {
             uiState = uiState.copy(wordToSpell = this)
-            updateAudio(this)
+//            updateAudio(this)
             updateSpellField(this)
             updateKeyboard(this)
             getImage(this)
@@ -105,17 +105,17 @@ class PictureSpellViewModel @Inject constructor(
         }
     }
 
-    private fun updateAudio(wordToSpell: String) {
-        viewModelScope.launch {
-            val word = wordToSpell.toLowerCase(Locale.current)
-            val response = repository.getPronunciation(word)
-            response.onSuccess {
-                getOrNull()?.let {
-                    uiState = uiState.copy(hintAudioUrl = it[0].fileUrl)
-                }
-            }
-        }
-    }
+//    private fun updateAudio(wordToSpell: String) {
+//        viewModelScope.launch {
+//            val word = wordToSpell.toLowerCase(Locale.current)
+//            val response = repository.getPronunciation(word)
+//            response.onSuccess {
+//                getOrNull()?.let {
+//                    uiState = uiState.copy(hintAudioUrl = it[0].fileUrl)
+//                }
+//            }
+//        }
+//    }
 
     fun onNextPress() {
         if (currentWordIndex < wordsToSpell.lastIndex) {
@@ -200,8 +200,8 @@ class PictureSpellViewModel @Inject constructor(
             val response = repository.getImage(wordToSpell.toLowerCase(Locale.current))
             response.onSuccess {
                 getOrNull()?.let { image ->
-                    val betterPhoto = image.results.maxBy { it.likes }
-                    uiState = uiState.copy(imageUrl = betterPhoto.urls.small)
+//                    val betterPhoto = image.results.maxBy { it.likes }
+                    uiState = uiState.copy(imageUrl = image.photos.first().src.small)
                 }
             }
         }

@@ -18,7 +18,7 @@ object UnsplashModule {
     @Singleton
     fun provideUnsplashService(): UnsplashService =
         Retrofit.Builder()
-            .baseUrl("https://api.unsplash.com/")
+            .baseUrl("https://api.pexels.com/v1/")
             .addConverterFactory(MoshiConverterFactory.create())
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()

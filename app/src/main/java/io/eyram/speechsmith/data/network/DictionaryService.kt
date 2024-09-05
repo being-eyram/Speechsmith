@@ -10,6 +10,6 @@ import retrofit2.http.Path
 
 interface DictionaryService {
 
-    @GET("{word}/audio?useCanonical=false&limit=1&api_key=${BuildConfig.WORDNIK_API_KEY}")
+   @GET("{word}/audio?useCanonical=false&limit=1&api_key=hello")
     suspend fun getPronunciation(@Path("word") word: String): ApiResponse<List<Pronunciation>>
 }

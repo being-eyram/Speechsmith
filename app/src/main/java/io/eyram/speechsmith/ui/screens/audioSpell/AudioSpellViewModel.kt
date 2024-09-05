@@ -121,8 +121,7 @@ class AudioSpellViewModel @Inject constructor(
             val response = repository.getImage(wordToSpell.toLowerCase(Locale.current))
             response.onSuccess {
                 getOrNull()?.let { image ->
-                    val betterPhoto = image.results.maxBy { it.likes}
-                    uiState = uiState.copy(hintImgUrl = betterPhoto.urls.small)
+                    uiState = uiState.copy(hintImgUrl =image.photos.first().url)
                 }
             }
         }
@@ -131,7 +130,7 @@ class AudioSpellViewModel @Inject constructor(
     private fun getWordAndUpdateUiState() {
         wordsToSpell[currentWordIndex].apply {
             uiState = uiState.copy(wordToSpell = this)
-            updateAudio(this)
+           // updateAudio(this)
             updateSpellField(this)
             updateKeyboard(this)
             getHintImage(this)
